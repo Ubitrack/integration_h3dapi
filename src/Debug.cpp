@@ -1,7 +1,7 @@
-#include <H3DCV/Debug.h>
+#include <H3DUbitrack/Debug.h>
 
 using namespace H3D;
-using namespace H3DCV;
+using namespace H3DUbitrack;
 
 
 
