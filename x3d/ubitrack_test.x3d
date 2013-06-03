@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<X3D profile='H3DAPI' version='1.4'>
+  <head>
+    <meta name='title' content='ubitrack_test.x3d'/>
+    <meta name='description' content='test scene for ubitrack.'/>
+    <meta name='author' content='Magic  Vision Lab'/>
+  </head>
+  <ImportLibrary library="libH3DUbitrack_d.so" /> 
+  <ImportLibrary library="libH3DUbitrack_d.dylib" />
+  <Scene>
+
+    <UbitrackContext>
+      <UbitrackInstance dataflow="dataflow.dfg" autoStart="on">
+	      <ButtonMeasurement name="TriggerAction" method="PUSH_SOURCE" DEF="TRIGGER_ACTION"/>
+	      <PhantomHapticDeviceSender deviceIndex="0" poseName="HapticPose" jointAnglesName="JointAngles" gimbalAnglesName="GimbalAngles"/>
+	      <PoseMeasurement name="TrackerPose" method="PULL_SINK" DEF="A_POSE"/>
+	      <ImageMeasurement name="LeftCamera" method="PULL_SINK" DEF="CAM_LEFT"/>
+	      <ImageMeasurement name="RightCamera" method="PULL_SINK" DEF="CAM_RIGHT"/>
+	      <PoseMeasurement name="CameraPose" method="PULL_SINK" DEF="CAMERA_POSE"/>
+	      <PoseMeasurement name="TrackerPose" method="PULL_SINK" DEF="OBJ_POSE"/>
+      </UbitrackInstance>
+    </UbitrackContext>
+
+    <UbitrackCameraViewpoint
+        description='View 0'
+        centerOfRotation='0 0 0'
+        position='0 0 0.6'
+        orientation='1 0 0 0'
+        fieldOfView='0.78'
+        jump='true'
+        retainUserOffsets='true'>
+      <PoseMeasurementReceiver USE="CAMERA_POSE"/>
+    </UbitrackCameraViewpoint>
+
+    <UbitrackImageBackground>
+      <UbitrackImageTexture>
+        <ImageMeasurementReceiver USE="CAM_LEFT" />
+      </UbitrackImageTexture>
+      <UbitrackImageTexture>
+        <ImageMeasurementReceiver USE="CAM_RIGHT" />
+      </UbitrackImageTexture>
+    </UbitrackImageBackground>      
+    
+
+    <Transform DEF="TRANSFORM_SHAPE">
+    <Shape>
+      <Appearance>
+        <Material diffuseColor="1 0 0" />
+      </Appearance>      
+      <Box size='0.2 0.1 0.05' solid='true' />
+    </Shape>
+    </Transform>
+
+    <ROUTE fromNode="A_POSE" fromField="translation" toNode="TRANSFORM_SHAPE" toField="translation"/>
+    <ROUTE fromNode="A_POSE" fromField="rotation" toNode="TRANSFORM_SHAPE" toField="rotation"/>
+
+  </Scene>
+</X3D>
