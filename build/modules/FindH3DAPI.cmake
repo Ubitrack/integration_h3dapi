@@ -12,32 +12,41 @@ FIND_PATH( H3DAPI_INCLUDE_DIR NAMES H3D/H3DApi.h
            PATHS $ENV{H3D_ROOT}/include
                  ../include
                  ${module_file_path}/../../include
+                 ${module_file_path}/../../../H3DAPI/include
            DOC "Path in which the file H3D/H3DAPI.h is located." )
 MARK_AS_ADVANCED(H3DAPI_INCLUDE_DIR)
 
-# Look for the library.
-IF(MSVC70 OR MSVC71)
-  SET( H3DAPI_NAME h3dapi_vc7 )
-ELSEIF(MSVC80)
-  SET( H3DAPI_NAME h3dapi_vc8 )
-ELSEIF(MSVC90)
-  SET( H3DAPI_NAME h3dapi_vc9 )
-ELSEIF(MSVC10)
-  SET( H3DAPI_NAME h3dapi_vc10 )
-ELSE(MSVC10)
+IF( MSVC )
+  SET( H3D_MSVC_VERSION 6 )
+  SET( TEMP_MSVC_VERSION 1299 )
+  WHILE( ${MSVC_VERSION} GREATER ${TEMP_MSVC_VERSION} )
+    MATH( EXPR H3D_MSVC_VERSION "${H3D_MSVC_VERSION} + 1" )
+    MATH( EXPR TEMP_MSVC_VERSION "${TEMP_MSVC_VERSION} + 100" )
+  ENDWHILE( ${MSVC_VERSION} GREATER ${TEMP_MSVC_VERSION} )
+  SET( H3DAPI_NAME "H3DAPI_vc${H3D_MSVC_VERSION}" )
+ELSE(MSVC)
   SET( H3DAPI_NAME h3dapi )
-ENDIF(MSVC70 OR MSVC71)
+ENDIF( MSVC )
 
+SET( DEFAULT_LIB_INSTALL "lib" )
+IF( WIN32 )
+  SET( DEFAULT_LIB_INSTALL "lib32" )
+  IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    SET( DEFAULT_LIB_INSTALL "lib64" )
+  ENDIF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+ENDIF( WIN32 )
+
+# Look for the library.
 FIND_LIBRARY( H3DAPI_LIBRARY NAMES ${H3DAPI_NAME}
-              PATHS $ENV{H3D_ROOT}/../lib
-                    ../../lib
-                    ${module_file_path}/../../../lib
+              PATHS $ENV{H3D_ROOT}/../${DEFAULT_LIB_INSTALL}
+                    ../../${DEFAULT_LIB_INSTALL}
+                    ${module_file_path}/../../../${DEFAULT_LIB_INSTALL}
               DOC "Path to ${H3DAPI_NAME} library." )
 
 FIND_LIBRARY( H3DAPI_DEBUG_LIBRARY NAMES ${H3DAPI_NAME}_d
-              PATHS $ENV{H3D_ROOT}/../lib
-                    ../../lib
-                    ${module_file_path}/../../../lib
+              PATHS $ENV{H3D_ROOT}/../${DEFAULT_LIB_INSTALL}
+                    ../../${DEFAULT_LIB_INSTALL}
+                    ${module_file_path}/../../../${DEFAULT_LIB_INSTALL}
               DOC "Path to ${H3DAPI_NAME}_d library." )
 MARK_AS_ADVANCED(H3DAPI_LIBRARY)
 MARK_AS_ADVANCED(H3DAPI_DEBUG_LIBRARY)

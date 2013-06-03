@@ -1,0 +1,5 @@
+SET( H3DUbitrack_HEADERS "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackContext.h"
+                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackInstance.h" )
+
+SET( H3DUbitrack_SRCS "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackContext.cpp"
+                 "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackInstance.cpp" )
