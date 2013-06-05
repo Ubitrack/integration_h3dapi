@@ -93,6 +93,7 @@ PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode               > _metadata,
 bool PoseReceiver::connect(UbitrackInstance* instance) 
 {
     // check if already connected here !
+    Console(4) << "Connect Receiver: " << name->getValue() << std::endl;
     
     Ubitrack::Facade::SimpleFacade* sf = instance->getFacadePtr();
     if (sf == NULL)
@@ -116,6 +117,8 @@ bool PoseReceiver::connect(UbitrackInstance* instance)
 
 bool PoseReceiver::disconnect(UbitrackInstance* instance) 
 {
+    Console(4) << "Disconnect Receiver: " << name->getValue() << std::endl;
+
     if (!connected)
         return true;
     
