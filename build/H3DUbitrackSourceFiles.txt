@@ -1,13 +1,11 @@
-SET( H3DUbitrack_HEADERS "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackContext.h"
-                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackInstance.h" 
-                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackCameraViewpoint.h" 
-                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackImageBackground.h" 
+SET( H3DUbitrack_HEADERS "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackInstance.h" 
+                    #"${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackCameraViewpoint.h" 
+                    #"${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackImageBackground.h" 
                     "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/UbitrackMeasurement.h" 
 					)
 
-SET( H3DUbitrack_SRCS "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackContext.cpp"
-                 "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackInstance.cpp" 
-                 "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackCameraViewpoint.cpp" 
-                 "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackImageBackground.cpp" 
+SET( H3DUbitrack_SRCS "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackInstance.cpp" 
+                 #"${H3DUbitrack_SOURCE_DIR}/../src/UbitrackCameraViewpoint.cpp" 
+                 #"${H3DUbitrack_SOURCE_DIR}/../src/UbitrackImageBackground.cpp" 
                  "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackMeasurement.cpp" 
 				)

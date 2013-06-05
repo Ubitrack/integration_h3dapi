@@ -45,6 +45,14 @@ SET( H3DUBITRACK_MAJOR_VERSION 1 )
 SET( H3DUBITRACK_MINOR_VERSION 0 )
 SET( H3DUBITRACK_BUILD_VERSION 0 )
 
+# Use ThreadSafeFields
+SET( H3DUBITRACK_USE_THREADSAFE_FIELDS 1 )
+
+# enable g++ C++0x extensions
+#IF(CMAKE_COMPILER_IS_GNUCXX)
+#	SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++0x")
+#ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
 # Needed to convert from \ to / on windows. Not needed in the FindModules since
 # call to macro takes care of that there.
 SET( CONVERTED_H3D_ROOT "" )

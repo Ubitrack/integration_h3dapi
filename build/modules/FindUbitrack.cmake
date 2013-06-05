@@ -53,66 +53,65 @@ FIND_UBITRACK_HEADER( UBITRACK_INCLUDE_DIR utFacade/SimpleFacade.h )
 
 
 
-macro( FIND_UBITRACK_LIBRARY MYLIBRARY MYLIBRARYNAME )
-    mark_as_advanced( ${MYLIBRARY} )
-    mark_as_advanced( ${MYLIBRARY}_d )
-    find_library( ${MYLIBRARY}
-        NAMES
-            ${MYLIBRARYNAME}
-        HINTS
-            ${UBITRACK_ROOT}
-            $ENV{UBITRACK_ROOT}
-            ${UBITRACK_BUILD_DIR}
-            $ENV{UBITRACK_BUILD_DIR}
-        PATH_SUFFIXES
-            lib
-            lib32
-            lib64
-            lib/Release
-            bin
-            bin/Release
-        PATHS
-            ${_libUbitrackSearchPaths}
-    )
-    find_library( ${MYLIBRARY}_d
-        NAMES
-            ${MYLIBRARYNAME}
-        HINTS
-            ${UBITRACK_ROOT}
-            $ENV{UBITRACK_ROOT}
-            ${UBITRACK_BUILD_DIR}
-            $ENV{UBITRACK_BUILD_DIR}
-        PATH_SUFFIXES
-            lib
-            lib32
-            lib64
-            lib/Debug
-            bin
-            bin/Debug
-        PATHS
-            ${_libUbitrackSearchPaths}
-    )
-#    message( STATUS ${${MYLIBRARY}} ${${MYLIBRARY}_debug} )
-#    message( STATUS ${MYLIBRARYNAME} )
+macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
+    FOREACH(MYLIBRARYNAME ${ARGN} )
+		mark_as_advanced(${MYLIBRARY}_${MYLIBRARYNAME})
+		mark_as_advanced(${MYLIBRARY}_${MYLIBRARYNAME}_d)
+	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}
+	        NAMES
+	            ${MYLIBRARYNAME}
+	        HINTS
+	            ${UBITRACK_ROOT}
+	            $ENV{UBITRACK_ROOT}
+	            ${UBITRACK_BUILD_DIR}
+	            $ENV{UBITRACK_BUILD_DIR}
+	        PATH_SUFFIXES
+	            lib
+	            lib32
+	            lib64
+	            lib/Release
+	            bin
+	            bin/Release
+	        PATHS
+	            ${_libUbitrackSearchPaths}
+	    )
+	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}_d
+	        NAMES
+	            ${MYLIBRARYNAME}
+	        HINTS
+	            ${UBITRACK_ROOT}
+	            $ENV{UBITRACK_ROOT}
+	            ${UBITRACK_BUILD_DIR}
+	            $ENV{UBITRACK_BUILD_DIR}
+	        PATH_SUFFIXES
+	            lib
+	            lib32
+	            lib64
+	            lib/Debug
+	            bin
+	            bin/Debug
+	        PATHS
+	            ${_libUbitrackSearchPaths}
+	    )
+	#    message( STATUS ${${MYLIBRARY}} ${${MYLIBRARY}_debug} )
+	#    message( STATUS ${MYLIBRARYNAME} )
 
-    if( ${MYLIBRARY} )
-        list( APPEND UBITRACK_LIBRARIES
-            "optimized" ${${MYLIBRARY}}
-        )
-    endif()
-    if( ${MYLIBRARY}_d )
-        list( APPEND UBITRACK_LIBRARIES
-            "debug" ${${MYLIBRARY}_d}
-        )
-    endif()
-    #message( STATUS ${UBITRACK_LIBRARIES} )
+	    if( ${MYLIBRARY}_${MYLIBRARYNAME} )
+	        list( APPEND UBITRACK_LIBRARIES
+	            "optimized" ${${MYLIBRARY}_${MYLIBRARYNAME}}
+	        )
+	    endif()
+	    if( ${MYLIBRARY}_${MYLIBRARYNAME}_d )
+	        list( APPEND UBITRACK_LIBRARIES
+	            "debug" ${${MYLIBRARY}_${MYLIBRARYNAME}_d}
+	        )
+	    endif()
+	ENDFOREACH(MYLIBRARYNAME)
 endmacro()
 
 unset( UBITRACK_LIBRARIES )
-FIND_UBITRACK_LIBRARY( UBITRACK_LIBRARY utcore )
-FIND_UBITRACK_LIBRARY( UBITRACK_LIBRARY utdataflow )
-FIND_UBITRACK_LIBRARY( UBITRACK_LIBRARY utvision )
-FIND_UBITRACK_LIBRARY( UBITRACK_LIBRARY utfacade )
+FIND_UBITRACK_LIBRARY( UBITRACK_LIBRARY utcore utdataflow utvision utfacade )
+#message( STATUS "Ubitrack Libraries: ${UBITRACK_LIBRARIES}" )
 
 # handle the QUIETLY and REQUIRED arguments and set FMOD_FOUND to TRUE if all listed variables are TRUE
 include( FindPackageHandleStandardArgs )

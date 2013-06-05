@@ -83,5 +83,21 @@ extern "C" H3DUBITRACK_API H3D::LibraryInfo getLibraryInfo();
 /// \defgroup H3DUbitrackNodes H3DUbitrack Node Classes.
 /// These are the Node classes belonging to H3DUbitrack.
 
+#cmakedefine H3DUBITRACK_USE_THREADSAFE_FIELDS
+
+
+
+#ifdef H3DUBITRACK_USE_THREADSAFE_FIELDS
+#define TSSField(TYPE) H3D::ThreadSafeSField< TYPE >
+#define TSSFNode(TYPE) H3D::ThreadSafeRefSField< TYPE >
+#define TSMField(TYPE) H3D::ThreadSafeMField< TYPE >
+#else
+#define TSSField(TYPE) TYPE
+#define TSSFNode(TYPE) TYPE
+#define TSMField(TYPE) TYPE
+#endif
+
+
+
 #endif
 
