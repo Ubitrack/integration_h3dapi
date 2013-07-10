@@ -35,6 +35,7 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< MFString   > _url,
                                  Inst< SFString   > _componentDir,
                                  Inst< SFBool     >  _autoStart,
+                                 Inst< SFRunning  >  _running,
                                  Inst< MFUbitrackMeasurement >  _receiver,
                                  Inst< MFUbitrackMeasurement >  _sender ) 
 : X3DChildNode( _metadata )
@@ -43,7 +44,7 @@ UbitrackInstance::UbitrackInstance(
 , autoStart(_autoStart)
 , receiver(_receiver)
 , sender(_sender)
-, running(false)
+, running(_running)
 , is_loaded(false)
 , facade(NULL)
 {

@@ -5,10 +5,10 @@
     <meta name='description' content='test scene for ubitrack.'/>
     <meta name='author' content='Magic  Vision Lab'/>
   </head>
-  <ImportLibrary library="libh3dubitrack.dylib" />
+  <ImportLibrary library="libh3dubitrack_d.dylib" />
   <Scene>
 
-      <UbitrackInstance url="simple_push_posesink.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
+      <UbitrackInstance url="simple_push_posesink.dfg" autoStart="false" componentDir="/usr/local/lib/ubitrack">
 	      <PoseReceiver name="TrackerPose" mode="PUSH" DEF="OBJ_POSE"/>
       </UbitrackInstance>
 

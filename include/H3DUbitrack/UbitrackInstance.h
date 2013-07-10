@@ -33,7 +33,7 @@ public:
     class SFRunning: public SFBool {
     public:
         virtual void setValue( const bool &v, int id = 0 ) {
-            UbitrackInstance *ui_node = static_cast< UbitrackInstance * >( getOwner() );
+            UbitrackInstance* ui_node = static_cast< UbitrackInstance* >( getOwner() );
             if (ui_node->isLoaded()) {
                 if (v) {
                     bool r = ui_node->startDataflow();                        
@@ -60,6 +60,7 @@ public:
                      Inst< MFString              > _url          = 0,
                      Inst< SFString              > _componentDir = 0,
                      Inst< SFBool                > _autoStart    = 0,
+                     Inst< SFRunning             >  _running     = 0,
                      Inst< MFUbitrackMeasurement > receiver      = 0,
                      Inst< MFUbitrackMeasurement > sender        = 0);
     
