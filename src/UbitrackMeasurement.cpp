@@ -144,8 +144,8 @@ void PoseReceiver::update(unsigned long long int ts)
     MeasurementMode::Mode _mode = mode->getMeasurementMode();
     if ((_mode == MeasurementMode::PULL) && (connected) && (pull_receiver != NULL)) {
         SimplePose pose;
-        pull_receiver->getPose(pose, ts);
-        receivePose(pose);
+        if (pull_receiver->getPose(pose, ts))
+        	receivePose(pose);
     }
 }
 
