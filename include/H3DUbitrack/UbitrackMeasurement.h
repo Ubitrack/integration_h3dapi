@@ -24,6 +24,8 @@
 #include <utFacade/SimpleFacade.h>
 #include <utFacade/SimpleDatatypes.h>
 
+#include <boost/shared_ptr.hpp>
+
 using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {

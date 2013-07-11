@@ -9,6 +9,7 @@
 #include "H3D/ResourceResolver.h"
 
 #include <utUtil/Exception.h>
+#include <utUtil/Logging.h>
 
 using namespace H3DUbitrack;
 using namespace H3D;
@@ -46,7 +47,7 @@ UbitrackInstance::UbitrackInstance(
 , sender(_sender)
 , running(_running)
 , is_loaded(false)
-, facade(NULL)
+//, facade(NULL)
 {
     
     type_name = "UbitrackInstance";
@@ -58,7 +59,7 @@ UbitrackInstance::UbitrackInstance(
 
 UbitrackInstance::~UbitrackInstance() 
 {
-    if (facade != NULL) {
+    if (facade.get() != NULL) {
         if (is_loaded) {
             if (running->getValue( id ))
                 running->setValue( false, id );
@@ -66,22 +67,23 @@ UbitrackInstance::~UbitrackInstance()
             facade->clearDataflow();
         }
 
-        delete facade;
-        facade = NULL;
+        facade.reset();
     }
 }
 
 void UbitrackInstance::initialize()
 {
+	Ubitrack::Util::initLogging();
+
     try {
-        facade = new SimpleFacade(componentDir->getValue( id ).c_str() );
+        facade.reset(new SimpleFacade(componentDir->getValue( id ).c_str() ));
     } catch (const Ubitrack::Util::Exception& e ) {
         // log error here
         is_loaded = false;
         return;
     }
     Console(4) << "Initialize UbitrackInstance" << std::endl;
-    if (facade != NULL) {
+    if (facade.get() != NULL) {
         for( MFString::const_iterator i = url->begin(); i != url->end(); i++ ) {
             bool is_tmp_file= false;
             Console(4) << "Find DFG file: " << *i << std::endl;
@@ -105,9 +107,6 @@ void UbitrackInstance::initialize()
                     is_loaded = false;
                 }
                 
-                if ((is_loaded) && (autoStart->getValue( id )))
-                    Console(4) << "Autostart DFG " <<  std::endl;
-                    running->setValue( true, id );
             }
             
             break;
@@ -122,7 +121,7 @@ bool UbitrackInstance::startDataflow()
     
     Console(4) << "Start DFG" << std::endl;
     bool started = false;
-    if (facade != NULL) {
+    if (facade.get() != NULL) {
 
         // connect receivers
         for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
@@ -159,7 +158,7 @@ bool UbitrackInstance::stopDataflow()
 
     Console(4) << "Stop DFG" << std::endl;
     bool stopped = false;
-    if (facade != NULL) {
+    if (facade.get() != NULL) {
         // disconnect senders
         for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
@@ -192,8 +191,14 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 {
     if (!is_loaded)
         return;
-    if (facade != NULL) {
-        unsigned long long ts = facade->now();
+    if (facade.get() != NULL) {
+
+        if ((running->getValue(id) == false) && (is_loaded) && (autoStart->getValue( id ) == true)) {
+            Console(4) << "Autostart DFG " <<  std::endl;
+            running->setValue( true, id );
+        }
+
+    	unsigned long long ts = facade->now();
         // first execute senders (send data to ubitrack)
         for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {

@@ -87,7 +87,6 @@ PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode               > _metadata,
 {
     type_name = "PoseReceived";
     database.initFields( this );
-   
 }
 
 bool PoseReceiver::connect(UbitrackInstance* instance) 
@@ -95,8 +94,8 @@ bool PoseReceiver::connect(UbitrackInstance* instance)
     // check if already connected here !
     Console(4) << "Connect Receiver: " << name->getValue() << std::endl;
     
-    Ubitrack::Facade::SimpleFacade* sf = instance->getFacadePtr();
-    if (sf == NULL)
+    SimpleFacadePtr sf = instance->getFacadePtr();
+    if (sf.get() == NULL)
         return false;
         
     MeasurementMode::Mode _mode = mode->getMeasurementMode();
@@ -122,8 +121,8 @@ bool PoseReceiver::disconnect(UbitrackInstance* instance)
     if (!connected)
         return true;
     
-    Ubitrack::Facade::SimpleFacade* sf = instance->getFacadePtr();
-    if (sf == NULL)
+    SimpleFacadePtr sf = instance->getFacadePtr();
+    if (sf.get() == NULL)
         return false;
     
     MeasurementMode::Mode _mode = mode->getMeasurementMode();
