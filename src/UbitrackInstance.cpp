@@ -6,10 +6,12 @@
  */
 
 #include "H3DUbitrack/UbitrackInstance.h"
+#include "H3DUbitrack/UbitrackMeasurement.h"
 #include "H3D/ResourceResolver.h"
 
 #include <utUtil/Exception.h>
 #include <utUtil/Logging.h>
+
 
 using namespace H3DUbitrack;
 using namespace H3D;
@@ -47,7 +49,8 @@ UbitrackInstance::UbitrackInstance(
 , sender(_sender)
 , running(_running)
 , is_loaded(false)
-//, facade(NULL)
+, facade(NULL)
+, sync_receiver(NULL)
 {
     
     type_name = "UbitrackInstance";
@@ -59,15 +62,19 @@ UbitrackInstance::UbitrackInstance(
 
 UbitrackInstance::~UbitrackInstance() 
 {
-    if (facade.get() != NULL) {
+    if (facade != NULL) {
         if (is_loaded) {
             if (running->getValue( id ))
                 running->setValue( false, id );
 
+            if (sync_receiver != NULL) {
+            	// cleanup sync_receiver related stuff  here ..
+            	sync_receiver = NULL;
+            }
             facade->clearDataflow();
         }
 
-        facade.reset();
+        facade = NULL;
     }
 }
 
@@ -76,14 +83,14 @@ void UbitrackInstance::initialize()
 	Ubitrack::Util::initLogging();
 
     try {
-        facade.reset(new SimpleFacade(componentDir->getValue( id ).c_str() ));
+        facade = new AdvancedFacade(componentDir->getValue( id ).c_str() );
     } catch (const Ubitrack::Util::Exception& e ) {
         // log error here
         is_loaded = false;
         return;
     }
     Console(4) << "Initialize UbitrackInstance" << std::endl;
-    if (facade.get() != NULL) {
+    if (facade != NULL) {
         for( MFString::const_iterator i = url->begin(); i != url->end(); i++ ) {
             bool is_tmp_file= false;
             Console(4) << "Find DFG file: " << *i << std::endl;
@@ -97,7 +104,8 @@ void UbitrackInstance::initialize()
                 Console(4) << "Load DFG: " << resolved_url << std::endl;
                 
                 try {
-                    is_loaded = facade->loadDataflow(resolved_url.c_str());
+                	facade->loadDataflow(resolved_url.c_str());
+                    is_loaded = true;
                 } catch (const Ubitrack::Util::Exception& e ) {
                     // log error here
                     Console(4) << "Ubitrack Error loading DFG: " << e.what() << std::endl;
@@ -121,13 +129,18 @@ bool UbitrackInstance::startDataflow()
     
     Console(4) << "Start DFG" << std::endl;
     bool started = false;
-    if (facade.get() != NULL) {
+    if (facade != NULL) {
 
         // connect receivers
         for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
         {
             UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
             um->connect(this);
+            if ((um->isSyncSource->getValue(id)) &&
+            		(um->mode->getMeasurementMode() == UbitrackMeasurement::MeasurementMode::PUSH) &&
+            		(sync_receiver == NULL)) {
+            	sync_receiver == um;
+            }
         }
         
         // start df
@@ -158,7 +171,7 @@ bool UbitrackInstance::stopDataflow()
 
     Console(4) << "Stop DFG" << std::endl;
     bool stopped = false;
-    if (facade.get() != NULL) {
+    if (facade != NULL) {
         // disconnect senders
         for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
@@ -167,6 +180,10 @@ bool UbitrackInstance::stopDataflow()
         }
 
         // stop df
+
+        // delete ref to sync_receiver ..
+        sync_receiver = NULL;
+
         try {
             facade->stopDataflow();
             stopped = true;
@@ -180,6 +197,7 @@ bool UbitrackInstance::stopDataflow()
             UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
             um->disconnect(this);
         }
+
     }
     
     return stopped;
@@ -191,25 +209,45 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 {
     if (!is_loaded)
         return;
-    if (facade.get() != NULL) {
+    if (facade != NULL) {
+    	bool is_running = running->getValue(id);
 
-        if ((running->getValue(id) == false) && (is_loaded) && (autoStart->getValue( id ) == true)) {
+    	if ((!is_running) && (is_loaded) && (autoStart->getValue( id ))) {
             Console(4) << "Autostart DFG " <<  std::endl;
             running->setValue( true, id );
+        	is_running = running->getValue(id);
         }
 
-    	unsigned long long ts = facade->now();
-        // first execute senders (send data to ubitrack)
-        for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
-        {
-            UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-            um->update(ts);
-        }
-        // second execute receivers (get data from ubitrack)
-        for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
-        {
-            UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-            um->update(ts);
-        }
+
+    	bool do_transfer(true);
+    	// XXX TBD CameraViewpoint context ..
+    	// need reference to CameraViewpoint, to get info which Eye is currently rendered
+    	// only on MONO/LEFT_EYE, the synchronisation and data-transfer should be done
+
+
+    	if (do_transfer) {
+        	unsigned long long ts = Ubitrack::Measurement::now();
+
+    		if ((sync_receiver != NULL) && (is_running)) {
+    			// This could potentially lock forever here here ...
+    			ts = sync_receiver->wait_for_data_ready();
+    		}
+
+            // first execute senders (send data to ubitrack)
+            for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
+            {
+                UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+                um->update(ts);
+            }
+            // second execute receivers (get data from ubitrack)
+            for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
+            {
+                UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+                um->update(ts);
+            }
+
+
+    	}
+
     }
 }

@@ -115,6 +115,108 @@ ELSE( H3D_USE_DEPENDENCIES_ONLY )
 ENDIF( H3D_USE_DEPENDENCIES_ONLY )
 
 
+
+
+# Find Boost library. Required to compile.
+SET(HAVE_BOOST 0)
+if(MSVC)
+  # force dynamic linking of boost libs on windows ..
+  add_definitions(-DBOOST_ALL_DYN_LINK)
+endif(MSVC)
+set(Boost_USE_STATIC_LIBS   OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package( Boost 1.49 COMPONENTS thread date_time system filesystem regex chrono locale serialization program_options REQUIRED)
+if(Boost_FOUND)
+  add_definitions("-DBOOST_FILESYSTEM_VERSION=3")
+  add_definitions(-DHAVE_BOOST)
+  SET(HAVE_BOOST 1)
+    INCLUDE_DIRECTORIES( ${BOOST_INCLUDE_DIR} )
+    SET(requiredLibs ${requiredLibs} ${BOOST_LIBRARIES} )
+endif(Boost_FOUND)
+
+# Find Lapack library. Required to compile.
+IF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
+	set(LAPACK_ROOT_DIR "${EXTERNAL_LIBRARIES_DIR}/lapack")
+ENDIF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
+
+SET(HAVE_LAPACK 0)
+IF(WIN32)
+	FIND_PACKAGE(LAPACK)
+	IF(NOT LAPACK_FOUND AND DEFINED EXTERNAL_LIBRARIES_DIR)
+		SET(LAPACK_LIB_DIR "${EXTERNAL_LIBRARIES_DIR}/lapack/lib")
+		# for now just manually define the libraries ..
+		SET(LAPACK_LIBRARIES "${LAPACK_LIB_DIR}/atlas.lib" 
+							 "${LAPACK_LIB_DIR}/cblas.lib" 
+							 "${LAPACK_LIB_DIR}/f77blas.lib"
+							 "${LAPACK_LIB_DIR}/g2c.lib"
+							 "${LAPACK_LIB_DIR}/gcc.lib"
+							 "${LAPACK_LIB_DIR}/lapack.lib"
+							 )
+		SET(LAPACK_FOUND 1)
+	ENDIF(NOT LAPACK_FOUND AND DEFINED EXTERNAL_LIBRARIES_DIR)
+ELSE()
+	FIND_PACKAGE(LAPACK REQUIRED)
+ENDIF(WIN32)
+IF(LAPACK_FOUND)
+  add_definitions(-DHAVE_LAPACK)
+  SET(HAVE_LAPACK 1)
+  INCLUDE_DIRECTORIES( ${LAPACK_INCLUDE_DIR} )
+  SET(requiredLibs ${requiredLibs} ${LAPACK_LIBRARIES} )
+ENDIF(LAPACK_FOUND)
+
+#OpenCV 
+IF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
+	set(OPENCV_ROOT_DIR "${EXTERNAL_LIBRARIES_DIR}/opencv")
+ENDIF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
+
+SET(HAVE_OPENCV 0)
+FIND_PACKAGE(OpenCV)
+IF(OPENCV_FOUND)
+  MESSAGE(STATUS "Found: opencv, includes: ${OPENCV_INCLUDE_DIR}, libraries: ${OPENCV_LIBRARIES}")
+  add_definitions(-DHAVE_OPENCV)
+  SET(HAVE_OPENCV 1)
+  INCLUDE_DIRECTORIES( ${OPENCV_INCLUDE_DIR} )
+  SET(requiredLibs ${requiredLibs} ${OPENCV_LIBRARIES} )
+ENDIF(OPENCV_FOUND)
+
+# TBB
+# setup defaults for windows binary distributions
+if (WIN32)
+    if (MSVC71)
+        set (TBB_COMPILER "vc7.1")
+    endif(MSVC71)
+    if (MSVC80)
+        set(TBB_COMPILER "vc8")
+    endif(MSVC80)
+    if (MSVC90)
+        set(TBB_COMPILER "vc9")
+    endif(MSVC90)
+    if(MSVC10)
+        set(TBB_COMPILER "vc10")
+    endif(MSVC10)
+	IF(X86_64)
+		set(TBB_ARCHITECTURE "intel64")
+	ELSE()
+		set(TBB_ARCHITECTURE "ia32")
+	ENDIF(X86_64)
+endif (WIN32)
+
+IF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
+	set(TBB_INSTALL_DIR "${EXTERNAL_LIBRARIES_DIR}/tbb")
+ENDIF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
+
+SET(HAVE_TBB 0)
+find_package(TBB)
+IF(TBB_FOUND)
+  add_definitions(-DHAVE_TBB)
+  SET(HAVE_TBB 1)
+  INCLUDE_DIRECTORIES( ${TBB_INCLUDE_DIR} )
+  SET(requiredLibs ${requiredLibs} ${TBB_LIBRARIES} )
+ENDIF(TBB_FOUND)
+
+
+
 # autogenerate H3DUbitrack.h depending on the libraries available.
 CONFIGURE_FILE( ${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/H3DUbitrack.cmake ${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/H3DUbitrack.h )
 

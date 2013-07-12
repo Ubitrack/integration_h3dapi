@@ -16,8 +16,8 @@
 
 #include <H3DUbitrack/UbitrackMeasurement.h>
 
-#include <utFacade/SimpleFacade.h>
-#include <boost/shared_ptr.hpp>
+#include <utFacade/AdvancedFacade.h>
+#include <utMeasurement/Measurement.h>
 
 
 namespace H3DUbitrack {
@@ -26,8 +26,6 @@ using namespace H3D;
 
 class UbitrackMeasurement;
  
-typedef boost::shared_ptr<Ubitrack::Facade::SimpleFacade> SimpleFacadePtr;  
-    
 class H3DUBITRACK_API UbitrackInstance : public X3DChildNode, public X3DUrlObject
 {
 public:
@@ -87,7 +85,7 @@ public:
     /// is the dataflow currently running, setting this field to true actually starts the dataflow
     auto_ptr< SFRunning > running;
     
-    inline SimpleFacadePtr getFacadePtr() { return facade; }
+    inline Ubitrack::Facade::AdvancedFacade* getFacadePtr() { return facade; }
     
     bool startDataflow();
     bool stopDataflow();
@@ -97,9 +95,11 @@ public:
 
     /// Add this node to the H3DNodeDatabase system.
     static H3DNodeDatabase database;
-    
+
+
 protected:
-    SimpleFacadePtr facade;
+    Ubitrack::Facade::AdvancedFacade* facade;
+    UbitrackMeasurement* sync_receiver;
     bool is_loaded;
         
     
