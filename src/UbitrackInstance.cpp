@@ -139,7 +139,7 @@ bool UbitrackInstance::startDataflow()
             if ((um->isSyncSource->getValue(id)) &&
             		(um->mode->getMeasurementMode() == UbitrackMeasurement::MeasurementMode::PUSH) &&
             		(sync_receiver == NULL)) {
-            	sync_receiver == um;
+            	sync_receiver = um;
             }
         }
         
@@ -182,7 +182,9 @@ bool UbitrackInstance::stopDataflow()
         // stop df
 
         // delete ref to sync_receiver ..
-        sync_receiver = NULL;
+        if (sync_receiver != NULL) {
+            sync_receiver = NULL;
+        }
 
         try {
             facade->stopDataflow();
@@ -227,7 +229,6 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 
     	if (do_transfer) {
         	unsigned long long ts = Ubitrack::Measurement::now();
-
     		if ((sync_receiver != NULL) && (is_running)) {
     			// This could potentially lock forever here here ...
     			ts = sync_receiver->wait_for_data_ready();

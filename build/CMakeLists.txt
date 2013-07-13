@@ -115,6 +115,11 @@ ELSE( H3D_USE_DEPENDENCIES_ONLY )
 ENDIF( H3D_USE_DEPENDENCIES_ONLY )
 
 
+#Boost bindings
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  add_definitions("-DBOOST_UBLAS_BOUNDED_ARRAY_ALIGN=\\ __attribute__\\ \\(\\(aligned\\ \\(16\\)\\)\\)")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+add_definitions(-DBOOST_SPIRIT_USE_OLD_NAMESPACE)
 
 
 # Find Boost library. Required to compile.

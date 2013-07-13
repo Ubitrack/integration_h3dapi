@@ -87,6 +87,7 @@ public:
     , mode(_mode)
     , isSyncSource(_isSyncSource)
     , last_timestamp(0)
+    , data_ready()
     {
 
         type_name = "UbitrackMeasurement";
@@ -164,6 +165,7 @@ public:
         			 it != received_measurements.end(); ++it) {
         			applyMeasurement<P,M>(parent, *it);
         		}
+        		received_measurements.clear();
         		dirty = false;
         	}
         	lock.unlock();
