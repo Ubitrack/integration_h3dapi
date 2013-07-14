@@ -10,19 +10,17 @@
 
 
 #include <H3D/X3DNode.h>
+#include <H3D/SFNode.h>
 
-#include <H3D/SFString.h>
-#include <H3D/SFVec3f.h>
-#include <H3D/SFRotation.h>
-#include <H3D/SFMatrix4f.h>
+#include <H3D/X3DTexture2DNode.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/UbitrackInstance.h>
 #include <H3DUbitrack/UbitrackMeasurement.h>
+#include <H3DUbitrack/UTImageTexture.h>
 
 #include <utFacade/AdvancedFacade.h>
 #include <utMeasurement/Measurement.h>
-#include <utComponents/ApplicationPullSink.h>
 
 
 #include <vector>
@@ -31,23 +29,23 @@ using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
 
-class H3DUBITRACK_API PoseReceiver : public UbitrackMeasurement {
+class H3DUBITRACK_API ImageReceiver : public UbitrackMeasurement  {
 
 public:
-    PoseReceiver( H3D::Inst< H3D::SFNode     > _metadata = 0,
-                    H3D::Inst< H3D::SFString   > _pattern = 0,
+
+	typedef TypedSFNode< UTImageTexture > SFUTImageTexture;
+
+    ImageReceiver(H3D::Inst< H3D::SFNode     > _metadata = 0,
+            		H3D::Inst< H3D::SFString   > _pattern = 0,
                     H3D::Inst< H3D::SFBool   > _isSyncSource = 0,
                     H3D::Inst< MeasurementMode > _mode = 0,
-                    H3D::Inst< H3D::SFMatrix4f > _matrix   = 0,
-                    H3D::Inst< H3D::SFVec3f    > _translation = 0,
-                    H3D::Inst< H3D::SFRotation > _rotation = 0
+                    H3D::Inst< SFUTImageTexture > _texture = 0
                     );
 
-    std::auto_ptr< H3D::SFMatrix4f > matrix;
-    std::auto_ptr< H3D::SFVec3f    > translation;
-    std::auto_ptr< H3D::SFRotation > rotation;
-
     virtual string defaultXMLContainerField() { return "receiver"; }
+
+    //
+    std::auto_ptr< SFUTImageTexture > texture;
 
     void update(unsigned long long ts);
 
@@ -60,12 +58,12 @@ public:
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;
 
-    void updateMeasurement(const Ubitrack::Measurement::Pose& m);
+    void updateMeasurement(const Ubitrack::Measurement::ImageMeasurement& m);
 
 protected:
 
-    ReceiverCB< PoseReceiver, Ubitrack::Measurement::Pose >* push_receiver;
-    Ubitrack::Components::ApplicationPullSinkPose* pull_receiver;
+    ReceiverCB< ImageReceiver, Ubitrack::Measurement::ImageMeasurement >* push_receiver;
+    Ubitrack::Components::ApplicationPullSinkVisionImage* pull_receiver;
 
     bool connected;
 

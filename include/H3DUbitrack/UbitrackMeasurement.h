@@ -58,56 +58,24 @@ public:
 
       /// Get the current MeasurementMode
       /// \throws InvalidMeasurementMode if the string is an invalid MeasurementMode.
-      inline MeasurementMode::Mode getMeasurementMode() {
-    	    upToDate();
-    	    if( value == "PULL" )
-    	        return PULL;
-    	    else if( value == "PUSH" )
-    	        return PUSH;
-    	    else {
-    	        stringstream s;
-    	        s << "Must be one of "
-    	        << "PULL, "
-    	        << "PUSH ";
-    	        throw InvalidMeasurementMode( value,
-    	                                s.str(),
-    	                                H3D_FULL_LOCATION );
-    	    }
-    	};
+      MeasurementMode::Mode getMeasurementMode();
     };
 
 
-    UbitrackMeasurement( 
-		H3D::Inst< H3D::SFNode > _metadata = 0,
-        H3D::Inst< H3D::SFString   > _name = 0,
-        H3D::Inst< H3D::SFBool   > _isSyncSource = 0,
+    UbitrackMeasurement(
+    	H3D::Inst< H3D::SFNode     > _metadata = 0,
+        H3D::Inst< H3D::SFString   > _pattern = 0,
+        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
 		H3D::Inst< MeasurementMode > _mode = 0
-		): X3DNode(_metadata)
-    , name(_name)
-    , mode(_mode)
-    , isSyncSource(_isSyncSource)
-    , last_timestamp(0)
-    , data_ready()
-    {
-
-        type_name = "UbitrackMeasurement";
-        // is abstract type .. n
-        //database.initFields( this );
-
-        mode->addValidValue( "PULL" );
-        mode->addValidValue( "PUSH" );
-        mode->setValue("PUSH");
-
-        isSyncSource->setValue(false, id );
-    };
+		);
 
     virtual ~UbitrackMeasurement() {};
 
 	// mode: PUSH/PULL
 	std::auto_ptr< MeasurementMode > mode;
 
-	// name of dataflow component
-	std::auto_ptr< H3D::SFString > name;
+	// pattern of dataflow component
+	std::auto_ptr< H3D::SFString > pattern;
     
 	// bool identifier if this measurement should be used as sync source
 	std::auto_ptr< H3D::SFBool > isSyncSource;
@@ -118,29 +86,19 @@ public:
 
 
 
-    virtual void update(unsigned long long ts) = 0;
+    virtual void update(unsigned long long ts) {};
 
 	/** called to connect push receivers/pull senders. */
-    virtual bool connect(UbitrackInstance* instance) = 0;
+    virtual bool connect(UbitrackInstance* instance) { return false; };
 
     /** called to disconnect push receivers/pull senders. */
-    virtual bool disconnect(UbitrackInstance* instance) = 0;
+    virtual bool disconnect(UbitrackInstance* instance) { return false; };
 
     // if this node is a sync source, this will be used by the instance
     // to coordinate the rendering
-    inline void notify_data_ready(unsigned long long int ts) {
-    	data_ready.lock();
-    	last_timestamp = ts;
-    	data_ready.signal();
-    	data_ready.unlock();
-    }
+    void notify_data_ready(unsigned long long int ts);
 
-    inline unsigned long long int wait_for_data_ready() {
-    	data_ready.lock();
-    	data_ready.wait();
-    	data_ready.unlock();
-    	return last_timestamp;
-    }
+    unsigned long long int wait_for_data_ready();
 
 
 

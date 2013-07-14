@@ -11,14 +11,11 @@ H3DNodeDatabase PoseReceiver::database(
                 "PoseReceiver",
                 &(newInstance<PoseReceiver>),
                 typeid( PoseReceiver ),
-                NULL );
+                &UbitrackMeasurement::database );
 
 
-namespace UbitrackMeasurementInternals {
+namespace PoseReceiverInternals {
     // PoseReceiver
-	FIELDDB_ELEMENT( PoseReceiver, mode, INITIALIZE_ONLY );
-	FIELDDB_ELEMENT( PoseReceiver, name, INITIALIZE_ONLY );
-	FIELDDB_ELEMENT( PoseReceiver, isSyncSource, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( PoseReceiver, matrix, OUTPUT_ONLY );
     FIELDDB_ELEMENT( PoseReceiver, translation, OUTPUT_ONLY );
     FIELDDB_ELEMENT( PoseReceiver, rotation, OUTPUT_ONLY );
@@ -26,14 +23,14 @@ namespace UbitrackMeasurementInternals {
 
 
 PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode > _metadata,
-                           H3D::Inst< H3D::SFString   > _name,
+                           H3D::Inst< H3D::SFString   > _pattern,
                            H3D::Inst< H3D::SFBool     > _isSyncSource,
                            H3D::Inst< MeasurementMode > _mode,
                            H3D::Inst< H3D::SFMatrix4f > _matrix,
                            H3D::Inst< H3D::SFVec3f    > _translation,
                            H3D::Inst< H3D::SFRotation > _rotation
                            )
-: UbitrackMeasurement(_metadata, _name, _isSyncSource, _mode)
+: UbitrackMeasurement(_metadata, _pattern, _isSyncSource, _mode)
 , matrix(_matrix)
 , translation(_translation)
 , rotation(_rotation)
@@ -48,7 +45,7 @@ PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode > _metadata,
 bool PoseReceiver::connect(UbitrackInstance* instance)
 {
     // check if already connected here !
-    Console(4) << "Connect Receiver: " << name->getValue() << std::endl;
+    Console(4) << "Connect Receiver: " << pattern->getValue() << std::endl;
 
     AdvancedFacade* sf = instance->getFacadePtr();
     if (sf == NULL)
@@ -61,7 +58,7 @@ bool PoseReceiver::connect(UbitrackInstance* instance)
 
     	try
     	{
-    		sf->setCallback< Ubitrack::Measurement::Pose >( name->getValue( id ).c_str(), boost::bind(&ReceiverCB<PoseReceiver, Ubitrack::Measurement::Pose>::receiveMeasurement, boost::ref(push_receiver), _1) );
+    		sf->setCallback< Ubitrack::Measurement::Pose >( pattern->getValue( id ).c_str(), boost::bind(&ReceiverCB<PoseReceiver, Ubitrack::Measurement::Pose>::receiveMeasurement, boost::ref(push_receiver), _1) );
     		connected = true;
     	}
     	catch ( const Ubitrack::Util::Exception& e )
@@ -75,7 +72,7 @@ bool PoseReceiver::connect(UbitrackInstance* instance)
         // pull receiver
     	try
     	{
-    		pull_receiver = sf->componentByName< Ubitrack::Components::ApplicationPullSinkPose >( name->getValue( id ).c_str() ).get();
+    		pull_receiver = sf->componentByName< Ubitrack::Components::ApplicationPullSinkPose >( pattern->getValue( id ).c_str() ).get();
     		connected = true;
     	}
     	catch ( const Ubitrack::Util::Exception& e )
@@ -89,7 +86,7 @@ bool PoseReceiver::connect(UbitrackInstance* instance)
 
 bool PoseReceiver::disconnect(UbitrackInstance* instance)
 {
-    Console(4) << "Disconnect Receiver: " << name->getValue() << std::endl;
+    Console(4) << "Disconnect Receiver: " << pattern->getValue() << std::endl;
 
     if (!connected)
         return true;
@@ -102,7 +99,7 @@ bool PoseReceiver::disconnect(UbitrackInstance* instance)
     if (_mode == MeasurementMode::PUSH) {
     	try
     	{
-    		sf->setCallback< Ubitrack::Measurement::Pose >( name->getValue( id ).c_str(), NULL );
+    		sf->setCallback< Ubitrack::Measurement::Pose >( pattern->getValue( id ).c_str(), NULL );
     		connected = false;
     	}
     	catch ( const Ubitrack::Util::Exception& e )
@@ -133,18 +130,18 @@ void PoseReceiver::update(unsigned long long int ts)
     }
 }
 
-void PoseReceiver::updateMeasurement(const Ubitrack::Measurement::Pose& pose)
+void PoseReceiver::updateMeasurement(const Ubitrack::Measurement::Pose& m)
 {
-    H3D::Vec3f t((H3DFloat)(pose->translation()(0)), (H3DFloat)(pose->translation()(1)), (H3DFloat)(pose->translation()(2)));
+    H3D::Vec3f t((H3DFloat)(m->translation()(0)), (H3DFloat)(m->translation()(1)), (H3DFloat)(m->translation()(2)));
     translation->setValue( t , id );
 
-    H3D::Quaternion r((H3DFloat)(pose->rotation().x()), (H3DFloat)(pose->rotation().y()), (H3DFloat)(pose->rotation().z()), (H3DFloat)(pose->rotation().w()));
+    H3D::Quaternion r((H3DFloat)(m->rotation().x()), (H3DFloat)(m->rotation().y()), (H3DFloat)(m->rotation().z()), (H3DFloat)(m->rotation().w()));
     rotation->setValue( Rotation(r) , id );
 
-    H3D::Matrix4f m(r);
-    m.setElement(0,1, t.x);
-    m.setElement(0,2, t.y);
-    m.setElement(0,3, t.z);
-    matrix->setValue( m , id );
+    H3D::Matrix4f mat(r);
+    mat.setElement(0,1, t.x);
+    mat.setElement(0,2, t.y);
+    mat.setElement(0,3, t.z);
+    matrix->setValue( mat , id );
 }
 
