@@ -66,7 +66,6 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
 										   (unsigned char*)cvimg->imageData ) );
 
     } else {
-	  Image::PixelType pt = i->pixelType();
 	  unsigned int nbytes = i->bitsPerPixel() / 8;
 	  unsigned int frame_size = cvimg->width * cvimg->height * nbytes;
 

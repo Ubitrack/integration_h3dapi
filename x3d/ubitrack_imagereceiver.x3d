@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<X3D profile='H3DAPI' version='1.4'>
+  <head>
+    <meta name='title' content='ubitrack_test.x3d'/>
+    <meta name='description' content='test scene for ubitrack.'/>
+    <meta name='author' content='Magic  Vision Lab'/>
+  </head>
+  <ImportLibrary library="libh3dubitrack.so" />
+  <Scene>
+
+      <UbitrackInstance url="simple_image_receiver.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
+	      <ImageReceiver pattern="CameraImage" mode="PUSH" DEF="CAM_IMG" isSyncSource="false">
+		      <UTImageTexture DEF="TEXTURE0" />
+	      </ImageReceiver>
+      </UbitrackInstance>
+
+    <Transform DEF="TRANSFORM_SHAPE">
+    <Shape>
+      <Appearance>
+	      <Material diffuseColor="1 0 0" />
+	      <UTImageTexture USE="TEXTURE0" />
+      </Appearance>      
+      <Box size='1 1 0.5' solid='true' />
+    </Shape>
+    </Transform>
+
+
+  </Scene>
+</X3D>

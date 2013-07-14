@@ -57,7 +57,7 @@ bool ImageReceiver::connect(UbitrackInstance* instance)
     	}
     	catch ( const Ubitrack::Util::Exception& e )
     	{
-    		//LOG4CPP_ERROR( logger, "Caught exception in ImageReceiver::setCallback( " << sCallbackName <<" ): " << e );
+    		H3D::Console(4) << "Caught exception in ImageReceiver::setCallback( " << pattern->getValue( id ) <<" ): " << e << std::endl;
     		connected = false;
     	}
 
@@ -71,7 +71,7 @@ bool ImageReceiver::connect(UbitrackInstance* instance)
     	}
     	catch ( const Ubitrack::Util::Exception& e )
     	{
-    		//LOG4CPP_ERROR( logger, "Caught exception in SimpleFacade::getSimplePullSinkPose( " << sComponentName <<" ): " << e );
+    		H3D::Console(4) << "Caught exception in componentByName ApplicationPullSinkVisionImage( " << pattern->getValue( id ) <<" ): " << e << std::endl;
     		connected = false;
     	}
 		return connected;
@@ -98,7 +98,7 @@ bool ImageReceiver::disconnect(UbitrackInstance* instance)
     	}
     	catch ( const Ubitrack::Util::Exception& e )
     	{
-    		//LOG4CPP_ERROR( logger, "Caught exception in ImageReceiver::setCallback( " << sCallbackName <<" ): " << e );
+    		H3D::Console(4) << "Caught exception in ImageReceiver::setCallback( " << pattern->getValue( id ) <<" ): " << e << std::endl;
     	}
 
         push_receiver = NULL;
