@@ -47,8 +47,8 @@ UbitrackMeasurement::UbitrackMeasurement(
 , pattern(_pattern)
 , mode(_mode)
 , isSyncSource(_isSyncSource)
-, last_timestamp(0)
-, data_ready()
+, connected(false)
+, receiver(NULL)
 {
 
 	mode->addValidValue( "PULL" );
@@ -58,17 +58,45 @@ UbitrackMeasurement::UbitrackMeasurement(
 	isSyncSource->setValue(false, id );
 }
 
-void UbitrackMeasurement::notify_data_ready(unsigned long long int ts) {
-	data_ready.lock();
-	last_timestamp = ts;
-	data_ready.signal();
-	data_ready.unlock();
+
+bool UbitrackMeasurement::connect(Ubitrack::Facade::AdvancedFacade* facade)
+{
+    if (receiver == NULL) {
+        initializeReceiver();
+	}
+	// check if already connected here !
+	Console(4) << "Connect Receiver: " << pattern->getValue() << std::endl;
+	connected = receiver->connect(facade);
+	return connected;
 }
 
+bool UbitrackMeasurement::disconnect(Ubitrack::Facade::AdvancedFacade* facade)
+{
+    if (!connected)
+        return true;
+
+    if (receiver != NULL) {
+	    Console(4) << "Disconnect Receiver: " << pattern->getValue() << std::endl;
+		receiver->disconnect(facade);
+		connected = false;
+		receiver = NULL;
+		return true;
+	}
+	return false;
+}
+
+void UbitrackMeasurement::update(unsigned long long int ts)
+{
+	if (!connected)
+		return;
+    if (receiver != NULL) {
+    	receiver->update(ts);
+	}
+}
 
 unsigned long long int UbitrackMeasurement::wait_for_data_ready() {
-	data_ready.lock();
-	data_ready.wait();
-	data_ready.unlock();
-	return last_timestamp;
+	if (receiver != NULL) {
+		return receiver->wait_for_data_ready();
+	}
+	return 0;
 }

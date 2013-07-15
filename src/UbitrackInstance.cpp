@@ -134,11 +134,12 @@ bool UbitrackInstance::startDataflow()
         // connect receivers
         for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
         {
-            UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-            um->connect(this);
+            UbitrackMeasurement *um = dynamic_cast < UbitrackMeasurement* > (*i);
+            um->connect(this->getFacadePtr());
             if ((um->isSyncSource->getValue(id)) &&
             		(um->mode->getMeasurementMode() == UbitrackMeasurement::MeasurementMode::PUSH) &&
             		(sync_receiver == NULL)) {
+            	Console(3) << "set sync receiver " << um->pattern->getValue() << std::endl;
             	sync_receiver = um;
             }
         }
@@ -156,7 +157,7 @@ bool UbitrackInstance::startDataflow()
         for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
             UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-            um->connect(this);
+            um->connect(this->getFacadePtr());
         }
     }    
     
@@ -176,7 +177,7 @@ bool UbitrackInstance::stopDataflow()
         for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
             UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-            um->disconnect(this);
+            um->disconnect(this->getFacadePtr());
         }
 
         // stop df
@@ -197,7 +198,7 @@ bool UbitrackInstance::stopDataflow()
         for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
         {
             UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-            um->disconnect(this);
+            um->disconnect(this->getFacadePtr());
         }
 
     }
@@ -221,34 +222,25 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
         }
 
 
-    	bool do_transfer(true);
-    	// XXX TBD CameraViewpoint context ..
-    	// need reference to CameraViewpoint, to get info which Eye is currently rendered
-    	// only on MONO/LEFT_EYE, the synchronisation and data-transfer should be done
+		unsigned long long ts = Ubitrack::Measurement::now();
+		if ((sync_receiver != NULL) && (is_running)) {
+			// This could potentially lock forever here here ...
+			Console(3) << "wait for data .. " << std::endl;
+			ts = sync_receiver->wait_for_data_ready();
+			Console(3) << "data is ready.. " << std::endl;
+		}
 
-
-    	if (do_transfer) {
-        	unsigned long long ts = Ubitrack::Measurement::now();
-    		if ((sync_receiver != NULL) && (is_running)) {
-    			// This could potentially lock forever here here ...
-    			ts = sync_receiver->wait_for_data_ready();
-    		}
-
-            // first execute senders (send data to ubitrack)
-            for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
-            {
-                UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-                um->update(ts);
-            }
-            // second execute receivers (get data from ubitrack)
-            for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
-            {
-                UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-                um->update(ts);
-            }
-
-
-    	}
-
+		// first execute senders (send data to ubitrack)
+		for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
+		{
+			UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+			um->update(ts);
+		}
+		// second execute receivers (get data from ubitrack)
+		for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
+		{
+			UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+			um->update(ts);
+		}
     }
 }

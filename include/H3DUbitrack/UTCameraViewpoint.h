@@ -5,8 +5,8 @@ based on Candy HMDViewpoint
 */
 
 
-#ifndef _H3DUBITRACKCAMERAVIEWPOINT_HH_
-#define _H3DUBITRACKCAMERAVIEWPOINT_HH_
+#ifndef _H3DUTCAMERAVIEWPOINT_HH_
+#define _H3DUTCAMERAVIEWPOINT_HH_
 
 #include <H3DUbitrack/H3DUbitrack.h>
 
@@ -21,7 +21,7 @@ based on Candy HMDViewpoint
 
 #include <GL/glew.h>
 
-#include <H3DUbitrack/UbitrackMeasurement.h>
+#include <H3DUbitrack/PoseReceiver.h>
 
 namespace H3DUbitrack {
 
@@ -37,39 +37,39 @@ namespace H3DUbitrack {
       viewpoint. \eol
      \endX3D
   */
-  class H3DUBITRACK_API UbitrackCameraViewpoint
+  class H3DUBITRACK_API UTCameraViewpoint
     : public H3D::Viewpoint {
 
 
   public:
 
-    struct H3DUBITRACK_API SFPoseMeasurement
-      : H3D::TypedSFNode<PoseMeasurement> {
-      inline ~SFPoseMeasurement(){ setValue(0); }
+    struct H3DUBITRACK_API SFPoseReceiver
+      : H3D::TypedSFNode<PoseReceiver> {
+      inline ~SFPoseReceiver(){ setValue(0); }
       void onAdd(Node *n);
       void onRemove(Node *n);
     };
 
-    CameraViewpoint( H3D::Inst< SFSetBind > _set_bind = 0,
+    UTCameraViewpoint( H3D::Inst< H3D::Viewpoint::SFSetBind > _set_bind = 0,
                   H3D::Inst< H3D::SFVec3f > _centerOfRotation = 0,
                   H3D::Inst< H3D::SFString > _description = 0,
                   H3D::Inst< H3D::SFFloat > _fieldOfView = 0,
                   H3D::Inst< H3D::SFBool > _jump = 0,
                   H3D::Inst< H3D::SFNode > _metadata = 0,
-                  H3D::Inst< SFOrientation > _orientation = 0,
-                  H3D::Inst< SFPosition > _position = 0,
+                  H3D::Inst< H3D::Viewpoint::SFOrientation > _orientation = 0,
+                  H3D::Inst< H3D::Viewpoint::SFPosition > _position = 0,
                   H3D::Inst< H3D::SFBool > _retainUserOffsets = 0,
                   H3D::Inst< H3D::SFTime > _bindTime = 0,
                   H3D::Inst< H3D::SFBool > _isBound = 0,
                   H3D::Inst< H3D::SFMatrix4f > _accForwardMatrix = 0,
                   H3D::Inst< H3D::SFMatrix4f > _accInverseMatrix = 0,
-                  H3D::Inst< SFPoseMeasurement > _tracker = 0,
+                  H3D::Inst< SFPoseReceiver > _tracker = 0,
                   H3D::Inst< H3D::MFVec3f > _frustumLL = 0,
                   H3D::Inst< H3D::MFVec3f > _frustumUR = 0,
                   H3D::Inst< H3D::MFMatrix4f > _eyeTransform = 0 );
 
     /** The tracker that controls this viewpoint. */
-    auto_ptr< SFPoseMeasurement > tracker;
+    auto_ptr< SFPoseReceiver > tracker;
 
 	auto_ptr< H3D::MFVec3f > frustumLL;
 	auto_ptr< H3D::MFVec3f > frustumUR;

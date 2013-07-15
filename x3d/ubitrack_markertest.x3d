@@ -7,18 +7,23 @@
   </head>
   <ImportLibrary library="libh3dubitrack.so" />
   <Scene>
-
-      <UbitrackInstance url="simple_image_receiver.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
-	      <ImageReceiver pattern="CameraImage" mode="PUSH" DEF="CAM_IMG" isSyncSource="false">
+      <UbitrackInstance url="simple_marker_test.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
+             <PoseReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
+	      <ImageReceiver pattern="CameraImage" mode="PULL" DEF="CAM_IMG">
 		      <UTImageTexture DEF="TEXTURE0" />
 	      </ImageReceiver>
+             <PoseReceiver pattern="TrackerPose" mode="PULL" DEF="OBJ_POSE"/>
       </UbitrackInstance>
+
+      <UTCameraViewpoint DEF="VP">
+          <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
+      </UTCameraViewpoint>
+
 
     <Transform DEF="TRANSFORM_SHAPE">
     <Shape>
       <Appearance>
 	      <Material diffuseColor="1 0 0" />
-	      <UTImageTexture USE="TEXTURE0" />
       </Appearance>      
       <FullscreenRectangle />
     </Shape>

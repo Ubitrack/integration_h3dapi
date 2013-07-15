@@ -20,7 +20,7 @@
 #include <H3DUtil/Threads.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
-#include <H3DUbitrack/UbitrackInstance.h>
+#include <H3DUbitrack/MeasurementReceiver.h>
 
 #include <utFacade/AdvancedFacade.h>
 #include <utMeasurement/Measurement.h>
@@ -30,15 +30,6 @@
 using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
-
-class UbitrackInstance;    
-
-
-template< class R, typename M >
-void applyMeasurement(R* receiver, const M& measurement) {
-	receiver->updateMeasurement(measurement);
-};
-
 
 class H3DUBITRACK_API UbitrackMeasurement : public H3D::X3DNode {
 
@@ -84,63 +75,23 @@ public:
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;
 
+    // needs to be specialized for every dependent node
+    virtual void initializeReceiver() {};
 
-
-    virtual void update(unsigned long long ts) {};
+    void update(unsigned long long ts);
 
 	/** called to connect push receivers/pull senders. */
-    virtual bool connect(UbitrackInstance* instance) { return false; };
+    bool connect(Ubitrack::Facade::AdvancedFacade* facade);
 
     /** called to disconnect push receivers/pull senders. */
-    virtual bool disconnect(UbitrackInstance* instance) { return false; };
-
-    // if this node is a sync source, this will be used by the instance
-    // to coordinate the rendering
-    void notify_data_ready(unsigned long long int ts);
+    bool disconnect(Ubitrack::Facade::AdvancedFacade* facade);
 
     unsigned long long int wait_for_data_ready();
 
 
-
-    template< class P, class M >
-    class ReceiverCB {
-    public:
-
-    	inline ReceiverCB(P* _parent) : parent(_parent), dirty(false) {};
-
-    	inline void receiveMeasurement(const M& measurement) {
-    		lock.lock();
-    		received_measurements.push_back(measurement);
-    	    dirty = true;
-    	    lock.unlock();
-	    	parent->notify_data_ready(measurement.time());
-    	}
-
-    	inline void transferMeasurements() {
-        	lock.lock();
-        	if (dirty) {
-        		for (typename std::vector<M>::iterator it = received_measurements.begin();
-        			 it != received_measurements.end(); ++it) {
-        			applyMeasurement<P,M>(parent, *it);
-        		}
-        		received_measurements.clear();
-        		dirty = false;
-        	}
-        	lock.unlock();
-        };
-
-        P* parent;
-        H3DUtil::MutexLock lock;
-        std::vector<M> received_measurements;
-        bool dirty;
-    };
-
-
 protected:
-
-    H3DUtil::ConditionLock data_ready;
-    unsigned long long int last_timestamp;
-
+    MeasurementReceiverBase* receiver;
+    bool connected;
 
 };	
 

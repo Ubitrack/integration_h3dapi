@@ -4,27 +4,27 @@ based on Candy HMDViewpoint
 */
 
 
-#include <H3DUbitrack/UbitrackCameraViewpoint.h>
+#include <H3DUbitrack/UTCameraViewpoint.h>
 
 #include <H3D/Scene.h>
 
 using namespace H3DUbitrack;
 using namespace H3D;
 
-H3DNodeDatabase UbitrackCameraViewpoint::database
-( "UbitrackCameraViewpoint",
-  &(newInstance<UbitrackCameraViewpoint>),
-  typeid( UbitrackCameraViewpoint ),
+H3DNodeDatabase UTCameraViewpoint::database
+( "UTCameraViewpoint",
+  &(newInstance<UTCameraViewpoint>),
+  typeid( UTCameraViewpoint ),
   &Viewpoint::database );
 
-namespace UbitrackCameraViewpointInternals {
-  FIELDDB_ELEMENT( UbitrackCameraViewpoint, tracker, INPUT_OUTPUT );
-  FIELDDB_ELEMENT( UbitrackCameraViewpoint, frustumLL, INPUT_OUTPUT );
-  FIELDDB_ELEMENT( UbitrackCameraViewpoint, frustumUR, INPUT_OUTPUT );
-  FIELDDB_ELEMENT( UbitrackCameraViewpoint, eyeTransform, INPUT_OUTPUT );
+namespace UTCameraViewpointInternals {
+  FIELDDB_ELEMENT( UTCameraViewpoint, tracker, INPUT_OUTPUT );
+  FIELDDB_ELEMENT( UTCameraViewpoint, frustumLL, INPUT_OUTPUT );
+  FIELDDB_ELEMENT( UTCameraViewpoint, frustumUR, INPUT_OUTPUT );
+  FIELDDB_ELEMENT( UTCameraViewpoint, eyeTransform, INPUT_OUTPUT );
 }
 
-UbitrackCameraViewpoint::UbitrackCameraViewpoint
+UTCameraViewpoint::UTCameraViewpoint
 ( Inst< SFSetBind > _set_bind,
   Inst< SFVec3f > _centerOfRotation,
   Inst< SFString > _description,
@@ -38,7 +38,7 @@ UbitrackCameraViewpoint::UbitrackCameraViewpoint
   Inst< SFBool > _isBound,
   Inst< SFMatrix4f > _accForwardMatrix,
   Inst< SFMatrix4f > _accInverseMatrix,
-  Inst< SFPoseMeasurement > _tracker,
+  Inst< SFPoseReceiver > _tracker,
   Inst< MFVec3f > _frustumLL,
   Inst< MFVec3f > _frustumUR,
   Inst< MFMatrix4f > _eyeTransform )
@@ -63,33 +63,33 @@ UbitrackCameraViewpoint::UbitrackCameraViewpoint
     viewport(Vec4f()),
 	eyeTransform( _eyeTransform ) {
 
-  type_name = "UbitrackCameraViewpoint";
+  type_name = "UTCameraViewpoint";
   database.initFields( this );
   position->setValue(Vec3f(0,0,0), id);
 }
 
-void UbitrackCameraViewpoint::SFPoseMeasurement::onAdd(Node *n){
-  TypedSFNode<PoseMeasurement>::onAdd(n);
-  UbitrackCameraViewpoint *parent =
-    static_cast<UbitrackCameraViewpoint*>(owner);
-  PoseMeasurement *tracker = dynamic_cast<PoseMeasurement*>(n);
+void UTCameraViewpoint::SFPoseReceiver::onAdd(Node *n){
+  TypedSFNode<PoseReceiver>::onAdd(n);
+  UTCameraViewpoint *parent =
+    static_cast<UTCameraViewpoint*>(owner);
+  PoseReceiver *tracker = dynamic_cast<PoseReceiver*>(n);
   tracker->translation->route(parent->position);
   tracker->rotation->route(parent->orientation);
 }
 
-void UbitrackCameraViewpoint::SFPoseMeasurement::onRemove(Node *n){
-  TypedSFNode<PoseMeasurement>::onRemove(n);
+void UTCameraViewpoint::SFPoseReceiver::onRemove(Node *n){
+  TypedSFNode<PoseReceiver>::onRemove(n);
 
   if( n == NULL ){ return; }
 
-  UbitrackCameraViewpoint *parent = static_cast<UbitrackCameraViewpoint*>(owner);
-  PoseMeasurement *tracker = dynamic_cast<PoseMeasurement*>(n);
+  UTCameraViewpoint *parent = static_cast<UTCameraViewpoint*>(owner);
+  PoseReceiver *tracker = dynamic_cast<PoseReceiver*>(n);
 
   tracker->translation->unroute(parent->position);
   tracker->rotation->unroute(parent->orientation);
 }
 
-void UbitrackCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFloat height, H3DFloat clip_near, 
+void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFloat height, H3DFloat clip_near,
 		H3DFloat clip_far, StereoInfo* stereo_info ){
 	double f_left, f_right, f_bottom, f_top;
 	Vec3f LL, UR;
@@ -129,7 +129,7 @@ void UbitrackCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width,
 			//	<< f_bottom << "," << f_top << "," << clip_near << "," << clip_far << ")" << std::endl;
 			glFrustum( f_left, f_right, f_bottom, f_top, clip_near, clip_far );
 		} else {
-			H3DCV_DEBUG_LOG_I("Invalid Frustum Specification, using default calculation");
+			Console(4) << "Invalid Frustum Specification, using default calculation" << std::endl;
 			Viewpoint::setupProjection(eye_mode, width, height, clip_near, clip_far, stereo_info);
 		}
 	} else {
@@ -139,7 +139,7 @@ void UbitrackCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width,
 }
 
 
-void UbitrackCameraViewpoint::setupViewMatrix(EyeMode eye_mode,
+void UTCameraViewpoint::setupViewMatrix(EyeMode eye_mode,
 								   StereoInfo * stereo_info) {
 	  const Vec3f &vp_position = totalPosition->getValue();
 	  const Rotation &vp_orientation = totalOrientation->getValue();
@@ -166,7 +166,7 @@ void UbitrackCameraViewpoint::setupViewMatrix(EyeMode eye_mode,
 	  glMultMatrixf( vp_inv_transform );
 }
 
-void UbitrackCameraViewpoint::setupStereoView(EyeMode eye_mode, StereoInfo * stereo_info) {
+void UTCameraViewpoint::setupStereoView(EyeMode eye_mode, StereoInfo * stereo_info) {
 	  if ((eye_mode == RIGHT_EYE) && (eyeTransform->size() > 1)) {
 		  const Matrix4f &eye_transform = eyeTransform->getValueByIndex(1, id);
 		  GLfloat eye_transform_gl[] = { 

@@ -35,103 +35,23 @@ PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode > _metadata,
 , translation(_translation)
 , rotation(_rotation)
 , connected(false)
-, push_receiver(NULL)
-, pull_receiver(NULL)
 {
     type_name = "PoseReceiver";
     database.initFields( this );
 }
 
-bool PoseReceiver::connect(UbitrackInstance* instance)
-{
-    // check if already connected here !
-    Console(4) << "Connect Receiver: " << pattern->getValue() << std::endl;
-
-    AdvancedFacade* sf = instance->getFacadePtr();
-    if (sf == NULL)
-        return false;
-
-    MeasurementMode::Mode _mode = mode->getMeasurementMode();
-    if (_mode == MeasurementMode::PUSH) {
-        // push receiver needs a registered callback
-        push_receiver = new ReceiverCB<PoseReceiver, Ubitrack::Measurement::Pose>(this);
-
-    	try
-    	{
-    		sf->setCallback< Ubitrack::Measurement::Pose >( pattern->getValue( id ).c_str(), boost::bind(&ReceiverCB<PoseReceiver, Ubitrack::Measurement::Pose>::receiveMeasurement, boost::ref(push_receiver), _1) );
-    		connected = true;
-    	}
-    	catch ( const Ubitrack::Util::Exception& e )
-    	{
-    		//LOG4CPP_ERROR( logger, "Caught exception in PoseReceiver::setCallback( " << sCallbackName <<" ): " << e );
-    		connected = false;
-    	}
-
-        return connected;
-    } else {
-        // pull receiver
-    	try
-    	{
-    		pull_receiver = sf->componentByName< Ubitrack::Components::ApplicationPullSinkPose >( pattern->getValue( id ).c_str() ).get();
-    		connected = true;
-    	}
-    	catch ( const Ubitrack::Util::Exception& e )
-    	{
-    		//LOG4CPP_ERROR( logger, "Caught exception in SimpleFacade::getSimplePullSinkPose( " << sComponentName <<" ): " << e );
-    		connected = false;
-    	}
-		return connected;
+void PoseReceiver::initializeReceiver() {
+    bool is_push = false;
+    MeasurementMode::Mode _m = mode->getMeasurementMode();
+    if (_m == MeasurementMode::PUSH) {
+    	is_push = true;
     }
-}
-
-bool PoseReceiver::disconnect(UbitrackInstance* instance)
-{
-    Console(4) << "Disconnect Receiver: " << pattern->getValue() << std::endl;
-
-    if (!connected)
-        return true;
-
-    AdvancedFacade* sf = instance->getFacadePtr();
-    if (sf == NULL)
-        return false;
-
-    MeasurementMode::Mode _mode = mode->getMeasurementMode();
-    if (_mode == MeasurementMode::PUSH) {
-    	try
-    	{
-    		sf->setCallback< Ubitrack::Measurement::Pose >( pattern->getValue( id ).c_str(), NULL );
-    		connected = false;
-    	}
-    	catch ( const Ubitrack::Util::Exception& e )
-    	{
-    		//LOG4CPP_ERROR( logger, "Caught exception in PoseReceiver::setCallback( " << sCallbackName <<" ): " << e );
-    	}
-
-        push_receiver = NULL;
-        return true;
-    } else {
-        // pull receiver
-        pull_receiver = NULL;
-        connected = false;
-        return true;
-    }
-}
-
-void PoseReceiver::update(unsigned long long int ts)
-{
-	if (!connected)
-		return;
-    MeasurementMode::Mode _mode = mode->getMeasurementMode();
-    if ((_mode == MeasurementMode::PULL) && (pull_receiver != NULL)) {
-        Ubitrack::Measurement::Pose pose = pull_receiver->get(ts);
-        applyMeasurement<PoseReceiver, Ubitrack::Measurement::Pose>(this, pose);
-    } else if ((_mode == MeasurementMode::PUSH) && (push_receiver != NULL)) {
-    	push_receiver->transferMeasurements();
-    }
+    receiver = new PoseReceiverImpl(this, pattern->getValue( id ), is_push);
 }
 
 void PoseReceiver::updateMeasurement(const Ubitrack::Measurement::Pose& m)
 {
+
     H3D::Vec3f t((H3DFloat)(m->translation()(0)), (H3DFloat)(m->translation()(1)), (H3DFloat)(m->translation()(2)));
     translation->setValue( t , id );
 

@@ -19,6 +19,7 @@
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/UbitrackInstance.h>
 #include <H3DUbitrack/UbitrackMeasurement.h>
+#include <H3DUbitrack/MeasurementReceiver.h>
 
 #include <utFacade/AdvancedFacade.h>
 #include <utMeasurement/Measurement.h>
@@ -30,6 +31,7 @@
 using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
+
 
 class H3DUBITRACK_API PoseReceiver : public UbitrackMeasurement {
 
@@ -49,13 +51,8 @@ public:
 
     virtual string defaultXMLContainerField() { return "receiver"; }
 
-    void update(unsigned long long ts);
-
-    /** called to connect push receivers/pull senders. */
-    virtual bool connect(UbitrackInstance* instance);
-
-    /** called to disconnect push receivers/pull senders. */
-    virtual bool disconnect(UbitrackInstance* instance);
+    // basic initialization
+    virtual void initializeReceiver();
 
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;
@@ -63,10 +60,7 @@ public:
     void updateMeasurement(const Ubitrack::Measurement::Pose& m);
 
 protected:
-
-    ReceiverCB< PoseReceiver, Ubitrack::Measurement::Pose >* push_receiver;
-    Ubitrack::Components::ApplicationPullSinkPose* pull_receiver;
-
+    typedef MeasurementReceiver< PoseReceiver, Ubitrack::Measurement::Pose , Ubitrack::Components::ApplicationPullSinkPose > PoseReceiverImpl;
     bool connected;
 
 };

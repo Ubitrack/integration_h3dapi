@@ -17,6 +17,7 @@
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/UbitrackInstance.h>
 #include <H3DUbitrack/UbitrackMeasurement.h>
+#include <H3DUbitrack/MeasurementReceiver.h>
 #include <H3DUbitrack/UTImageTexture.h>
 
 #include <utFacade/AdvancedFacade.h>
@@ -44,16 +45,11 @@ public:
 
     virtual string defaultXMLContainerField() { return "receiver"; }
 
-    //
+    // basic initialization
+    virtual void initializeReceiver();
+
+    // the texture
     std::auto_ptr< SFUTImageTexture > texture;
-
-    void update(unsigned long long ts);
-
-    /** called to connect push receivers/pull senders. */
-    virtual bool connect(UbitrackInstance* instance);
-
-    /** called to disconnect push receivers/pull senders. */
-    virtual bool disconnect(UbitrackInstance* instance);
 
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;
@@ -61,16 +57,10 @@ public:
     void updateMeasurement(const Ubitrack::Measurement::ImageMeasurement& m);
 
 protected:
-
-    ReceiverCB< ImageReceiver, Ubitrack::Measurement::ImageMeasurement >* push_receiver;
-    Ubitrack::Components::ApplicationPullSinkVisionImage* pull_receiver;
-
+    typedef MeasurementReceiver< ImageReceiver, Ubitrack::Measurement::ImageMeasurement , Ubitrack::Components::ApplicationPullSinkVisionImage > ImageReceiverImpl;
     bool connected;
 
 };
-
-
-
 
 } // namespace H3DUbitrack
 
