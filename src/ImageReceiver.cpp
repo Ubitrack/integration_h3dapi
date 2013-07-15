@@ -32,7 +32,7 @@ ImageReceiver::ImageReceiver(
 , push_receiver(NULL)
 , pull_receiver(NULL)
 {
-    type_name = "PoseReceived";
+    type_name = "ImageReceiver";
     database.initFields( this );
 }
 

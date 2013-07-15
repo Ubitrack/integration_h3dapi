@@ -57,6 +57,7 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
     			break;
     	}
 
+  	    Console(3) << "DBG image: w,h: " << cvimg->width << ", " << cvimg->height << ";" << std::endl;
 		image->setValue( new PixelImage( cvimg->width,
 										  cvimg->height,
 										   1,

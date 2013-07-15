@@ -38,7 +38,7 @@ PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode > _metadata,
 , push_receiver(NULL)
 , pull_receiver(NULL)
 {
-    type_name = "PoseReceived";
+    type_name = "PoseReceiver";
     database.initFields( this );
 }
 
