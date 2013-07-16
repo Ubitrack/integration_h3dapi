@@ -38,14 +38,14 @@ UTImageTexture::~UTImageTexture() {
 }
 
 
-void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement& m) {
+void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg) {
     PixelImage *i = dynamic_cast< PixelImage * >( image->getValue() );
-	Ubitrack::Vision::Image* cvimg = m.get();
     if( !i ) {
         Image::PixelType pt = Image::RGB;
         unsigned int bits = 24;
     	switch ( cvimg->nChannels ) {
     		case 1: pt = Image::LUMINANCE;
+    				 bits = 8;
     				 break;
     		case 3:
     			if (cvimg->channelSeq[ 0 ] == 'B' && cvimg->channelSeq[ 1 ] == 'G' && cvimg->channelSeq[ 2 ] == 'R' )
@@ -69,18 +69,29 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
     } else {
 	  unsigned int nbytes = i->bitsPerPixel() / 8;
 	  unsigned int frame_size = cvimg->width * cvimg->height * nbytes;
+	  if (cvimg->imageSize != frame_size) {
+		    Console(3) << "problem with image size: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
+		    		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
+		    		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
+	  } else {
+		  Console(3) << "store image: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
+		    		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
+		    		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
 
-	  // copy the new image data to the image.
-	  memcpy( i->getImageData(), (unsigned char*)cvimg->imageData, frame_size );
+		  // XXX WRITES CRAP SOMEHOW ..
+		  // copy the new image data to the image.
+		  //memcpy( i->getImageData(), (unsigned char*)cvimg->imageData, cvimg->imageSize );
 
-	  // set the edited area to be the whole texture
-	  image->setEditedArea( 0, 0, 0,
-			  cvimg->width - 1,
-			  cvimg->height - 1,
-			  0 );
+		  // set the edited area to be the whole texture
+		  image->setEditedArea( 0, 0, 0,
+				  cvimg->width - 1,
+				  cvimg->height - 1,
+				  0 );
 
-	  // send an event that the image has been changed.
-	  image->endEditing();
+		  // send an event that the image has been changed.
+		  image->endEditing();
+	  }
+
 
     }
 }

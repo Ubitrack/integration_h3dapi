@@ -15,8 +15,6 @@
 #include <H3D/X3DTexture2DNode.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
-#include <H3DUbitrack/UbitrackInstance.h>
-#include <H3DUbitrack/UbitrackMeasurement.h>
 #include <H3DUbitrack/MeasurementReceiver.h>
 #include <H3DUbitrack/UTImageTexture.h>
 
@@ -30,7 +28,9 @@ using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
 
-class H3DUBITRACK_API ImageReceiver : public UbitrackMeasurement  {
+typedef MeasurementReceiver< Ubitrack::Measurement::ImageMeasurement , Ubitrack::Components::ApplicationPullSinkVisionImage > ImageReceiverBase;
+
+class H3DUBITRACK_API ImageReceiver : public ImageReceiverBase  {
 
 public:
 
@@ -43,11 +43,6 @@ public:
                     H3D::Inst< SFUTImageTexture > _texture = 0
                     );
 
-    virtual string defaultXMLContainerField() { return "receiver"; }
-
-    // basic initialization
-    virtual void initializeReceiver();
-
     // the texture
     std::auto_ptr< SFUTImageTexture > texture;
 
@@ -55,11 +50,6 @@ public:
     static H3D::H3DNodeDatabase database;
 
     void updateMeasurement(const Ubitrack::Measurement::ImageMeasurement& m);
-
-protected:
-    typedef MeasurementReceiver< ImageReceiver, Ubitrack::Measurement::ImageMeasurement , Ubitrack::Components::ApplicationPullSinkVisionImage > ImageReceiverImpl;
-    bool connected;
-
 };
 
 } // namespace H3DUbitrack

@@ -11,7 +11,7 @@ H3DNodeDatabase ImageReceiver::database(
                 "ImageReceiver",
                 &(newInstance<ImageReceiver>),
                 typeid( ImageReceiver ),
-                &UbitrackMeasurement::database );
+                &MeasurementReceiverBase::database );
 
 
 namespace ImageReceiverInternals {
@@ -26,24 +26,13 @@ ImageReceiver::ImageReceiver(
         H3D::Inst< MeasurementMode > _mode,
         H3D::Inst< SFUTImageTexture > _texture
 		)
-: UbitrackMeasurement( _metadata, _pattern, _isSyncSource, _mode)
+: ImageReceiverBase( _metadata, _pattern, _isSyncSource, _mode)
 , texture(_texture)
-, connected(false)
 {
     type_name = "ImageReceiver";
     database.initFields( this );
 
 }
-
-void ImageReceiver::initializeReceiver() {
-    bool is_push = false;
-    MeasurementMode::Mode _m = mode->getMeasurementMode();
-    if (_m == MeasurementMode::PUSH) {
-    	is_push = true;
-    }
-    receiver = new ImageReceiverImpl(this, pattern->getValue( id ), is_push);
-}
-
 void ImageReceiver::updateMeasurement(const Ubitrack::Measurement::ImageMeasurement& img)
 {
 	UTImageTexture* utit = dynamic_cast<UTImageTexture*>(texture->getValue(id));

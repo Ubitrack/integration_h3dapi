@@ -11,9 +11,8 @@
 #include <H3DUtil/Threads.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
+#include <H3DUbitrack/UbitrackMeasurement.h>
 
-#include <utFacade/AdvancedFacade.h>
-#include <utMeasurement/Measurement.h>
 #include <utComponents/ApplicationPullSink.h>
 
 #include <boost/bind.hpp>
@@ -23,70 +22,131 @@ using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
 
-class H3DUBITRACK_API MeasurementReceiverBase {
+class H3DUBITRACK_API MeasurementReceiverBase : public UbitrackMeasurement {
 public:
-	virtual ~MeasurementReceiverBase() {};
-	virtual void update( unsigned long long ts) = 0;
-	virtual bool connect(Ubitrack::Facade::AdvancedFacade* sf) = 0;
-	virtual bool disconnect(Ubitrack::Facade::AdvancedFacade* sf) = 0;
-	virtual unsigned long long int wait_for_data_ready() = 0;
+	H3D_VALUE_EXCEPTION( string, NotImplementedError );
+
+	MeasurementReceiverBase(
+	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
+	        H3D::Inst< H3D::SFString   > _pattern = 0,
+	        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
+			H3D::Inst< MeasurementMode > _mode = 0
+			);
+
+	// bool identifier if this measurement should be used as sync source
+	std::auto_ptr< H3D::SFBool > isSyncSource;
+
+    virtual string defaultXMLContainerField() { return "receiver"; }
+
+	virtual void initialize() {
+		// noop per default
+	}
+
+	virtual void update(unsigned long long ts) {
+		throw NotImplementedError("MeasurementReceiverBase::update");
+	}
+
+	/** called to connect push receivers/pull senders. */
+	virtual bool connect(Ubitrack::Facade::AdvancedFacade* facade) {
+		throw NotImplementedError("MeasurementReceiverBase::connect");
+	}
+
+	/** called to disconnect push receivers/pull senders. */
+	virtual bool disconnect(Ubitrack::Facade::AdvancedFacade* facade) {
+		throw NotImplementedError("MeasurementReceiverBase::disconnect");
+	}
+
+
+    inline void notify_data_ready(unsigned long long int ts) {
+    	//H3D::Console(4) << "notify data is ready: " << pattern->getValue(id) << std::endl;
+    	data_ready.lock();
+    	last_timestamp = ts;
+    	data_ready.signal();
+    	data_ready.unlock();
+    }
+
+    inline unsigned long long int wait_for_data_ready() {
+    	data_ready.lock();
+    	// milliseconds
+    	while (!data_ready.timedWait(100)) {
+    		H3D::Console(4) << "ubitrack sync timeout..: " << pattern->getValue(id) << std::endl;
+    		if (!connected)
+        		//H3D::Console(4) << " not connected" << std::endl;
+    			break;
+    	}
+    	data_ready.unlock();
+    	return last_timestamp;
+    }
+
+    /// Add this node to the H3DNodeDatabase system.
+    static H3D::H3DNodeDatabase database;
+
+protected:
+    H3DUtil::ConditionLock data_ready;
+	H3DUtil::MutexLock lock;
+    unsigned long long int last_timestamp;
+    bool connected;
+	//bool dirty;
+
+
 };
 
-
-template< class P, class M , class S >
+template< class M , class S >
 class H3DUBITRACK_API MeasurementReceiver : public MeasurementReceiverBase {
 public:
 
-	template< typename T>
-	struct callback_handler {
-		callback_handler(MeasurementReceiver<P,M,S>* _p) : p(_p) {};
-		void operator()(const T& m) {
-			p->receiveMeasurement(m);
-		}
-		MeasurementReceiver<P,M,S>* p;
-	};
+	// type definitions for use in template/child classes
+    typedef M measurement_type;
+    typedef S pull_receiver_type;
+    typedef MeasurementReceiver< M, S > this_type;
 
-	MeasurementReceiver(P* _parent, const string _name , bool _is_push)
-		: parent(_parent)
-		, name(_name)
-		//, dirty(false)
-		, is_push(_is_push)
+
+
+	MeasurementReceiver(
+	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
+	        H3D::Inst< H3D::SFString   > _pattern = 0,
+	        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
+			H3D::Inst< MeasurementMode > _mode = 0
+	) : MeasurementReceiverBase(_metadata, _pattern, _isSyncSource, _mode)
 		, pull_receiver(NULL)
-		, last_timestamp(0)
-		, data_ready()
 		{
-
 		};
 
 
+	virtual void updateMeasurement(const M& m ) {
+		H3D::Console(4) << "Missing implementation for Receiver: " << pattern->getValue(id) << std::endl;
+		throw NotImplementedError("MeasurementReceiver::updateMeasurement");
+	}
 
-	void update( unsigned long long ts) {
-	    if ((!is_push) && (pull_receiver != NULL)) {
-	    	H3D::Console(3) << "retrieve pull measurement: " << name << std::endl;
+
+	virtual void update( unsigned long long ts) {
+		if (!connected)
+			return;
+	    if ((!mode->is_push()) && (pull_receiver != NULL)) {
+	    	//H3D::Console(3) << "retrieve pull measurement: " << pattern->getValue(id) << std::endl;
 	    	try {
-	    		if (parent != NULL) {
-	    			parent->updateMeasurement(pull_receiver->get(ts));
-	    		}
-	    		//applyMeasurement<P, M>(parent, pull_receiver->get(ts));
+				updateMeasurement(pull_receiver->get(ts));
 	    	} catch (Ubitrack::Util::Exception &e) {
-	    		H3D::Console(4) << "Error while pulling measurement: " << name << ": " << e.what() << std::endl;
+	    		H3D::Console(4) << "Error while pulling measurement: " << pattern->getValue(id) << ": " << e.what() << std::endl;
 	    	}
-	    } else if (is_push) {
+	    } else if (mode->is_push()) {
 	    	//H3D::Console(3) << "transfer push measurement" << std::endl;
 	    	//transferMeasurements(ts);
 	    }
-
 	}
 
-	bool connect(Ubitrack::Facade::AdvancedFacade* sf) {
-		bool connected = false;
+	virtual bool connect(Ubitrack::Facade::AdvancedFacade* sf) {
 	    if (sf == NULL)
 	        return false;
 
-	    if (is_push) {
+	    // check if already connected here !
+		H3D::Console(4) << "Connect Receiver: " << pattern->getValue() << std::endl;
+
+	    if (mode->is_push()) {
 	    	try
 	    	{
-	    		sf->setCallback< M >( name.c_str(), boost::bind<void>(callback_handler<M>(this), _1) );
+	    		sf->setCallback< M >( pattern->getValue(id).c_str(),
+	    				boost::bind(&this_type::receiveMeasurement, this, _1) );
 	    		connected = true;
 	    	}
 	    	catch ( const Ubitrack::Util::Exception& e )
@@ -100,7 +160,7 @@ public:
 	        // pull receiver
 	    	try
 	    	{
-	    		pull_receiver = sf->componentByName< S >( name.c_str() ).get();
+	    		pull_receiver = sf->componentByName< S >( pattern->getValue(id).c_str() ).get();
 	    		connected = true;
 	    	}
 	    	catch ( const Ubitrack::Util::Exception& e )
@@ -112,14 +172,16 @@ public:
 	    }
 	}
 
-	bool disconnect(Ubitrack::Facade::AdvancedFacade* sf) {
+	virtual bool disconnect(Ubitrack::Facade::AdvancedFacade* sf) {
 	    if (sf == NULL)
 	        return false;
 
-	    if (is_push) {
+	    H3D::Console(4) << "Disconnect Receiver: " << pattern->getValue() << std::endl;
+
+	    if (mode->is_push()) {
 	    	try
 	    	{
-	    		sf->setCallback< M >( name.c_str(), NULL );
+	    		sf->setCallback< M >( pattern->getValue(id).c_str(), NULL );
 	    	}
 	    	catch ( const Ubitrack::Util::Exception& e )
 	    	{
@@ -134,8 +196,13 @@ public:
 	}
 
 
-	void receiveMeasurement(const M& measurement) {
-		//H3D::Console(3) << "receiveMeasurement" << std::endl;
+	virtual void receiveMeasurement(const M& measurement) {
+		H3D::Console(3) << "receiveMeasurement" << std::endl;
+
+		updateMeasurement(measurement);
+
+		H3D::Console(3) << "receiveMeasurement::done" << std::endl;
+
 		//lock.lock();
 		// THIS IS NOT CORRECT .. but caching currently does not work ...
 		//if (parent != NULL) {
@@ -145,7 +212,7 @@ public:
 		//received_measurement = copyMeasurement< M >(measurement);
 		//dirty = true;
 		//lock.unlock();
-		//H3D::Console(3) << "notify listeners: " << name << std::endl;
+		//H3D::Console(3) << "notify listeners: " << pattern->getValue(id) << std::endl;
 		notify_data_ready(measurement.time());
 	}
 	/*
@@ -159,37 +226,13 @@ public:
 	};
 	*/
 
-    void notify_data_ready(unsigned long long int ts) {
-    	data_ready.lock();
-    	last_timestamp = ts;
-    	data_ready.signal();
-    	data_ready.unlock();
-    }
 
-    unsigned long long int wait_for_data_ready() {
-    	data_ready.lock();
-    	// milliseconds
-    	while (!data_ready.timedWait(100)) {
-    		H3D::Console(4) << "ubitrack sync timeout..: " << name << std::endl;
-    	}
-    	data_ready.unlock();
-    	return last_timestamp;
-    }
+protected:
 
-    typedef P parent_type;
-    typedef M measurement_type;
-    typedef S pull_receiver_type;
-
-	P* parent;
-	string name;
-	S* pull_receiver;
-	H3DUtil::MutexLock lock;
+    S* pull_receiver;
 	//M received_measurement;
-	//bool dirty;
-	bool is_push;
 
-	H3DUtil::ConditionLock data_ready;
-    unsigned long long int last_timestamp;
+
 };
 
 

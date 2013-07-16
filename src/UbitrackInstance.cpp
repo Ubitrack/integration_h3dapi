@@ -30,7 +30,7 @@ namespace UbitrackInstanceInternals
     FIELDDB_ELEMENT( UbitrackInstance, autoStart, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, running, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, receiver, INPUT_OUTPUT );
-    FIELDDB_ELEMENT( UbitrackInstance, sender, INPUT_OUTPUT );
+//    FIELDDB_ELEMENT( UbitrackInstance, sender, INPUT_OUTPUT );
 }
 
 UbitrackInstance::UbitrackInstance(
@@ -39,14 +39,15 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< SFString   > _componentDir,
                                  Inst< SFBool     >  _autoStart,
                                  Inst< SFRunning  >  _running,
-                                 Inst< MFUbitrackMeasurement >  _receiver,
-                                 Inst< MFUbitrackMeasurement >  _sender ) 
+                                 Inst< MFMeasurementReceiver >  _receiver//,
+                                 //Inst< MFUbitrackMeasurement >  _sender
+                                 )
 : X3DChildNode( _metadata )
 , X3DUrlObject( _url )
 , componentDir(_componentDir)
 , autoStart(_autoStart)
 , receiver(_receiver)
-, sender(_sender)
+//, sender(_sender)
 , running(_running)
 , is_loaded(false)
 , facade(NULL)
@@ -132,12 +133,12 @@ bool UbitrackInstance::startDataflow()
     if (facade != NULL) {
 
         // connect receivers
-        for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
+        for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
         {
-            UbitrackMeasurement *um = dynamic_cast < UbitrackMeasurement* > (*i);
+        	MeasurementReceiverBase *um = static_cast < MeasurementReceiverBase* > (*i);
             um->connect(this->getFacadePtr());
             if ((um->isSyncSource->getValue(id)) &&
-            		(um->mode->getMeasurementMode() == UbitrackMeasurement::MeasurementMode::PUSH) &&
+            		(um->mode->is_push()) &&
             		(sync_receiver == NULL)) {
             	Console(3) << "set sync receiver " << um->pattern->getValue() << std::endl;
             	sync_receiver = um;
@@ -154,11 +155,13 @@ bool UbitrackInstance::startDataflow()
         }
 
         // connect senders
+        /*
         for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
             UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
             um->connect(this->getFacadePtr());
         }
+        */
     }    
     
     return started;
@@ -174,11 +177,13 @@ bool UbitrackInstance::stopDataflow()
     bool stopped = false;
     if (facade != NULL) {
         // disconnect senders
+    	/*
         for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
             UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
             um->disconnect(this->getFacadePtr());
         }
+        */
 
         // stop df
 
@@ -195,9 +200,9 @@ bool UbitrackInstance::stopDataflow()
         }
 
         // disconnect receivers
-        for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
+        for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
         {
-            UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+        	MeasurementReceiverBase *um = static_cast < MeasurementReceiverBase* > (*i);
             um->disconnect(this->getFacadePtr());
         }
 
@@ -231,15 +236,17 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		}
 
 		// first execute senders (send data to ubitrack)
+		/*
 		for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
 		{
 			UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
 			um->update(ts);
 		}
+		*/
 		// second execute receivers (get data from ubitrack)
-		for ( MFUbitrackMeasurement::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
+		for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
 		{
-			UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+			MeasurementReceiverBase *um = static_cast < MeasurementReceiverBase* > (*i);
 			um->update(ts);
 		}
     }

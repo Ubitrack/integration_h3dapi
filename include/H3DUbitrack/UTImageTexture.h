@@ -39,7 +39,7 @@ namespace H3DUbitrack {
 
     virtual ~UTImageTexture();
 
-    void updateTexture(const Ubitrack::Measurement::ImageMeasurement& m);
+    void updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg);
 
     /// The H3DNodeDatabase for this node.
     static H3DNodeDatabase database;

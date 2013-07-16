@@ -14,7 +14,7 @@
 #include <H3D/MFNode.h>
 #include <H3D/X3DUrlObject.h>
 
-#include <H3DUbitrack/UbitrackMeasurement.h>
+#include <H3DUbitrack/MeasurementReceiver.h>
 
 #include <utFacade/AdvancedFacade.h>
 #include <utMeasurement/Measurement.h>
@@ -24,8 +24,6 @@ namespace H3DUbitrack {
     
 using namespace H3D;
 
-class UbitrackMeasurement;
- 
 class H3DUBITRACK_API UbitrackInstance : public X3DChildNode, public X3DUrlObject
 {
 public:
@@ -53,7 +51,8 @@ public:
         }
     };
     
-    typedef TypedMFNode< UbitrackMeasurement > MFUbitrackMeasurement;
+    typedef TypedMFNode< MeasurementReceiverBase > MFMeasurementReceiver;
+    //typedef TypedMFNode< UbitrackMeasurement > MFUbitrackMeasurement;
     
     /// Constructor
     UbitrackInstance(Inst< SFNode                > _metadata     = 0,
@@ -61,8 +60,9 @@ public:
                      Inst< SFString              > _componentDir = 0,
                      Inst< SFBool                > _autoStart    = 0,
                      Inst< SFRunning             >  _running     = 0,
-                     Inst< MFUbitrackMeasurement > receiver      = 0,
-                     Inst< MFUbitrackMeasurement > sender        = 0);
+                     Inst< MFMeasurementReceiver > receiver      = 0//,
+                     //Inst< MFUbitrackMeasurement > sender        = 0
+                     );
     
     ~UbitrackInstance();
     
@@ -71,10 +71,10 @@ public:
     virtual void traverseSG ( TraverseInfo& ti );
     
     /// Contains the ubitrack measurement receivers (Sinks) connected to the dataflow
-    auto_ptr< MFUbitrackMeasurement > receiver;
+    auto_ptr< MFMeasurementReceiver > receiver;
     
     /// Contains the ubitrack measurement senders (Sources) connected to the dataflow
-    auto_ptr< MFUbitrackMeasurement > sender;
+    //auto_ptr< MFUbitrackMeasurement > sender;
     
     /// the component library directory for ubitrack
     auto_ptr< SFString > componentDir;
@@ -99,7 +99,7 @@ public:
 
 protected:
     Ubitrack::Facade::AdvancedFacade* facade;
-    UbitrackMeasurement* sync_receiver;
+    MeasurementReceiverBase* sync_receiver;
     bool is_loaded;
         
     

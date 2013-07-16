@@ -17,14 +17,7 @@
 #include <H3D/SFMatrix4f.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
-#include <H3DUbitrack/UbitrackInstance.h>
-#include <H3DUbitrack/UbitrackMeasurement.h>
 #include <H3DUbitrack/MeasurementReceiver.h>
-
-#include <utFacade/AdvancedFacade.h>
-#include <utMeasurement/Measurement.h>
-#include <utComponents/ApplicationPullSink.h>
-
 
 #include <vector>
 
@@ -32,8 +25,9 @@ using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
 
+typedef MeasurementReceiver<Ubitrack::Measurement::Pose , Ubitrack::Components::ApplicationPullSinkPose> PoseReceiverBase;
 
-class H3DUBITRACK_API PoseReceiver : public UbitrackMeasurement {
+class H3DUBITRACK_API PoseReceiver : public PoseReceiverBase {
 
 public:
     PoseReceiver( H3D::Inst< H3D::SFNode     > _metadata = 0,
@@ -49,24 +43,12 @@ public:
     std::auto_ptr< H3D::SFVec3f    > translation;
     std::auto_ptr< H3D::SFRotation > rotation;
 
-    virtual string defaultXMLContainerField() { return "receiver"; }
-
-    // basic initialization
-    virtual void initializeReceiver();
-
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;
 
     void updateMeasurement(const Ubitrack::Measurement::Pose& m);
 
-protected:
-    typedef MeasurementReceiver< PoseReceiver, Ubitrack::Measurement::Pose , Ubitrack::Components::ApplicationPullSinkPose > PoseReceiverImpl;
-    bool connected;
-
 };
-
-
-
 
 } // namespace H3DUbitrack
 

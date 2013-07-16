@@ -20,7 +20,6 @@
 #include <H3DUtil/Threads.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
-#include <H3DUbitrack/MeasurementReceiver.h>
 
 #include <utFacade/AdvancedFacade.h>
 #include <utMeasurement/Measurement.h>
@@ -49,14 +48,36 @@ public:
 
       /// Get the current MeasurementMode
       /// \throws InvalidMeasurementMode if the string is an invalid MeasurementMode.
-      MeasurementMode::Mode getMeasurementMode();
+      inline MeasurementMode::Mode getMeasurementMode() {
+      	upToDate();
+      	if( value == "PULL" )
+      		return PULL;
+      	else if( value == "PUSH" )
+      		return PUSH;
+      	else {
+      		stringstream s;
+      		s << "Must be one of "
+      		<< "PULL, "
+      		<< "PUSH ";
+      		throw InvalidMeasurementMode( value,
+      								s.str(),
+      								H3D_FULL_LOCATION );
+      	}
+
+      }
+
+ 	  inline bool is_push() {
+		  if (value == "PUSH")
+			  return true;
+		  return false;
+	  }
+
     };
 
 
     UbitrackMeasurement(
     	H3D::Inst< H3D::SFNode     > _metadata = 0,
         H3D::Inst< H3D::SFString   > _pattern = 0,
-        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
 		H3D::Inst< MeasurementMode > _mode = 0
 		);
 
@@ -68,30 +89,17 @@ public:
 	// pattern of dataflow component
 	std::auto_ptr< H3D::SFString > pattern;
     
-	// bool identifier if this measurement should be used as sync source
-	std::auto_ptr< H3D::SFBool > isSyncSource;
 
+    virtual void initialize() = 0;
 
-    /// Add this node to the H3DNodeDatabase system.
-    static H3D::H3DNodeDatabase database;
-
-    // needs to be specialized for every dependent node
-    virtual void initializeReceiver() {};
-
-    void update(unsigned long long ts);
+    virtual void update(unsigned long long ts) = 0;
 
 	/** called to connect push receivers/pull senders. */
-    bool connect(Ubitrack::Facade::AdvancedFacade* facade);
+    virtual bool connect(Ubitrack::Facade::AdvancedFacade* facade) = 0;
 
     /** called to disconnect push receivers/pull senders. */
-    bool disconnect(Ubitrack::Facade::AdvancedFacade* facade);
+    virtual bool disconnect(Ubitrack::Facade::AdvancedFacade* facade) = 0;
 
-    unsigned long long int wait_for_data_ready();
-
-
-protected:
-    MeasurementReceiverBase* receiver;
-    bool connected;
 
 };	
 

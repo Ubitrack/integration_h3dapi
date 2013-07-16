@@ -11,7 +11,7 @@ H3DNodeDatabase PoseReceiver::database(
                 "PoseReceiver",
                 &(newInstance<PoseReceiver>),
                 typeid( PoseReceiver ),
-                &UbitrackMeasurement::database );
+                &MeasurementReceiverBase::database );
 
 
 namespace PoseReceiverInternals {
@@ -30,23 +30,13 @@ PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFVec3f    > _translation,
                            H3D::Inst< H3D::SFRotation > _rotation
                            )
-: UbitrackMeasurement(_metadata, _pattern, _isSyncSource, _mode)
+: PoseReceiverBase(_metadata, _pattern, _isSyncSource, _mode)
 , matrix(_matrix)
 , translation(_translation)
 , rotation(_rotation)
-, connected(false)
 {
     type_name = "PoseReceiver";
     database.initFields( this );
-}
-
-void PoseReceiver::initializeReceiver() {
-    bool is_push = false;
-    MeasurementMode::Mode _m = mode->getMeasurementMode();
-    if (_m == MeasurementMode::PUSH) {
-    	is_push = true;
-    }
-    receiver = new PoseReceiverImpl(this, pattern->getValue( id ), is_push);
 }
 
 void PoseReceiver::updateMeasurement(const Ubitrack::Measurement::Pose& m)
