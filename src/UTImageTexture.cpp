@@ -38,7 +38,8 @@ UTImageTexture::~UTImageTexture() {
 }
 
 
-void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg) {
+void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement& m) {
+	IplImage* cvimg = *m;
     PixelImage *i = dynamic_cast< PixelImage * >( image->getValue() );
     if( !i ) {
         Image::PixelType pt = Image::RGB;
@@ -74,13 +75,15 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
 		    		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
 		    		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
 	  } else {
-		  Console(3) << "store image: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
-		    		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
-		    		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
+		  //Console(3) << "store image: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
+		  //  		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
+		  //  		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
 
 		  // XXX WRITES CRAP SOMEHOW ..
 		  // copy the new image data to the image.
-		  //memcpy( i->getImageData(), (unsigned char*)cvimg->imageData, cvimg->imageSize );
+		  memcpy( (unsigned char*)(i->getImageData()), (unsigned char*)(cvimg->imageData), cvimg->imageSize );
+
+		  Console(3) << "Vision::Image copied to PixelImage." << std::endl;
 
 		  // set the edited area to be the whole texture
 		  image->setEditedArea( 0, 0, 0,

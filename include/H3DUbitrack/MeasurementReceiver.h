@@ -8,7 +8,7 @@
 #ifndef MEASUREMENTRECEIVER_H_
 #define MEASUREMENTRECEIVER_H_
 
-#include <H3DUtil/Threads.h>
+#include <boost/thread.hpp>
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/UbitrackMeasurement.h>
@@ -59,22 +59,21 @@ public:
 
     inline void notify_data_ready(unsigned long long int ts) {
     	//H3D::Console(4) << "notify data is ready: " << pattern->getValue(id) << std::endl;
-    	data_ready.lock();
-    	last_timestamp = ts;
-    	data_ready.signal();
-    	data_ready.unlock();
+    	{
+    		boost::lock_guard<boost::mutex> lock(cond_lock);
+        	last_timestamp = ts;
+        	data_ready = true;
+
+    	}
+    	cond.notify_all();
     }
 
     inline unsigned long long int wait_for_data_ready() {
-    	data_ready.lock();
-    	// milliseconds
-    	while (!data_ready.timedWait(100)) {
-    		H3D::Console(4) << "ubitrack sync timeout..: " << pattern->getValue(id) << std::endl;
-    		if (!connected)
-        		//H3D::Console(4) << " not connected" << std::endl;
-    			break;
+    	boost::unique_lock<boost::mutex> lock(cond_lock);
+    	while (!data_ready) {
+    		cond.wait(lock);
     	}
-    	data_ready.unlock();
+    	data_ready = false;
     	return last_timestamp;
     }
 
@@ -82,10 +81,12 @@ public:
     static H3D::H3DNodeDatabase database;
 
 protected:
-    H3DUtil::ConditionLock data_ready;
-	H3DUtil::MutexLock lock;
+    boost::condition_variable cond;
+	boost::mutex cond_lock;
+	//boost::mutex push_lock;
     unsigned long long int last_timestamp;
     bool connected;
+    bool data_ready;
 	//bool dirty;
 
 
@@ -109,6 +110,7 @@ public:
 			H3D::Inst< MeasurementMode > _mode = 0
 	) : MeasurementReceiverBase(_metadata, _pattern, _isSyncSource, _mode)
 		, pull_receiver(NULL)
+    	//, received_measurement()
 		{
 		};
 
@@ -230,7 +232,7 @@ public:
 protected:
 
     S* pull_receiver;
-	//M received_measurement;
+	boost::shared_ptr<M> received_measurement;
 
 
 };

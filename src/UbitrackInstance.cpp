@@ -140,7 +140,7 @@ bool UbitrackInstance::startDataflow()
             if ((um->isSyncSource->getValue(id)) &&
             		(um->mode->is_push()) &&
             		(sync_receiver == NULL)) {
-            	Console(3) << "set sync receiver " << um->pattern->getValue() << std::endl;
+            	//Console(3) << "set sync receiver " << um->pattern->getValue() << std::endl;
             	sync_receiver = um;
             }
         }
@@ -247,6 +247,7 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
 		{
 			MeasurementReceiverBase *um = static_cast < MeasurementReceiverBase* > (*i);
+			Console(3) << "update receiver: " << um->pattern->getValue() << std::endl;
 			um->update(ts);
 		}
     }

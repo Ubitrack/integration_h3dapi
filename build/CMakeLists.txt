@@ -333,13 +333,13 @@ IF(MSVC)
   CONFIGURE_FILE( H3DUbitrack.rc.cmake ${CMAKE_CURRENT_BINARY_DIR}/H3DUbitrack.rc )
   
   ADD_CUSTOM_COMMAND( TARGET H3DUbitrack
-											PRE_BUILD
-											COMMAND ${H3DUbitrack_SOURCE_DIR}/UpdateResourceFile 
-											ARGS H3DUBITRACK ${CMAKE_CURRENT_BINARY_DIR}/H3DUbitrack.rc ${H3DUbitrack_SOURCE_DIR}/H3DUbitrack.rc.cmake
-											${H3DUBITRACK_MAJOR_VERSION} ${H3DUBITRACK_MINOR_VERSION}
-											${H3DUBITRACK_BUILD_VERSION} "${H3DUBITRACK_SVN_VERSION}"
-											"H3DUbitrack_Output_Name"
-											"$(TargetFileName)" )
+	PRE_BUILD
+	COMMAND ${H3DUbitrack_SOURCE_DIR}/UpdateResourceFile 
+	ARGS H3DUBITRACK ${CMAKE_CURRENT_BINARY_DIR}/H3DUbitrack.rc ${H3DUbitrack_SOURCE_DIR}/H3DUbitrack.rc.cmake
+	${H3DUBITRACK_MAJOR_VERSION} ${H3DUBITRACK_MINOR_VERSION}
+	${H3DUBITRACK_BUILD_VERSION} "${H3DUBITRACK_SVN_VERSION}"
+	"H3DUbitrack_Output_Name"
+	"$(TargetFileName)" )
 
   IF( SubWCRev )
     # Update SVN revision in file.

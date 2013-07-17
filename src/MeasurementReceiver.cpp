@@ -28,7 +28,7 @@ MeasurementReceiverBase::MeasurementReceiverBase(
 			)
 : UbitrackMeasurement(_metadata, _pattern, _mode)
 , isSyncSource(_isSyncSource)
-//, data_ready()
+, data_ready(false)
 , connected(false)
 , last_timestamp(0)
 //, dirty(false)
