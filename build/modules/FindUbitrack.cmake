@@ -54,12 +54,14 @@ FIND_UBITRACK_HEADER( UBITRACK_INCLUDE_DIR utFacade/SimpleFacade.h )
 
 
 macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
+    #windows ubitrack adds version suffix e.g. 1.0.0 => 100
     FOREACH(MYLIBRARYNAME ${ARGN} )
 		mark_as_advanced(${MYLIBRARY}_${MYLIBRARYNAME})
 		mark_as_advanced(${MYLIBRARY}_${MYLIBRARYNAME}_d)
 	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}
 	        NAMES
 	            ${MYLIBRARYNAME}
+				${MYLIBRARYNAME}100 
 	        HINTS
 	            ${UBITRACK_ROOT}
 	            $ENV{UBITRACK_ROOT}
@@ -77,7 +79,8 @@ macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
 	    )
 	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}_d
 	        NAMES
-	            ${MYLIBRARYNAME}
+	            ${MYLIBRARYNAME}d
+	            ${MYLIBRARYNAME}100d
 	        HINTS
 	            ${UBITRACK_ROOT}
 	            $ENV{UBITRACK_ROOT}
