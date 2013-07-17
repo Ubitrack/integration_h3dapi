@@ -61,6 +61,26 @@ IF( EXISTS $ENV{H3D_ROOT} )
 ENDIF( EXISTS $ENV{H3D_ROOT} )
 SET(CMAKE_MODULE_PATH  ${H3DUbitrack_SOURCE_DIR}/modules ${CONVERTED_H3D_ROOT}/build/modules ${H3DUbitrack_SOURCE_DIR}/../../H3DAPI/build/modules/)
 
+macro(getenv_path VAR)
+   set(ENV_${VAR} $ENV{${VAR}})
+   # replace won't work if var is blank
+   if (ENV_${VAR})
+     string( REGEX REPLACE "\\\\" "/" ENV_${VAR} ${ENV_${VAR}} )
+   endif ()
+endmacro(getenv_path)
+
+IF(X86_64)
+	getenv_path(UBITRACKLIB_EXTERNAL64)
+	IF(ENV_UBITRACKLIB_EXTERNAL64)
+		SET(EXTERNAL_LIBRARIES_DIR "${ENV_UBITRACKLIB_EXTERNAL64}")
+	ENDIF(ENV_UBITRACKLIB_EXTERNAL64)
+ELSE()
+	getenv_path(UBITRACKLIB_EXTERNAL32)
+	IF(ENV_UBITRACKLIB_EXTERNAL32)
+		SET(EXTERNAL_LIBRARIES_DIR "${ENV_UBITRACKLIB_EXTERNAL32}")
+	ENDIF(ENV_UBITRACKLIB_EXTERNAL32)
+ENDIF(X86_64)
+
 IF( H3D_USE_DEPENDENCIES_ONLY )
   # The variables set here must be set by the CMakeLists.txt that sets H3D_USE_DEPENDENCIES_ONLY to true.
   INCLUDE_DIRECTORIES( ${EXTERNAL_INCLUDE_DIR} )
@@ -109,10 +129,29 @@ ELSE( H3D_USE_DEPENDENCIES_ONLY )
   IF(UBITRACK_FOUND)
     SET(HAVE_UBITRACK 1)
     INCLUDE_DIRECTORIES( ${UBITRACK_INCLUDE_DIR} )
+	# currently needed because of relative include :(
+    INCLUDE_DIRECTORIES( "${UBITRACK_INCLUDE_DIR}/utFacade" )
     SET(requiredLibs ${requiredLibs} ${UBITRACK_LIBRARIES} )
   ENDIF(UBITRACK_FOUND)
 
+  if(WIN32)
+	set(H3DUbitrack_COMPILE_FLAGS "${H3DUbitrack_COMPILE_FLAGS} /EHsc /c /W3 /GR /wd4355 /wd4996 /wd4251 /wd4275 /wd4819 /wd4290")
+	set(H3DUbitrack_LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+	set(H3DUbitrack_DEFINES "WIN32" "_MBCS" "_WIN32_WINNT=0x501")	
+  endif(WIN32) 
 ENDIF( H3D_USE_DEPENDENCIES_ONLY )
+
+# settings for 3rdparty libraries
+add_definitions(-DTIXML_USE_STL)
+add_definitions(-DHAVE_TINYXML)
+
+
+
+# Find Boost library. Required to compile.
+IF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
+	set(BOOST_ROOT_DIR "${EXTERNAL_LIBRARIES_DIR}/boost")
+	INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+ENDIF(WIN32 AND DEFINED EXTERNAL_LIBRARIES_DIR)
 
 
 #Boost bindings
@@ -122,12 +161,12 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 add_definitions(-DBOOST_SPIRIT_USE_OLD_NAMESPACE)
 
 
-# Find Boost library. Required to compile.
-SET(HAVE_BOOST 0)
 if(MSVC)
   # force dynamic linking of boost libs on windows ..
   add_definitions(-DBOOST_ALL_DYN_LINK)
 endif(MSVC)
+
+SET(HAVE_BOOST 0)
 set(Boost_USE_STATIC_LIBS   OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -136,8 +175,8 @@ if(Boost_FOUND)
   add_definitions("-DBOOST_FILESYSTEM_VERSION=3")
   add_definitions(-DHAVE_BOOST)
   SET(HAVE_BOOST 1)
-    INCLUDE_DIRECTORIES( ${BOOST_INCLUDE_DIR} )
-    SET(requiredLibs ${requiredLibs} ${BOOST_LIBRARIES} )
+    INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+    SET(requiredLibs ${requiredLibs} ${Boost_LIBRARIES} )
 endif(Boost_FOUND)
 
 # Find Lapack library. Required to compile.
