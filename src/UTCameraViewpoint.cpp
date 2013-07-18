@@ -125,7 +125,7 @@ void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFl
 			f_right = ratio * UR.x;
 			f_top = ratio * UR.y;
 			f_bottom = ratio * LL.y;
-			//Console(3) << "GLfrustum(" << f_left << "," << f_right << "," 
+			//Console(4) << "GLfrustum(" << f_left << "," << f_right << "," 
 			//	<< f_bottom << "," << f_top << "," << clip_near << "," << clip_far << ")" << std::endl;
 			glFrustum( f_left, f_right, f_bottom, f_top, clip_near, clip_far );
 		} else {

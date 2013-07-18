@@ -58,7 +58,7 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
     			break;
     	}
 
-  	    Console(3) << "DBG image: w,h: " << cvimg->width << ", " << cvimg->height << ";" << std::endl;
+  	    Console(4) << "DBG image: w,h: " << cvimg->width << ", " << cvimg->height << ";" << std::endl;
 		image->setValue( new PixelImage( cvimg->width,
 										  cvimg->height,
 										   1,
@@ -71,11 +71,11 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
 	  unsigned int nbytes = i->bitsPerPixel() / 8;
 	  unsigned int frame_size = cvimg->width * cvimg->height * nbytes;
 	  if (cvimg->imageSize != frame_size) {
-		    Console(3) << "problem with image size: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
+		    Console(4) << "problem with image size: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
 		    		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
 		    		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
 	  } else {
-		  //Console(3) << "store image: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
+		  //Console(4) << "store image: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
 		  //  		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
 		  //  		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
 
@@ -83,7 +83,7 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
 		  // copy the new image data to the image.
 		  memcpy( (unsigned char*)(i->getImageData()), (unsigned char*)(cvimg->imageData), cvimg->imageSize );
 
-		  Console(3) << "Vision::Image copied to PixelImage." << std::endl;
+		  Console(4) << "Vision::Image copied to PixelImage." << std::endl;
 
 		  // set the edited area to be the whole texture
 		  image->setEditedArea( 0, 0, 0,

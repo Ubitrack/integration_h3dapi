@@ -125,14 +125,14 @@ public:
 		if (!connected)
 			return;
 	    if ((!mode->is_push()) && (pull_receiver != NULL)) {
-	    	//H3D::Console(3) << "retrieve pull measurement: " << pattern->getValue(id) << std::endl;
+	    	//H3D::Console(4) << "retrieve pull measurement: " << pattern->getValue(id) << std::endl;
 	    	try {
 				updateMeasurement(pull_receiver->get(ts));
 	    	} catch (Ubitrack::Util::Exception &e) {
 	    		H3D::Console(4) << "Error while pulling measurement: " << pattern->getValue(id) << ": " << e.what() << std::endl;
 	    	}
 	    } else if (mode->is_push()) {
-	    	//H3D::Console(3) << "transfer push measurement" << std::endl;
+	    	//H3D::Console(4) << "transfer push measurement" << std::endl;
 	    	//transferMeasurements(ts);
 	    }
 	}
@@ -199,11 +199,11 @@ public:
 
 
 	virtual void receiveMeasurement(const M& measurement) {
-		H3D::Console(3) << "receiveMeasurement" << std::endl;
+		H3D::Console(4) << "receiveMeasurement" << std::endl;
 
 		updateMeasurement(measurement);
 
-		H3D::Console(3) << "receiveMeasurement::done" << std::endl;
+		H3D::Console(4) << "receiveMeasurement::done" << std::endl;
 
 		//lock.lock();
 		// THIS IS NOT CORRECT .. but caching currently does not work ...
@@ -214,7 +214,7 @@ public:
 		//received_measurement = copyMeasurement< M >(measurement);
 		//dirty = true;
 		//lock.unlock();
-		//H3D::Console(3) << "notify listeners: " << pattern->getValue(id) << std::endl;
+		//H3D::Console(4) << "notify listeners: " << pattern->getValue(id) << std::endl;
 		notify_data_ready(measurement.time());
 	}
 	/*

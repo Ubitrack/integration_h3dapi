@@ -109,8 +109,8 @@
         </Input>
         <Output>
             <Edge name="Output" source="A" destination="B">
-                <GuiLandmark x="1033" y="334"/>
-                <GuiLabelPos x="1046" y="370"/>
+                <GuiLandmark x="921" y="123"/>
+                <GuiLabelPos x="741" y="150"/>
                 <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="6D" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
                 <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="pull" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
             </Edge>
@@ -281,8 +281,8 @@
         </Input>
         <Output>
             <Edge name="BA" source="B" destination="A">
-                <GuiLandmark x="549" y="146"/>
-                <GuiLabelPos x="452" y="168"/>
+                <GuiLandmark x="915" y="84"/>
+                <GuiLabelPos x="727" y="60"/>
                 <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="6D" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
                 <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
             </Edge>
@@ -432,6 +432,26 @@
             <UbitrackLib class="Color2Grayscale"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="250 340" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
             <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-pattern-id" value="pattern_18" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+        </DataflowConfiguration>
+    </Pattern>
+    <Pattern name="PosePrintSink">
+        <Input>
+            <Node name="A">
+                <GuiPos x="971" y="84"/>
+                <Predicate>id=='node_11'</Predicate>
+            </Node>
+            <Node name="B">
+                <GuiPos x="411" y="167"/>
+                <Predicate>id=='node_16'</Predicate>
+            </Node>
+            <Edge name="Input" source="A" destination="B">
+                <Predicate>trackman-pattern-ref=='pattern_13'&amp;&amp;trackman-edge-ref=='BA'&amp;&amp;type=='6D'&amp;&amp;mode=='push'</Predicate>
+            </Edge>
+        </Input>
+        <DataflowConfiguration>
+            <UbitrackLib class="PosePrintSink"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 0" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-pattern-id" value="pattern_19" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
         </DataflowConfiguration>
     </Pattern>
 </UTQLRequest>

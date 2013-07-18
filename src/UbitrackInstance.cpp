@@ -140,7 +140,7 @@ bool UbitrackInstance::startDataflow()
             if ((um->isSyncSource->getValue(id)) &&
             		(um->mode->is_push()) &&
             		(sync_receiver == NULL)) {
-            	//Console(3) << "set sync receiver " << um->pattern->getValue() << std::endl;
+            	//Console(4) << "set sync receiver " << um->pattern->getValue() << std::endl;
             	sync_receiver = um;
             }
         }
@@ -230,9 +230,9 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		unsigned long long ts = Ubitrack::Measurement::now();
 		if ((sync_receiver != NULL) && (is_running)) {
 			// This could potentially lock forever here here ...
-			Console(3) << "wait for data .. " << std::endl;
+			Console(4) << "wait for data .. " << std::endl;
 			ts = sync_receiver->wait_for_data_ready();
-			Console(3) << "data is ready.. " << std::endl;
+			Console(4) << "data is ready.. " << std::endl;
 		}
 
 		// first execute senders (send data to ubitrack)
@@ -247,7 +247,7 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
 		{
 			MeasurementReceiverBase *um = static_cast < MeasurementReceiverBase* > (*i);
-			Console(3) << "update receiver: " << um->pattern->getValue() << std::endl;
+			//Console(4) << "update receiver: " << um->pattern->getValue() << std::endl;
 			um->update(ts);
 		}
     }
