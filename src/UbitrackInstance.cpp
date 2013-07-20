@@ -230,9 +230,9 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		unsigned long long ts = Ubitrack::Measurement::now();
 		if ((sync_receiver != NULL) && (is_running)) {
 			// This could potentially lock forever here here ...
-			Console(4) << "wait for data .. " << std::endl;
+			//Console(4) << "wait for data .. " << std::endl;
 			ts = sync_receiver->wait_for_data_ready();
-			Console(4) << "data is ready.. " << std::endl;
+			//Console(4) << "data is ready.. " << std::endl;
 		}
 
 		// first execute senders (send data to ubitrack)

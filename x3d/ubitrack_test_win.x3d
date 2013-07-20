@@ -7,7 +7,7 @@
   </head>
   <ImportLibrary library="h3dubitrack_vc10.dll" />
   <Scene>
-      <UbitrackInstance url="ubitrack_test_win.dfg" autoStart="true" componentDir="H:\\Libraries\\UbiTrack-build\\bin\\ubitrack">
+      <UbitrackInstance url="ubitrack_test_win_dshow.dfg" autoStart="true" componentDir="C:\\Libraries\\UbiTrack-build\\bin\\ubitrack">
           <PoseReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
 	      <ImageReceiver pattern="CameraImage" mode="PULL" DEF="CAM_IMG">
 		      <UTImageTexture DEF="TEXTURE0" />
