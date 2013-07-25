@@ -2,7 +2,8 @@
 #define _UBITRACKIMAGEBACKGROUND_HH_
 
 #include <H3DUbitrack/H3DUbitrack.h>
-#include <H3DUbitrack/CameraViewpoint.h>
+#include <H3DUbitrack/UTCameraViewpoint.h>
+#include <H3DUbitrack/UTImageTexture.h>
 
 #include <H3D/X3DTexture2DNode.h>
 #include <H3D/X3DTextureNode.h>
@@ -26,7 +27,7 @@ namespace H3DUbitrack {
       The background image camera zoom. \eol
      \endX3D
   */
-  class H3DUBITRACK_API UbitrackImageBackground
+  class H3DUBITRACK_API UTImageBackground
     : public H3D::X3DBackgroundNode {
   
   public:
@@ -42,7 +43,7 @@ namespace H3DUbitrack {
 
 	/// A SFNode encapsulating a CVImageBuffer Class
 	struct MFImageTextureNode : MFImageTextureNode_t {
-      inline ~MFImageTextureNode(){ setValue(NULL); }
+      inline ~MFImageTextureNode(){ clear(); }
       void onAdd(Node *n);
       void onRemove(Node *n);
     };
@@ -51,7 +52,7 @@ namespace H3DUbitrack {
 
 
     /** Initializes local members */
-    UbitrackImageBackground( Inst< SFSetBind > _set_bind    = 0,
+    UTImageBackground( Inst< SFSetBind > _set_bind    = 0,
 		       Inst< SFNode    > _metadata    = 0,
 		       Inst< SFTime    > _bindTime    = 0,
 		       Inst< SFBool    > _isBound     = 0,

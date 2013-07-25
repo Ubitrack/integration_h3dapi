@@ -5,8 +5,10 @@ based on Candy HMDViewpoint
 
 
 #include <H3DUbitrack/UTCameraViewpoint.h>
-
 #include <H3D/Scene.h>
+
+
+#include <utCalibration/Projection.h>
 
 using namespace H3DUbitrack;
 using namespace H3D;
@@ -19,8 +21,8 @@ H3DNodeDatabase UTCameraViewpoint::database
 
 namespace UTCameraViewpointInternals {
   FIELDDB_ELEMENT( UTCameraViewpoint, tracker, INPUT_OUTPUT );
-  FIELDDB_ELEMENT( UTCameraViewpoint, frustumLL, INPUT_OUTPUT );
-  FIELDDB_ELEMENT( UTCameraViewpoint, frustumUR, INPUT_OUTPUT );
+  FIELDDB_ELEMENT( UTCameraViewpoint, cameraIntrinsics, INPUT_OUTPUT );
+  FIELDDB_ELEMENT( UTCameraViewpoint, cameraResolution, INPUT_OUTPUT );
   FIELDDB_ELEMENT( UTCameraViewpoint, eyeTransform, INPUT_OUTPUT );
 }
 
@@ -39,8 +41,8 @@ UTCameraViewpoint::UTCameraViewpoint
   Inst< SFMatrix4f > _accForwardMatrix,
   Inst< SFMatrix4f > _accInverseMatrix,
   Inst< SFPoseReceiver > _tracker,
-  Inst< MFVec3f > _frustumLL,
-  Inst< MFVec3f > _frustumUR,
+  Inst< MFMatrix3d > _cameraIntrinsics,
+  Inst< MFVec2f > _cameraResolution,
   Inst< MFMatrix4f > _eyeTransform )
 
   : Viewpoint(_set_bind,
@@ -57,8 +59,8 @@ UTCameraViewpoint::UTCameraViewpoint
               _accForwardMatrix,
               _accInverseMatrix),
     tracker( _tracker ),
-    frustumLL( _frustumLL ),
-    frustumUR( _frustumUR ),
+    cameraIntrinsics( _cameraIntrinsics ),
+    cameraResolution( _cameraResolution ),
     current_eye( MONO ),
     viewport(Vec4f()),
 	eyeTransform( _eyeTransform ) {
@@ -91,10 +93,10 @@ void UTCameraViewpoint::SFPoseReceiver::onRemove(Node *n){
 
 void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFloat height, H3DFloat clip_near,
 		H3DFloat clip_far, StereoInfo* stereo_info ){
-	double f_left, f_right, f_bottom, f_top;
-	Vec3f LL, UR;
+
+	Matrix3d camera_intrinsics;
+	Vec2f camera_resolution;
 	bool custom_frustum = false;
-	double ratio;
 
 	// save current eye for UbitrackImageBackground
 	current_eye = eye_mode;
@@ -105,33 +107,41 @@ void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFl
 		viewport = Vec4f(0, width, 0, height);
 	}
 
-	if ((frustumLL->size() >= 2) && (frustumUR->size() >= 2) && (eye_mode == RIGHT_EYE)) {
-		LL = frustumLL->getValueByIndex(1, id);
-		UR = frustumUR->getValueByIndex(1, id);
+	if ((cameraIntrinsics->size() >= 2)  && (cameraResolution->size() >= 2)  && (eye_mode == RIGHT_EYE)) {
+		camera_intrinsics = cameraIntrinsics->getValueByIndex(1, id);
+		camera_resolution = cameraResolution->getValueByIndex(1, id);
 		custom_frustum = true;
-    } else if ((frustumLL->size() >= 1) && (frustumUR->size() >= 1) && 
+    } else if ((cameraIntrinsics->size() >= 1)  && (cameraResolution->size() >= 1)  &&
 		((eye_mode == LEFT_EYE) || (eye_mode == MONO))) {
-		LL = frustumLL->getValueByIndex(0, id);
-		UR = frustumUR->getValueByIndex(0, id);
+		camera_intrinsics = cameraIntrinsics->getValueByIndex(0, id);
+		camera_resolution = cameraResolution->getValueByIndex(0, id);
 		custom_frustum = true;
-	} 
-	
+	}
 	if (custom_frustum) {
-		if ((LL.x != 0) && (LL.y != 0) && (LL.z != 0) &&
-			(UR.x != 0) && (UR.y != 0) && (UR.z != 0) &&
-			(UR.z == LL.z) && (UR.y != 0)) {
-			ratio = clip_near / LL.z;
-			f_left =  ratio * LL.x;
-			f_right = ratio * UR.x;
-			f_top = ratio * UR.y;
-			f_bottom = ratio * LL.y;
-			//Console(4) << "GLfrustum(" << f_left << "," << f_right << "," 
-			//	<< f_bottom << "," << f_top << "," << clip_near << "," << clip_far << ")" << std::endl;
-			glFrustum( f_left, f_right, f_bottom, f_top, clip_near, clip_far );
-		} else {
-			Console(4) << "Invalid Frustum Specification, using default calculation" << std::endl;
-			Viewpoint::setupProjection(eye_mode, width, height, clip_near, clip_far, stereo_info);
-		}
+		H3DFloat left, right, bottom, top;
+		getProjectionDimensions( eye_mode, width, height, clip_near, top,
+									bottom, right, left, stereo_info );
+
+		// scale matrix to viewport dimensions
+		camera_intrinsics[0][0] *= (double(right-left)/double(camera_resolution.x));
+		camera_intrinsics[0][2] *= (double(right-left)/double(camera_resolution.x));
+		camera_intrinsics[1][1] *= (double(top-bottom)/double(camera_resolution.y));
+		camera_intrinsics[1][2] *= (double(top-bottom)/double(camera_resolution.y));
+
+		double l = left;
+		double r = right;
+		double b = bottom;
+		double t = top;
+		double n = clip_near;
+		double f = clip_far;
+
+		H3D::Console(4) << " l " << l << " r " << r << " b " << b << " t " << t << " n " << n << " f " << f << std::endl;
+		// transpose matrix colum-row major
+		Ubitrack::Math::Matrix< 3, 3, double > m_intrinsics((double *)(camera_intrinsics[0]));
+		Ubitrack::Math::Matrix< 4, 4 > m = Ubitrack::Calibration::projectionMatrixToOpenGL( l, r, b, t, n, f, m_intrinsics );
+		glMultMatrixd( m.content() );
+
+	
 	} else {
 	    Viewpoint::setupProjection(eye_mode, width, height, clip_near, clip_far, stereo_info);
 	}

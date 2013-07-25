@@ -14,8 +14,10 @@ based on Candy HMDViewpoint
 #include <H3D/SFFloat.h>
 #include <H3D/SFMatrix4f.h>
 #include <H3D/MFMatrix4f.h>
+#include <H3D/MFMatrix3d.h>
 #include <H3D/SFVec3f.h>
 #include <H3D/MFVec3f.h>
+#include <H3D/MFVec2f.h>
 #include <H3D/SFString.h>
 #include <H3D/SFInt32.h>
 
@@ -64,15 +66,15 @@ namespace H3DUbitrack {
                   H3D::Inst< H3D::SFMatrix4f > _accForwardMatrix = 0,
                   H3D::Inst< H3D::SFMatrix4f > _accInverseMatrix = 0,
                   H3D::Inst< SFPoseReceiver > _tracker = 0,
-                  H3D::Inst< H3D::MFVec3f > _frustumLL = 0,
-                  H3D::Inst< H3D::MFVec3f > _frustumUR = 0,
+                  H3D::Inst< H3D::MFMatrix3d > _cameraIntrinsics = 0,
+                  H3D::Inst< H3D::MFVec2f > _cameraResolution = 0,
                   H3D::Inst< H3D::MFMatrix4f > _eyeTransform = 0 );
 
     /** The tracker that controls this viewpoint. */
     auto_ptr< SFPoseReceiver > tracker;
 
-	auto_ptr< H3D::MFVec3f > frustumLL;
-	auto_ptr< H3D::MFVec3f > frustumUR;
+	auto_ptr< H3D::MFMatrix3d > cameraIntrinsics;
+	auto_ptr< H3D::MFVec2f > cameraResolution;
 
 	auto_ptr< H3D::MFMatrix4f > eyeTransform;
 
