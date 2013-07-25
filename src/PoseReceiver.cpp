@@ -41,7 +41,7 @@ PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode > _metadata,
 
 void PoseReceiver::updateMeasurement(const Ubitrack::Measurement::Pose& m)
 {
-
+	boost::lock_guard<boost::mutex> lock(data_lock);
     H3D::Vec3f t((H3DFloat)(m->translation()(0)), (H3DFloat)(m->translation()(1)), (H3DFloat)(m->translation()(2)));
     translation->setValue( t , id );
 

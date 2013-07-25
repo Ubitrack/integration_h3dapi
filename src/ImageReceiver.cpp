@@ -37,6 +37,7 @@ void ImageReceiver::updateMeasurement(const Ubitrack::Measurement::ImageMeasurem
 {
 	UTImageTexture* utit = dynamic_cast<UTImageTexture*>(texture->getValue(id));
 	if (utit) {
+		boost::lock_guard<boost::mutex> lock(data_lock);
 		utit->updateTexture(img);
 	}
 }

@@ -39,10 +39,17 @@ namespace H3DUbitrack {
 
     virtual ~UTImageTexture();
 
+    virtual void render();
+
     void updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg);
 
     /// The H3DNodeDatabase for this node.
     static H3DNodeDatabase database;
+
+  protected:
+    Ubitrack::Measurement::ImageMeasurement ut_image;
+    unsigned long long 					ut_last_timestamp;
+    unsigned int							frame_bytes_allocated;
 
   };
 }

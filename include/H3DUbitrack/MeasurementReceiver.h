@@ -84,6 +84,7 @@ public:
 protected:
     boost::condition_variable cond;
 	boost::mutex cond_lock;
+	boost::mutex data_lock;
 	//boost::mutex push_lock;
     unsigned long long int last_timestamp;
     bool connected;

@@ -20,13 +20,21 @@
       </UTCameraViewpoint>
 
 
-    <Transform DEF="TRANSFORM_SHAPE">
     <Shape>
       <Appearance>
 	      <Material diffuseColor="1 0 0" />
+              <UTImageTexture USE="TEXTURE0" containerField="texture" />
       </Appearance>      
       <FullscreenRectangle />
     </Shape>
+
+    <Transform DEF="TRANSFORM_SHAPE">
+	    <Shape>
+	      <Appearance>
+		      <Material diffuseColor="1 0 0" />
+	      </Appearance>      
+	      size='0.1 0.1 0.05' solid='true'
+	    </Shape>
     </Transform>
 
 

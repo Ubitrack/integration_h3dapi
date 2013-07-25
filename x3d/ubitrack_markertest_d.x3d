@@ -7,7 +7,7 @@
   </head>
   <ImportLibrary library="libh3dubitrack_d.so" />
   <Scene>
-      <UbitrackInstance url="simple_marker_test1.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
+      <UbitrackInstance url="simple_marker_test.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
               <PoseReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
 	      <ImageReceiver pattern="CameraImage" mode="PULL" DEF="CAM_IMG">
 		      <UTImageTexture DEF="TEXTURE0" />

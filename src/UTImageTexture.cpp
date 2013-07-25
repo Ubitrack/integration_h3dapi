@@ -25,9 +25,12 @@ namespace UTImageTextureInternals {
 UTImageTexture::UTImageTexture(Inst<DisplayList> _displayList,
 		Inst<SFNode> _metadata, Inst<SFBool> _repeatS, Inst<SFBool> _repeatT,
 		Inst<SFBool> _scaleToP2, Inst<SFImage> _image,
-		Inst<SFTextureProperties> _textureProperties) :
-	X3DTexture2DNode(_displayList, _metadata, _repeatS, _repeatT, _scaleToP2,
-					_image, _textureProperties) {
+		Inst<SFTextureProperties> _textureProperties)
+	: X3DTexture2DNode(_displayList, _metadata, _repeatS, _repeatT, _scaleToP2,
+					_image, _textureProperties)
+    , ut_last_timestamp(0)
+	, frame_bytes_allocated(0)
+	{
 	type_name = "UTImageTexture";
 	database.initFields(this);
 
@@ -37,64 +40,56 @@ UTImageTexture::~UTImageTexture() {
 	// clean up
 }
 
+void UTImageTexture::render() {
 
-void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement& m) {
-	IplImage* cvimg = *m;
-    PixelImage *i = dynamic_cast< PixelImage * >( image->getValue() );
-    if( !i ) {
+	unsigned int required_frame_bytes = ut_image->width * ut_image->height * ut_image->nChannels;
+
+	if (frame_bytes_allocated != required_frame_bytes) {
         Image::PixelType pt = Image::RGB;
         unsigned int bits = 24;
-    	switch ( cvimg->nChannels ) {
+    	switch ( ut_image->nChannels ) {
     		case 1: pt = Image::LUMINANCE;
     				 bits = 8;
     				 break;
     		case 3:
-    			if (cvimg->channelSeq[ 0 ] == 'B' && cvimg->channelSeq[ 1 ] == 'G' && cvimg->channelSeq[ 2 ] == 'R' )
-    				pt = Image::BGR;
-    			else
-    				pt = Image::RGB;
-    			break;
+    				if (ut_image->channelSeq[ 0 ] == 'B' && ut_image->channelSeq[ 1 ] == 'G' && ut_image->channelSeq[ 2 ] == 'R' )
+    					pt = Image::BGR;
+    				break;
     		default:
-    			break;
+    				break;
     	}
 
   	    //Console(4) << "DBG image: w,h: " << cvimg->width << ", " << cvimg->height << ";" << std::endl;
-		image->setValue( new PixelImage( cvimg->width,
-										  cvimg->height,
-										   1,
-										   bits,
-										   pt,
-										   Image::UNSIGNED,
-										   (unsigned char*)cvimg->imageData ) );
+		image->setValue( new PixelImage( ut_image->width,
+										  ut_image->height,
+										  1,
+										  bits,
+										  pt,
+										  Image::UNSIGNED ) );
 
-    } else {
-	  unsigned int nbytes = i->bitsPerPixel() / 8;
-	  unsigned int frame_size = cvimg->width * cvimg->height * nbytes;
-	  if (cvimg->imageSize != frame_size) {
-		    Console(4) << "problem with image size: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
-		    		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
-		    		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
-	  } else {
-		  //Console(4) << "store image: w,h: " << cvimg->width << ", " << cvimg->height << ";" <<
-		  //  		" pixelimage: " << i->width() <<  ", " << i->height() << ";" <<
-		  //  		" framesize: " << frame_size << ", imageSize: " << cvimg->imageSize << std::endl;
+		frame_bytes_allocated = required_frame_bytes;
+		X3DTexture2DNode::render();
+	} else {
+		PixelImage *pi = dynamic_cast<PixelImage *> (image->getValue());
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		enableTexturing();
+		if (ut_last_timestamp < ut_image.time()) {
+			// copy data because the texture could be updated less often than the
+			// scene is rendered (true only for async capture devices)
+			unsigned char* srcData = (unsigned char*) ut_image->imageData;
+			unsigned char* dstData = (unsigned char*) pi->getImageData();
+			memcpy(dstData, srcData, sizeof(unsigned char)*frame_bytes_allocated);
 
-		  // XXX WRITES CRAP SOMEHOW ..
-		  // copy the new image data to the image.
-		  memcpy( (unsigned char*)(i->getImageData()), (unsigned char*)(cvimg->imageData), cvimg->imageSize );
-
-		  //Console(4) << "Vision::Image copied to PixelImage." << std::endl;
-
-		  // set the edited area to be the whole texture
-		  image->setEditedArea( 0, 0, 0,
-				  cvimg->width - 1,
-				  cvimg->height - 1,
-				  0 );
-
-		  // send an event that the image has been changed.
-		  image->endEditing();
-	  }
+			renderSubImage(pi, texture_target, 0, 0,
+							 ut_image->width, ut_image->height);
+			enableTexturing();
+		}
+	}
+}
 
 
-    }
+void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg) {
+	// save measurement for rendering
+	ut_image = cvimg;
+	repeatS->setValue(true, id);
 }
