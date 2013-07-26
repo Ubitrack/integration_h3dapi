@@ -118,30 +118,80 @@ void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFl
 		custom_frustum = true;
 	}
 	if (custom_frustum) {
-		H3DFloat left, right, bottom, top;
-		getProjectionDimensions( eye_mode, width, height, clip_near, top,
-									bottom, right, left, stereo_info );
+		bool useUbitrackCalibration = false;
 
-		// scale matrix to viewport dimensions
-		camera_intrinsics[0][0] *= (double(right-left)/double(camera_resolution.x));
-		camera_intrinsics[0][2] *= (double(right-left)/double(camera_resolution.x));
-		camera_intrinsics[1][1] *= (double(top-bottom)/double(camera_resolution.y));
-		camera_intrinsics[1][2] *= (double(top-bottom)/double(camera_resolution.y));
+		if (useUbitrackCalibration) {
+			H3DFloat left, right, bottom, top;
+			getProjectionDimensions( eye_mode, width, height, clip_near, top,
+										bottom, right, left, stereo_info );
 
-		double l = left;
-		double r = right;
-		double b = bottom;
-		double t = top;
-		double n = clip_near;
-		double f = clip_far;
+			// scale matrix to viewport dimensions
+			camera_intrinsics[0][0] *= (double(right-left)/double(camera_resolution.x));
+			camera_intrinsics[0][2] *= (double(right-left)/double(camera_resolution.x));
+			camera_intrinsics[1][1] *= (double(top-bottom)/double(camera_resolution.y));
+			camera_intrinsics[1][2] *= (double(top-bottom)/double(camera_resolution.y));
 
-		H3D::Console(4) << " l " << l << " r " << r << " b " << b << " t " << t << " n " << n << " f " << f << std::endl;
-		// transpose matrix colum-row major
-		Ubitrack::Math::Matrix< 3, 3, double > m_intrinsics((double *)(camera_intrinsics[0]));
-		Ubitrack::Math::Matrix< 4, 4 > m = Ubitrack::Calibration::projectionMatrixToOpenGL( l, r, b, t, n, f, m_intrinsics );
-		glMultMatrixd( m.content() );
+			double l = left;
+			double r = right;
+			double b = bottom;
+			double t = top;
+			double n = clip_near;
+			double f = clip_far;
 
-	
+			//H3D::Console(4) << " l " << l << " r " << r << " b " << b << " t " << t << " n " << n << " f " << f << std::endl;
+			// transpose matrix colum-row major
+			Ubitrack::Math::Matrix< 3, 3, double > m_intrinsics((double *)(camera_intrinsics[0]));
+			Ubitrack::Math::Matrix< 4, 4 > m = Ubitrack::Calibration::projectionMatrixToOpenGL( l, r, b, t, n, f, m_intrinsics );
+			glMultMatrixd( m.content() );		
+		
+		} else {
+
+			Matrix3d intrinsics(camera_intrinsics);
+
+			GLdouble C, D;
+			if( clip_far != -1 ) {
+				C = -(clip_far + clip_near)/(clip_far - clip_near);
+				D = -2 * clip_far * clip_near /(clip_far - clip_near);
+			} else {
+				// epsilon to use for infinite far plane to prevent artifacts
+				GLdouble epsilon = 0.0001;
+				C = epsilon - 1; 
+				D = -2 * clip_near * (1-epsilon);
+			}
+
+			// Scale matrix in case of different resolution calibration.
+			// The OpenCV documentation says:
+			// - If an image from camera is up-sampled/down-sampled by some factor, all intrinsic camera parameters 
+			//   (fx, fy, cx and cy) should be scaled (multiplied/divided, respectively) by the same factor.
+			// - The distortion coefficients remain the same regardless of the captured image resolution.
+
+			intrinsics[0][0] *= (float(width)/float(camera_resolution.x));
+			intrinsics[0][2] *= (float(width)/float(camera_resolution.x));
+			intrinsics[1][1] *= (float(height)/float(camera_resolution.y));
+			intrinsics[1][2] *= (float(height)/float(camera_resolution.y));
+
+			double proj_matrix[16];
+
+			proj_matrix[0]	= 2.0f * intrinsics[0][0] / float(width);
+			proj_matrix[1]	= 0;
+			proj_matrix[2]	= 0;
+			proj_matrix[3]	= 0;
+			proj_matrix[4]  = -2.0f * intrinsics[0][1] / float(width);
+			proj_matrix[5]	= 2.0f * intrinsics[1][1] / float(height);
+			proj_matrix[6]	= 0;
+			proj_matrix[7]	= 0;
+			proj_matrix[8]  = (float(width) - 2.0 * intrinsics[0][2])/float(width);
+			proj_matrix[9]	= (-float(height) + 2.0 * intrinsics[1][2])/float(height);
+			proj_matrix[10]	= C;
+			proj_matrix[11]	= -1.0f;
+			proj_matrix[12]	= 0;
+			proj_matrix[13]	= 0;
+			proj_matrix[14]	= D;
+			proj_matrix[15]	= 0;
+
+			glMultMatrixd( proj_matrix );
+		}
+
 	} else {
 	    Viewpoint::setupProjection(eye_mode, width, height, clip_near, clip_far, stereo_info);
 	}

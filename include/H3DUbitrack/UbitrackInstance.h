@@ -58,6 +58,7 @@ public:
     UbitrackInstance(Inst< SFNode                > _metadata     = 0,
                      Inst< MFString              > _url          = 0,
                      Inst< SFString              > _componentDir = 0,
+                     Inst< SFString              > _log4cppConfig      = 0,
                      Inst< SFBool                > _autoStart    = 0,
                      Inst< SFRunning             >  _running     = 0,
                      Inst< MFMeasurementReceiver > receiver      = 0//,
@@ -78,6 +79,9 @@ public:
     
     /// the component library directory for ubitrack
     auto_ptr< SFString > componentDir;
+    
+    /// the log file for ubitrack
+    auto_ptr< SFString > log4cppConfig;
     
     /// should the dataflow be started automatically ?
     auto_ptr< SFBool > autoStart;

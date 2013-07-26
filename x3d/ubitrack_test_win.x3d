@@ -7,25 +7,52 @@
   </head>
   <ImportLibrary library="h3dubitrack_vc10.dll" />
   <Scene>
-      <UbitrackInstance url="ubitrack_test_win_dshow.dfg" autoStart="true" componentDir="C:\\Libraries\\UbiTrack-build\\bin\\ubitrack">
-          <PoseReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
-	      <ImageReceiver pattern="CameraImage" mode="PULL" DEF="CAM_IMG">
-		      <UTImageTexture DEF="TEXTURE0" />
-	      </ImageReceiver>
-             <PoseReceiver pattern="TrackerPose" mode="PULL" DEF="OBJ_POSE"/>
-      </UbitrackInstance>
+  
+	<UbitrackInstance url="ubitrack_test_win_vuzix_stereo.dfg" autoStart="true" 
+					  componentDir="H:\\Libraries\\UbiTrack-build\\bin\\ubitrack"
+					  log4cppConfig="H:/H3D/bin32/log4cpp.conf">
+	  <PoseReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
+	  <ImageReceiver pattern="CameraImageLeft" mode="PULL" DEF="CAM_IMG_LEFT">
+		  <UTImageTexture DEF="TEXTURE0" />
+	  </ImageReceiver>
+	  <ImageReceiver pattern="CameraImageRight" mode="PULL" DEF="CAM_IMG_RIGHT">
+		  <UTImageTexture DEF="TEXTURE1" />
+	  </ImageReceiver>
+	  <PoseReceiver pattern="TrackerPose" mode="PULL" DEF="OBJ_POSE"/>
+	</UbitrackInstance>
 
-      <UTCameraViewpoint DEF="VP">
-          <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
-      </UTCameraViewpoint>
+	<!--
+	<UTCameraViewpoint DEF="VP" fieldOfView="0.32463124087094525">
+	  <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
+	</UTCameraViewpoint>
+	-->
 
+	<UTCameraViewpoint DEF="VP" fieldOfView="0.32463124087094525"
+			cameraIntrinsics="854.3160400390625 0 341.238037109375 0 846.3531494140625 232.31965637207031 0 0 1,
+						      814.7125244140625 0 337.53744506835937 0 815.65533447265625 207.89939880371094 0 0 1"
+			cameraResolution="640 480, 640 480"
+			eyeTransform="1 0 0 0
+			  0 1 0 0
+			  0 0 1 0
+			  0 0 0 1,
+			  0.995004 0 -0.0998334 -0.059
+			  0 1 0 0
+			  0.0998334 0 0.995004 0
+			  0 0 0 1">
+	  <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
+	</UTCameraViewpoint>
+
+	<UTImageBackground>
+	  <UTImageTexture USE="TEXTURE0" />
+	  <UTImageTexture USE="TEXTURE1" />
+	</UTImageBackground>
 
     <Transform DEF="TRANSFORM_SHAPE">
     <Shape>
       <Appearance>
 	      <Material diffuseColor="1 0 0" />
       </Appearance>      
-      <Box size='0.2 0.1 0.05' solid='true' />
+      <Box size='0.02 0.01 0.05' solid='true' />
     </Shape>
     </Transform>
 

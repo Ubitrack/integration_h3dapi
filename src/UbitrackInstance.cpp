@@ -27,6 +27,7 @@ namespace UbitrackInstanceInternals
 {
     FIELDDB_ELEMENT( UbitrackInstance, url, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, componentDir, INITIALIZE_ONLY );
+    FIELDDB_ELEMENT( UbitrackInstance, log4cppConfig, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, autoStart, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, running, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, receiver, INPUT_OUTPUT );
@@ -37,6 +38,7 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< SFNode     >  _metadata,
                                  Inst< MFString   > _url,
                                  Inst< SFString   > _componentDir,
+                                 Inst< SFString   > _log4cppConfig,
                                  Inst< SFBool     >  _autoStart,
                                  Inst< SFRunning  >  _running,
                                  Inst< MFMeasurementReceiver >  _receiver//,
@@ -45,6 +47,7 @@ UbitrackInstance::UbitrackInstance(
 : X3DChildNode( _metadata )
 , X3DUrlObject( _url )
 , componentDir(_componentDir)
+, log4cppConfig(_log4cppConfig)
 , autoStart(_autoStart)
 , receiver(_receiver)
 //, sender(_sender)
@@ -59,6 +62,7 @@ UbitrackInstance::UbitrackInstance(
 
     autoStart->setValue(true, id);
     componentDir->setValue("lib/ubitrack", id);
+    log4cppConfig->setValue("log4cpp.conf", id);
 }
 
 UbitrackInstance::~UbitrackInstance() 
@@ -81,7 +85,8 @@ UbitrackInstance::~UbitrackInstance()
 
 void UbitrackInstance::initialize()
 {
-	Ubitrack::Util::initLogging();
+	Ubitrack::Util::initLogging(log4cppConfig->getValue( id ).c_str());
+	H3D::Console << "Initializing Ubitrack Logging: " << log4cppConfig->getValue( id ) << std::endl;
 
     try {
         facade = new AdvancedFacade(componentDir->getValue( id ).c_str() );

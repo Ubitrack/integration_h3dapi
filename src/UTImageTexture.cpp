@@ -83,6 +83,7 @@ void UTImageTexture::render() {
 			renderSubImage(pi, texture_target, 0, 0,
 							 ut_image->width, ut_image->height);
 			enableTexturing();
+			ut_last_timestamp = ut_image.time();
 		}
 	}
 }
