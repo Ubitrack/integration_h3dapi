@@ -38,7 +38,8 @@ public:
 
     ImageReceiver(H3D::Inst< H3D::SFNode     > _metadata = 0,
             		H3D::Inst< H3D::SFString   > _pattern = 0,
-                    H3D::Inst< H3D::SFBool   > _isSyncSource = 0,
+                    H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
+        	        H3D::Inst< H3D::SFBool     > _isDataAvailable = 0,
                     H3D::Inst< MeasurementMode > _mode = 0,
                     H3D::Inst< SFUTImageTexture > _texture = 0
                     );

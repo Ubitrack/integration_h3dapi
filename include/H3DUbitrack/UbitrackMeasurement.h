@@ -33,62 +33,17 @@ namespace H3DUbitrack {
 class H3DUBITRACK_API UbitrackMeasurement : public H3D::X3DNode {
 
 public:
-    /// The mode for rendering specified as a string.
-    class H3DUBITRACK_API MeasurementMode: public H3D::SFString {
-    public:
-      /// Thrown when the value of MeasurementMode is an invalid mode.
-      H3D_VALUE_EXCEPTION( string, InvalidMeasurementMode );
-      /// The different measurement modes supported.
-      typedef enum {
-        /// Pull
-        PULL,
-        /// Push
-        PUSH
-      } Mode;
-
-      /// Get the current MeasurementMode
-      /// \throws InvalidMeasurementMode if the string is an invalid MeasurementMode.
-      inline MeasurementMode::Mode getMeasurementMode() {
-      	upToDate();
-      	if( value == "PULL" )
-      		return PULL;
-      	else if( value == "PUSH" )
-      		return PUSH;
-      	else {
-      		stringstream s;
-      		s << "Must be one of "
-      		<< "PULL, "
-      		<< "PUSH ";
-      		throw InvalidMeasurementMode( value,
-      								s.str(),
-      								H3D_FULL_LOCATION );
-      	}
-
-      }
-
- 	  inline bool is_push() {
-		  if (value == "PUSH")
-			  return true;
-		  return false;
-	  }
-
-    };
 
 
     UbitrackMeasurement(
     	H3D::Inst< H3D::SFNode     > _metadata = 0,
-        H3D::Inst< H3D::SFString   > _pattern = 0,
-		H3D::Inst< MeasurementMode > _mode = 0
+        H3D::Inst< H3D::SFString   > _pattern = 0
 		);
 
     virtual ~UbitrackMeasurement() {};
 
-	// mode: PUSH/PULL
-	std::auto_ptr< MeasurementMode > mode;
-
 	// pattern of dataflow component
 	std::auto_ptr< H3D::SFString > pattern;
-    
 
     virtual void initialize() = 0;
 

@@ -15,6 +15,7 @@
 #include <H3D/X3DUrlObject.h>
 
 #include <H3DUbitrack/MeasurementReceiver.h>
+#include <H3DUbitrack/MeasurementSender.h>
 
 #include <utFacade/AdvancedFacade.h>
 #include <utMeasurement/Measurement.h>
@@ -52,7 +53,8 @@ public:
     };
     
     typedef TypedMFNode< MeasurementReceiverBase > MFMeasurementReceiver;
-    //typedef TypedMFNode< UbitrackMeasurement > MFUbitrackMeasurement;
+    typedef TypedMFNode< MeasurementSenderBase > MFMeasurementSender;
+
     
     /// Constructor
     UbitrackInstance(Inst< SFNode                > _metadata     = 0,
@@ -61,8 +63,8 @@ public:
                      Inst< SFString              > _log4cppConfig      = 0,
                      Inst< SFBool                > _autoStart    = 0,
                      Inst< SFRunning             >  _running     = 0,
-                     Inst< MFMeasurementReceiver > receiver      = 0//,
-                     //Inst< MFUbitrackMeasurement > sender        = 0
+                     Inst< MFMeasurementReceiver > receiver      = 0,
+                     Inst< MFMeasurementSender   > sender        = 0
                      );
     
     ~UbitrackInstance();
@@ -75,7 +77,7 @@ public:
     auto_ptr< MFMeasurementReceiver > receiver;
     
     /// Contains the ubitrack measurement senders (Sources) connected to the dataflow
-    //auto_ptr< MFUbitrackMeasurement > sender;
+    auto_ptr< MFMeasurementSender > sender;
     
     /// the component library directory for ubitrack
     auto_ptr< SFString > componentDir;

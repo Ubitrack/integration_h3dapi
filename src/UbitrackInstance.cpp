@@ -41,8 +41,8 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< SFString   > _log4cppConfig,
                                  Inst< SFBool     >  _autoStart,
                                  Inst< SFRunning  >  _running,
-                                 Inst< MFMeasurementReceiver >  _receiver//,
-                                 //Inst< MFUbitrackMeasurement >  _sender
+                                 Inst< MFMeasurementReceiver >  _receiver,
+                                 Inst< MFMeasurementSender >  _sender
                                  )
 : X3DChildNode( _metadata )
 , X3DUrlObject( _url )
@@ -50,7 +50,7 @@ UbitrackInstance::UbitrackInstance(
 , log4cppConfig(_log4cppConfig)
 , autoStart(_autoStart)
 , receiver(_receiver)
-//, sender(_sender)
+, sender(_sender)
 , running(_running)
 , is_loaded(false)
 , facade(NULL)
@@ -160,13 +160,11 @@ bool UbitrackInstance::startDataflow()
         }
 
         // connect senders
-        /*
-        for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
+        for ( MFMeasurementSender::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
-            UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+        	MeasurementSenderBase *um = static_cast < MeasurementSenderBase* > (*i);
             um->connect(this->getFacadePtr());
         }
-        */
     }    
     
     return started;
@@ -182,13 +180,11 @@ bool UbitrackInstance::stopDataflow()
     bool stopped = false;
     if (facade != NULL) {
         // disconnect senders
-    	/*
-        for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
+        for ( MFMeasurementSender::const_iterator i = sender->begin(); i != sender->end(); ++i )
         {
-            UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
+        	MeasurementSenderBase *um = static_cast < MeasurementSenderBase* > (*i);
             um->disconnect(this->getFacadePtr());
         }
-        */
 
         // stop df
 
@@ -241,13 +237,13 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		}
 
 		// first execute senders (send data to ubitrack)
-		/*
-		for ( MFUbitrackMeasurement::const_iterator i = sender->begin(); i != sender->end(); ++i )
+		for ( MFMeasurementSender::const_iterator i = sender->begin(); i != sender->end(); ++i )
 		{
-			UbitrackMeasurement *um = static_cast < UbitrackMeasurement* > (*i);
-			um->update(ts);
+			MeasurementSenderBase *um = static_cast < MeasurementSenderBase* > (*i);
+			if (um->hasChanges->getValue()) {
+				um->update(ts);
+			}
 		}
-		*/
 		// second execute receivers (get data from ubitrack)
 		for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
 		{

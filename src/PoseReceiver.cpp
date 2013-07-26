@@ -25,12 +25,13 @@ namespace PoseReceiverInternals {
 PoseReceiver::PoseReceiver(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFString   > _pattern,
                            H3D::Inst< H3D::SFBool     > _isSyncSource,
+                           H3D::Inst< H3D::SFBool     > _isDataAvailable,
                            H3D::Inst< MeasurementMode > _mode,
                            H3D::Inst< H3D::SFMatrix4f > _matrix,
                            H3D::Inst< H3D::SFVec3f    > _translation,
                            H3D::Inst< H3D::SFRotation > _rotation
                            )
-: PoseReceiverBase(_metadata, _pattern, _isSyncSource, _mode)
+: PoseReceiverBase(_metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
 , matrix(_matrix)
 , translation(_translation)
 , rotation(_rotation)

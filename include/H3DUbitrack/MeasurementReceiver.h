@@ -27,15 +27,63 @@ class H3DUBITRACK_API MeasurementReceiverBase : public UbitrackMeasurement {
 public:
 	H3D_VALUE_EXCEPTION( string, NotImplementedError );
 
+    /// The mode for rendering specified as a string.
+    class H3DUBITRACK_API MeasurementMode: public H3D::SFString {
+    public:
+      /// Thrown when the value of MeasurementMode is an invalid mode.
+      H3D_VALUE_EXCEPTION( string, InvalidMeasurementMode );
+      /// The different measurement modes supported.
+      typedef enum {
+        /// Pull
+        PULL,
+        /// Push
+        PUSH
+      } Mode;
+
+      /// Get the current MeasurementMode
+      /// \throws InvalidMeasurementMode if the string is an invalid MeasurementMode.
+      inline MeasurementMode::Mode getMeasurementMode() {
+      	upToDate();
+      	if( value == "PULL" )
+      		return PULL;
+      	else if( value == "PUSH" )
+      		return PUSH;
+      	else {
+      		stringstream s;
+      		s << "Must be one of "
+      		<< "PULL, "
+      		<< "PUSH ";
+      		throw InvalidMeasurementMode( value,
+      								s.str(),
+      								H3D_FULL_LOCATION );
+      	}
+
+      }
+
+ 	  inline bool is_push() {
+		  if (value == "PUSH")
+			  return true;
+		  return false;
+	  }
+
+    };
+
+
 	MeasurementReceiverBase(
 	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
 	        H3D::Inst< H3D::SFString   > _pattern = 0,
 	        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
+	        H3D::Inst< H3D::SFBool     > _isDataAvailable = 0,
 			H3D::Inst< MeasurementMode > _mode = 0
 			);
 
+	// mode: PUSH/PULL
+	std::auto_ptr< MeasurementMode > mode;
+
 	// bool identifier if this measurement should be used as sync source
 	std::auto_ptr< H3D::SFBool > isSyncSource;
+
+	std::auto_ptr< H3D::SFBool > isDataAvailable;
 
     virtual string defaultXMLContainerField() { return "receiver"; }
 
@@ -109,8 +157,9 @@ public:
 	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
 	        H3D::Inst< H3D::SFString   > _pattern = 0,
 	        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
+	        H3D::Inst< H3D::SFBool     > _isDataAvailable = 0,
 			H3D::Inst< MeasurementMode > _mode = 0
-	) : MeasurementReceiverBase(_metadata, _pattern, _isSyncSource, _mode)
+	) : MeasurementReceiverBase(_metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
 		, pull_receiver(NULL)
     	//, received_measurement()
 		{
@@ -155,7 +204,7 @@ public:
 	    	}
 	    	catch ( const Ubitrack::Util::Exception& e )
 	    	{
-	    		//LOG4CPP_ERROR( logger, "Caught exception in PoseReceiver::setCallback( " << sCallbackName <<" ): " << e );
+	    		H3D::Console(4) <<  "Caught exception in MeasurementReceiver::setCallback( " << pattern->getValue(id) <<" ): " << e << std::endl;
 	    		connected = false;
 	    	}
 
@@ -169,7 +218,7 @@ public:
 	    	}
 	    	catch ( const Ubitrack::Util::Exception& e )
 	    	{
-	    		//LOG4CPP_ERROR( logger, "Caught exception in SimpleFacade::getSimplePullSinkPose( " << sComponentName <<" ): " << e );
+	    		H3D::Console(4) <<  "Caught exception in componentByName( " << pattern->getValue(id) <<" ): " << e << std::endl;
 	    		connected = false;
 	    	}
 			return connected;

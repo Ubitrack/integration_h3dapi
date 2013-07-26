@@ -17,6 +17,7 @@ namespace MeasurementReceiverInternals {
 	FIELDDB_ELEMENT( MeasurementReceiverBase, mode, INITIALIZE_ONLY );
 	FIELDDB_ELEMENT( MeasurementReceiverBase, pattern, INITIALIZE_ONLY );
 	FIELDDB_ELEMENT( MeasurementReceiverBase, isSyncSource, INITIALIZE_ONLY );
+	FIELDDB_ELEMENT( MeasurementReceiverBase, isDataAvailable, INITIALIZE_ONLY );
 }
 
 
@@ -24,14 +25,20 @@ MeasurementReceiverBase::MeasurementReceiverBase(
 	    	H3D::Inst< H3D::SFNode     > _metadata,
 	        H3D::Inst< H3D::SFString   > _pattern,
 	        H3D::Inst< H3D::SFBool     > _isSyncSource,
+	        H3D::Inst< H3D::SFBool     > _isDataAvailable,
 			H3D::Inst< MeasurementMode > _mode
 			)
-: UbitrackMeasurement(_metadata, _pattern, _mode)
+: UbitrackMeasurement(_metadata, _pattern)
 , isSyncSource(_isSyncSource)
+, isDataAvailable(_isDataAvailable)
 , data_ready(false)
 , connected(false)
 , last_timestamp(0)
+, mode(_mode)
 //, dirty(false)
 {
 	isSyncSource->setValue(false, id );
+	mode->addValidValue( "PULL" );
+	mode->addValidValue( "PUSH" );
+	mode->setValue("PUSH");
 };
