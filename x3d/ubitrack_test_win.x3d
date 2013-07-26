@@ -26,21 +26,15 @@
 	  <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
 	</UTCameraViewpoint>
 	-->
-
-	<UTCameraViewpoint DEF="VP" fieldOfView="0.32463124087094525"
-			cameraIntrinsics="854.3160400390625 0 341.238037109375 0 846.3531494140625 232.31965637207031 0 0 1,
-						      814.7125244140625 0 337.53744506835937 0 815.65533447265625 207.89939880371094 0 0 1"
-			cameraResolution="640 480, 640 480"
-			eyeTransform="1 0 0 0
-			  0 1 0 0
-			  0 0 1 0
-			  0 0 0 1,
-			  0.995004 0 -0.0998334 -0.059
-			  0 1 0 0
-			  0.0998334 0 0.995004 0
-			  0 0 0 1">
+	<PythonScript url="viewpoint_setup.py" DEF="PS" />
+	
+	<UTCameraViewpoint DEF="VP" fieldOfView="0.32463124087094525">
 	  <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
 	</UTCameraViewpoint>
+
+	<ROUTE fromNode="PS" fromField="cameraIntrinsics" toNode="VP" toField="cameraIntrinsics" />
+	<ROUTE fromNode="PS" fromField="cameraResolution" toNode="VP" toField="cameraResolution" />
+	<ROUTE fromNode="PS" fromField="eyeTransform" toNode="VP" toField="eyeTransform" />
 
 	<UTImageBackground>
 	  <UTImageTexture USE="TEXTURE0" />
