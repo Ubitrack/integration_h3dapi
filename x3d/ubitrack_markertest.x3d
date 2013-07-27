@@ -8,11 +8,12 @@
   <ImportLibrary library="libh3dubitrack.so" />
   <Scene>
       <UbitrackInstance url="simple_marker_test.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
-             <PoseReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
+              <ButtonReceiver pattern="ImageReady" mode="PUSH" isSyncSource="true"/>
 	      <ImageReceiver pattern="CameraImage" mode="PULL" DEF="CAM_IMG">
 		      <UTImageTexture DEF="TEXTURE0" />
 	      </ImageReceiver>
              <PoseReceiver pattern="TrackerPose" mode="PULL" DEF="OBJ_POSE"/>
+             <Matrix3Receiver pattern="PullSinkCameraIntrinsics" mode="PULL" DEF="CAM_INTRINSICS"/>
       </UbitrackInstance>
 
       <UTCameraViewpoint DEF="VP" 

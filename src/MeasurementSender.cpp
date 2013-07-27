@@ -22,6 +22,15 @@ MeasurementSenderBase::MeasurementSenderBase(
 	        H3D::Inst< H3D::SFString   > _pattern
 			)
 : UbitrackMeasurement(_metadata, _pattern)
+, hasChanges( new ChangesCollectorField )
 , connected(false)
+, dirty(false)
 {
 };
+
+
+void MeasurementSenderBase::ChangesCollectorField::update() {
+	  EventCollectingField < Field >::update();
+	  MeasurementSenderBase * ms = static_cast< MeasurementSenderBase * >( getOwner() );
+	  ms->touch();
+}

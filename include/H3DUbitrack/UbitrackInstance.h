@@ -53,7 +53,7 @@ public:
     };
     
     typedef TypedMFNode< MeasurementReceiverBase > MFMeasurementReceiver;
-    typedef TypedMFNode< MeasurementSenderBase > MFMeasurementSender;
+    typedef TypedMFNode< MeasurementSenderBase   > MFMeasurementSender;
 
     
     /// Constructor

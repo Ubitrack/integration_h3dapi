@@ -30,17 +30,12 @@ class H3DUBITRACK_API MeasurementSenderBase : public UbitrackMeasurement {
 public:
 	H3D_VALUE_EXCEPTION( string, NotImplementedError );
 
-	typedef H3D::EventCollectingField< H3D::SFBool > ChangesCollectorField;
-
-
 	MeasurementSenderBase(
 	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
 	        H3D::Inst< H3D::SFString   > _pattern = 0
 			);
 
     virtual string defaultXMLContainerField() { return "sender"; }
-
-    auto_ptr< ChangesCollectorField > hasChanges;
 
 	virtual void initialize() {
 		// noop per default
@@ -66,7 +61,21 @@ public:
 protected:
 	boost::mutex data_lock;
     bool connected;
+    bool dirty;
 
+	class ChangesCollectorField : public H3D::EventCollectingField < H3D::Field > {
+	      virtual void update ();
+	    };
+
+    auto_ptr< ChangesCollectorField > hasChanges;
+
+	inline void touch() {
+		dirty = true;
+	}
+
+	inline void reset() {
+		dirty = false;
+	}
 };
 
 template< class M, class S >
@@ -96,13 +105,15 @@ public:
 	virtual void update( unsigned long long ts) {
 		if (!connected)
 			return;
-		try {
-			// check if field is dirty here !!
-			if(push_sender != NULL) {
+		// check if field is dirty here !!
+		if(dirty && (push_sender != NULL)) {
+			try {
 				push_sender->send(getMeasurement(ts));
+				// clear dirty flag
+				reset();
+			} catch (Ubitrack::Util::Exception &e) {
+				H3D::Console(4) << "Error while pushing measurement: " << pattern->getValue(id) << ": " << e.what() << std::endl;
 			}
-		} catch (Ubitrack::Util::Exception &e) {
-			//H3D::Console(4) << "Error while pushing measurement: " << pattern->getValue(id) << ": " << e.what() << std::endl;
 		}
 	}
 

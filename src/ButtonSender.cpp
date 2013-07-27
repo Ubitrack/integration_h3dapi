@@ -29,7 +29,7 @@ ButtonSender::ButtonSender(H3D::Inst< H3D::SFNode > _metadata,
 {
     type_name = "ButtonSender";
     database.initFields( this );
-    value->route(hasChanges);
+    value->route(hasChanges, id);
 }
 
 Ubitrack::Measurement::Button ButtonSender::getMeasurement(unsigned long long ts)

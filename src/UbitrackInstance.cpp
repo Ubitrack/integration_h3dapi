@@ -31,7 +31,7 @@ namespace UbitrackInstanceInternals
     FIELDDB_ELEMENT( UbitrackInstance, autoStart, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, running, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, receiver, INPUT_OUTPUT );
-//    FIELDDB_ELEMENT( UbitrackInstance, sender, INPUT_OUTPUT );
+    FIELDDB_ELEMENT( UbitrackInstance, sender, INPUT_OUTPUT );
 }
 
 UbitrackInstance::UbitrackInstance(
@@ -240,9 +240,7 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		for ( MFMeasurementSender::const_iterator i = sender->begin(); i != sender->end(); ++i )
 		{
 			MeasurementSenderBase *um = static_cast < MeasurementSenderBase* > (*i);
-			if (um->hasChanges->getValue()) {
-				um->update(ts);
-			}
+			um->update(ts);
 		}
 		// second execute receivers (get data from ubitrack)
 		for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
