@@ -25,7 +25,7 @@ ButtonReceiver::ButtonReceiver(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFBool     > _isSyncSource,
                            H3D::Inst< H3D::SFBool     > _isDataAvailable,
                            H3D::Inst< MeasurementMode > _mode,
-                           H3D::Inst< H3D::SFString > _value
+                           H3D::Inst< H3D::SFInt32 > _value
                            )
 : ButtonReceiverBase(_metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
 , value(_value)
@@ -38,6 +38,6 @@ void ButtonReceiver::updateMeasurement(const Ubitrack::Measurement::Button& m)
 {
 	boost::lock_guard<boost::mutex> lock(data_lock);
 	int v = *(m.get());
-    value->setValue( boost::lexical_cast<std::string>(v) , id );
+    value->setValue( v , id );
 }
 

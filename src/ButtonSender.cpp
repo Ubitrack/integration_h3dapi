@@ -22,7 +22,7 @@ namespace ButtonSenderInternals {
 
 ButtonSender::ButtonSender(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFString   > _pattern,
-                           H3D::Inst< H3D::SFString > _value
+                           H3D::Inst< H3D::SFInt32 > _value
                            )
 : ButtonSenderBase(_metadata, _pattern )
 , value(_value)
@@ -35,11 +35,7 @@ ButtonSender::ButtonSender(H3D::Inst< H3D::SFNode > _metadata,
 Ubitrack::Measurement::Button ButtonSender::getMeasurement(unsigned long long ts)
 {
 	boost::lock_guard<boost::mutex> lock(data_lock);
-	std::string _v = value->getValue(id);
-	int v = 0;
-	if (_v.size() > 0) {
-		v = (int)(_v.c_str()[0]);
-	}
+	int v = value->getValue(id);
 	return Ubitrack::Measurement::Button(ts, v);
 }
 

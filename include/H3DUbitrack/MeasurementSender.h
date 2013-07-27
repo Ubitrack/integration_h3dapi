@@ -105,6 +105,9 @@ public:
 	virtual void update( unsigned long long ts) {
 		if (!connected)
 			return;
+		// update field
+		hasChanges->upToDate();
+
 		// check if field is dirty here !!
 		if(dirty && (push_sender != NULL)) {
 			try {

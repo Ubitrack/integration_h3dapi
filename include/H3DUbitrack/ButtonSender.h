@@ -12,6 +12,7 @@
 #include <H3D/X3DNode.h>
 
 #include <H3D/SFString.h>
+#include <H3D/SFInt32.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/MeasurementSender.h>
@@ -29,10 +30,10 @@ class H3DUBITRACK_API ButtonSender : public ButtonSenderBase {
 public:
     ButtonSender( H3D::Inst< H3D::SFNode     > _metadata = 0,
                     H3D::Inst< H3D::SFString   > _pattern = 0,
-                    H3D::Inst< H3D::SFString    > _value = 0
+                    H3D::Inst< H3D::SFInt32    > _value = 0
                     );
 
-    std::auto_ptr< H3D::SFString > value;
+    std::auto_ptr< H3D::SFInt32 > value;
 
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;
