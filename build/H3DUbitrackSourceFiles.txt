@@ -14,6 +14,13 @@ SET( H3DUbitrack_HEADERS "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/Ubitr
                     "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/Vec4Receiver.h"
                     "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/ButtonReceiver.h"
                     "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/ButtonSender.h"
+# Missing or half-baked app-push-sources in ubitrack ..
+#                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/RotationSender.h"
+#                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/PoseSender.h"
+#                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/Vec2Sender.h"
+#                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/Vec3Sender.h"
+#                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/Vec4Sender.h"
+#                    "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/Matrix3Sender.h"
 					)
 
 SET( H3DUbitrack_SRCS "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackInstance.cpp" 
@@ -33,4 +40,11 @@ SET( H3DUbitrack_SRCS "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackInstance.cpp"
                  "${H3DUbitrack_SOURCE_DIR}/../src/Vec4Receiver.cpp"
                  "${H3DUbitrack_SOURCE_DIR}/../src/ButtonReceiver.cpp"
                  "${H3DUbitrack_SOURCE_DIR}/../src/ButtonSender.cpp"
+# Missing or half-baked app-push-sources in ubitrack ..
+#                 "${H3DUbitrack_SOURCE_DIR}/../src/RotationSender.cpp"
+#                 "${H3DUbitrack_SOURCE_DIR}/../src/PoseSender.cpp"
+#                 "${H3DUbitrack_SOURCE_DIR}/../src/Vec2Sender.cpp"
+#                 "${H3DUbitrack_SOURCE_DIR}/../src/Vec3Sender.cpp"
+#                 "${H3DUbitrack_SOURCE_DIR}/../src/Vec4Sender.cpp"
+#                 "${H3DUbitrack_SOURCE_DIR}/../src/Matrix3Sender.cpp"
 				)
