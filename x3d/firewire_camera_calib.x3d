@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<X3D profile='H3DAPI' version='1.4'>
+  <head>
+    <meta name='title' content='ubitrack_test.x3d'/>
+    <meta name='description' content='test scene for ubitrack.'/>
+    <meta name='author' content='Magic  Vision Lab'/>
+  </head>
+  <ImportLibrary library="libh3dubitrack.so" />
+  <Scene>
+      <UbitrackInstance url="firewire_camera_calib.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
+             <ButtonSender pattern="KeyboardInput" DEF="KEYS" />
+             <ButtonReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
+	     <ImageReceiver pattern="DebugImage" mode="PULL" DEF="CAM_IMG">
+		<UTImageTexture DEF="TEXTURE0" />
+	     </ImageReceiver>
+      </UbitrackInstance>
+
+      <UTCameraViewpoint DEF="VP">
+      </UTCameraViewpoint>
+
+    <UTImageBackground>
+        <UTImageTexture USE="TEXTURE0" containerField="texture" />
+    </UTImageBackground>
+
+    <KeySensor DEF="KS" />
+    <PythonScript url="app_helpers.py" DEF="AH"/>
+    <ROUTE fromNode="KS" fromField="keyPress" toNode="AH" toField="keyToButton" />
+    <ROUTE fromNode="AH" fromField="keyToButton" toNode="KEYS" toField="value" />
+  </Scene>
+</X3D>

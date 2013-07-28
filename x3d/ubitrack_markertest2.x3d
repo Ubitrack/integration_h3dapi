@@ -13,12 +13,12 @@
 	      <ImageReceiver pattern="CameraImage" mode="PULL" DEF="CAM_IMG">
 		      <UTImageTexture DEF="TEXTURE0" />
 	      </ImageReceiver>
-             <PoseReceiver pattern="TrackerPose" mode="PULL" DEF="OBJ_POSE"/>
+             <PoseReceiver pattern="TrackerPoseInv" mode="PULL" DEF="OBJ_POSE"/>
              <Matrix3Receiver pattern="PullSinkCameraIntrinsics" mode="PULL" DEF="CAM_INTRINSICS"/>
       </UbitrackInstance>
 
       <UTCameraViewpoint DEF="VP" 
-		cameraIntrinsics="895.99945068359375 0 -314.02542114257812 0 735.75909423828125 -212.00914001464844 0 0 -1"
+		cameraIntrinsics="895.99945068359375 0 314.02542114257812 0 735.75909423828125 212.00914001464844 0 0 1"
 		cameraResolution="640 480">
           <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
       </UTCameraViewpoint>
@@ -28,18 +28,26 @@
     </UTImageBackground>
 
     <KeySensor DEF="KS" />
-    <Transform DEF="TRANSFORM_SHAPE">
+    <Transform DEF="TRANSFORM_SHAPE" translation="0.04 0.04 0.04">
 	    <Shape>
 	      <Appearance>
 		      <Material diffuseColor="1 0 0" />
 	      </Appearance>      
-	      <Box size='0.1 0.1 0.05' solid='true' />
+	      <Box size='0.08 0.08 0.08' solid='true' />
 	    </Shape>
     </Transform>
 
     <PythonScript url="app_helpers.py" DEF="AH"/>
+
     <ROUTE fromNode="KS" fromField="keyPress" toNode="AH" toField="keyToButton" />
     <ROUTE fromNode="AH" fromField="keyToButton" toNode="KEYS" toField="value" />
+
+    <ROUTE fromNode="CAM_INTRINSICS" fromField="matrix" toNode="AH" toField="camIntrinsicsLeft" />
+    <ROUTE fromNode="AH" fromField="camIntrinsicsLeft" toNode="AH" toField="camIntrinsics" />
+    <ROUTE fromNode="AH" fromField="camIntrinsics" toNode="VP" toField="cameraIntrinsics" />
+
+    <ROUTE fromNode="OBJ_POSE" fromField="isDataAvailable" toNode="AH" toField="isMarkerVisible" />
+
 <!--
     <ROUTE fromNode="OBJ_POSE" fromField="translation" toNode="TRANSFORM_SHAPE" toField="translation" />
     <ROUTE fromNode="OBJ_POSE" fromField="rotation" toNode="TRANSFORM_SHAPE" toField="rotation" />

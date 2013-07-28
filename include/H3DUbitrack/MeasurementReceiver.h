@@ -161,7 +161,6 @@ public:
 			H3D::Inst< MeasurementMode > _mode = 0
 	) : MeasurementReceiverBase(_metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
 		, pull_receiver(NULL)
-    	//, received_measurement()
 		{
 		};
 
@@ -176,15 +175,15 @@ public:
 		if (!connected)
 			return;
 	    if ((!mode->is_push()) && (pull_receiver != NULL)) {
-	    	//H3D::Console(4) << "retrieve pull measurement: " << pattern->getValue(id) << std::endl;
 	    	try {
 				updateMeasurement(pull_receiver->get(ts));
 	    	} catch (Ubitrack::Util::Exception &e) {
-	    		//H3D::Console(4) << "Error while pulling measurement: " << pattern->getValue(id) << ": " << e.what() << std::endl;
+				isDataAvailable->setValue(false, id);
 	    	}
 	    } else if (mode->is_push()) {
-	    	//H3D::Console(4) << "transfer push measurement" << std::endl;
-	    	//transferMeasurements(ts);
+	    	// no action needed
+	    } else {
+			isDataAvailable->setValue(false, id);
 	    }
 	}
 
@@ -238,7 +237,7 @@ public:
 	    	}
 	    	catch ( const Ubitrack::Util::Exception& e )
 	    	{
-	    		//LOG4CPP_ERROR( logger, "Caught exception in PoseReceiver::setCallback( " << sCallbackName <<" ): " << e );
+	    		H3D::Console(4) <<  "Caught exception in PoseReceiver::setCallback( " << pattern->getValue(id) <<" ): " << e << std::endl;
 	    	}
 	        return true;
 	    } else {
@@ -250,35 +249,10 @@ public:
 
 
 	virtual void receiveMeasurement(const M& measurement) {
-		//H3D::Console(4) << "receiveMeasurement" << std::endl;
-
 		updateMeasurement(measurement);
-
-		//H3D::Console(4) << "receiveMeasurement::done" << std::endl;
-
-		//lock.lock();
-		// THIS IS NOT CORRECT .. but caching currently does not work ...
-		//if (parent != NULL) {
-		//	parent->updateMeasurement(measurement);
-		//}
-        //applyMeasurement<P, M>(parent, measurement);
-		//received_measurement = copyMeasurement< M >(measurement);
-		//dirty = true;
-		//lock.unlock();
-		//H3D::Console(4) << "notify listeners: " << pattern->getValue(id) << std::endl;
+		isDataAvailable->setValue(true, id);
 		notify_data_ready(measurement.time());
-		//Ubitrack::Util::sleep(1);
 	}
-	/*
-	void transferMeasurements(unsigned long long ts) {
-		lock.lock();
-		if (dirty) {
-			applyMeasurement<P,M>(parent, received_measurement);
-			dirty = false;
-		}
-		lock.unlock();
-	};
-	*/
 
 
 protected:

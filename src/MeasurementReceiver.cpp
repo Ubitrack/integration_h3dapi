@@ -17,7 +17,7 @@ namespace MeasurementReceiverInternals {
 	FIELDDB_ELEMENT( MeasurementReceiverBase, mode, INITIALIZE_ONLY );
 	FIELDDB_ELEMENT( MeasurementReceiverBase, pattern, INITIALIZE_ONLY );
 	FIELDDB_ELEMENT( MeasurementReceiverBase, isSyncSource, INITIALIZE_ONLY );
-	FIELDDB_ELEMENT( MeasurementReceiverBase, isDataAvailable, INITIALIZE_ONLY );
+	FIELDDB_ELEMENT( MeasurementReceiverBase, isDataAvailable, OUTPUT_ONLY );
 }
 
 
@@ -35,7 +35,6 @@ MeasurementReceiverBase::MeasurementReceiverBase(
 , connected(false)
 , last_timestamp(0)
 , mode(_mode)
-//, dirty(false)
 {
 	isSyncSource->setValue(false, id );
 	mode->addValidValue( "PULL" );
