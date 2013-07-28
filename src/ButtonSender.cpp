@@ -29,13 +29,14 @@ ButtonSender::ButtonSender(H3D::Inst< H3D::SFNode > _metadata,
 {
     type_name = "ButtonSender";
     database.initFields( this );
-    value->route(hasChanges, id);
+
+    value->setValue(0);
+    value->routeNoEvent(hasChanges, id);
 }
 
 Ubitrack::Measurement::Button ButtonSender::getMeasurement(unsigned long long ts)
 {
 	boost::lock_guard<boost::mutex> lock(data_lock);
-	int v = value->getValue(id);
-	return Ubitrack::Measurement::Button(ts, v);
+	return Ubitrack::Measurement::Button(ts, (int)value->getValue(id));
 }
 

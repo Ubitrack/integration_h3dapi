@@ -1,4 +1,5 @@
 #include "H3DUbitrack/MeasurementSender.h"
+#include <H3D/Scene.h>
 
 using namespace std;
 using namespace H3D;
@@ -26,11 +27,13 @@ MeasurementSenderBase::MeasurementSenderBase(
 , connected(false)
 , dirty(false)
 {
+    hasChanges->setName( "hasChanges" );
+    hasChanges->setOwner( this );
 };
 
 
 void MeasurementSenderBase::ChangesCollectorField::update() {
-	  EventCollectingField < Field >::update();
-	  MeasurementSenderBase * ms = static_cast< MeasurementSenderBase * >( getOwner() );
-	  ms->touch();
+	AutoUpdate < Field >::update();
+	MeasurementSenderBase * ms = static_cast< MeasurementSenderBase * >( getOwner() );
+	ms->touch();
 }
