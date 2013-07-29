@@ -28,25 +28,38 @@
     </UTImageBackground>
 
     <KeySensor DEF="KS" />
-    <Transform DEF="TRANSFORM_SHAPE" translation="0.04 0.04 0.04">
-	    <Shape>
-	      <Appearance>
-		      <Material diffuseColor="1 0 0" />
-	      </Appearance>      
-	      <Box size='0.08 0.08 0.08' solid='true' />
-	    </Shape>
-    </Transform>
+    <!-- why do we need y=-0.031 here ??? -->
+    <ToggleGroup DEF="ENABLE_RECT">
+        <Transform DEF="TRANSFORM_SHAPE" translation="0 0.035 0">
+            <Shape>
+                <Rectangle2D size='0.16 0.16'/>
+                <Appearance>
+                    <TwoSidedMaterial
+                            diffuseColor='0 1 0'
+                            backDiffuseColor='1 0 0'
+                            separateBackColor='true'/>
+                </Appearance>
+            </Shape>
+            <!--
+                    <Shape>
+                      <Appearance>
+                          <Material diffuseColor="1 0 0" />
+                      </Appearance>
+                      <Box size='0.08 0.08 0.08' solid='true' />
+                    </Shape>
+            -->
+        </Transform>
+    </ToggleGroup>
 
     <PythonScript url="app_helpers.py" DEF="AH"/>
 
     <ROUTE fromNode="KS" fromField="keyPress" toNode="AH" toField="keyToButton" />
     <ROUTE fromNode="AH" fromField="keyToButton" toNode="KEYS" toField="value" />
 
-    <ROUTE fromNode="CAM_INTRINSICS" fromField="matrix" toNode="AH" toField="camIntrinsicsLeft" />
-    <ROUTE fromNode="AH" fromField="camIntrinsicsLeft" toNode="AH" toField="camIntrinsics" />
+    <ROUTE fromNode="CAM_INTRINSICS" fromField="matrix" toNode="AH" toField="camIntrinsics" />
     <ROUTE fromNode="AH" fromField="camIntrinsics" toNode="VP" toField="cameraIntrinsics" />
 
-    <ROUTE fromNode="OBJ_POSE" fromField="isDataAvailable" toNode="AH" toField="isMarkerVisible" />
+    <ROUTE fromNode="OBJ_POSE" fromField="isDataAvailable" toNode="ENABLE_RECT" toField="graphicsOn" />
 
 <!--
     <ROUTE fromNode="OBJ_POSE" fromField="translation" toNode="TRANSFORM_SHAPE" toField="translation" />

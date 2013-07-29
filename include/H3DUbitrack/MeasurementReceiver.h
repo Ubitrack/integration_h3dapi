@@ -177,6 +177,7 @@ public:
 	    if ((!mode->is_push()) && (pull_receiver != NULL)) {
 	    	try {
 				updateMeasurement(pull_receiver->get(ts));
+				isDataAvailable->setValue(true, id);
 	    	} catch (Ubitrack::Util::Exception &e) {
 				isDataAvailable->setValue(false, id);
 	    	}
