@@ -28,7 +28,7 @@ using namespace H3D;
 class H3DUBITRACK_API UbitrackInstance : public X3DChildNode, public X3DUrlObject
 {
 public:
-    
+
     class SFRunning: public SFBool {
     public:
         virtual void setValue( const bool &v, int id = 0 ) {
@@ -91,7 +91,7 @@ public:
     /// is the dataflow currently running, setting this field to true actually starts the dataflow
     auto_ptr< SFRunning > running;
     
-    inline Ubitrack::Facade::AdvancedFacade* getFacadePtr() { return facade; }
+    inline FacadePtr getFacadePtr() { return facade; }
     
     bool startDataflow();
     bool stopDataflow();
@@ -104,7 +104,7 @@ public:
 
 
 protected:
-    Ubitrack::Facade::AdvancedFacade* facade;
+    FacadePtr facade;
     MeasurementReceiverBase* sync_receiver;
     bool is_loaded;
         

@@ -24,11 +24,14 @@
 #include <utFacade/AdvancedFacade.h>
 #include <utMeasurement/Measurement.h>
 
+#include <boost/shared_ptr.hpp>
 #include <vector>
 
 using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
+
+typedef boost::shared_ptr<Ubitrack::Facade::AdvancedFacade> FacadePtr;
 
 class H3DUBITRACK_API UbitrackMeasurement : public H3D::X3DNode {
 
@@ -50,10 +53,10 @@ public:
     virtual void update(H3D::TraverseInfo &ti, unsigned long long ts) = 0;
 
 	/** called to connect push receivers/pull senders. */
-    virtual bool connect(Ubitrack::Facade::AdvancedFacade* facade) = 0;
+    virtual bool connect(FacadePtr facade) = 0;
 
     /** called to disconnect push receivers/pull senders. */
-    virtual bool disconnect(Ubitrack::Facade::AdvancedFacade* facade) = 0;
+    virtual bool disconnect(FacadePtr facade) = 0;
 
 
 };	

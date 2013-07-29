@@ -53,7 +53,7 @@ UbitrackInstance::UbitrackInstance(
 , sender(_sender)
 , running(_running)
 , is_loaded(false)
-, facade(NULL)
+//, facade(NULL)
 , sync_receiver(NULL)
 {
     
@@ -79,7 +79,8 @@ UbitrackInstance::~UbitrackInstance()
             facade->clearDataflow();
         }
 
-        facade = NULL;
+        //facade = NULL;
+        facade.reset();
     }
 }
 
@@ -89,7 +90,7 @@ void UbitrackInstance::initialize()
 	H3D::Console << "Initializing Ubitrack Logging: " << log4cppConfig->getValue( id ) << std::endl;
 
     try {
-        facade = new AdvancedFacade(componentDir->getValue( id ).c_str() );
+        facade.reset(new AdvancedFacade(componentDir->getValue( id ).c_str() ));
     } catch (const Ubitrack::Util::Exception& e ) {
         // log error here
         is_loaded = false;

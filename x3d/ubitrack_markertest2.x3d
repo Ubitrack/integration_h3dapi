@@ -54,7 +54,7 @@
     <PythonScript url="app_helpers.py" DEF="AH"/>
 
     <ROUTE fromNode="KS" fromField="keyPress" toNode="AH" toField="keyToButton" />
-    <ROUTE fromNode="AH" fromField="keyToButton" toNode="KEYS" toField="value" />
+    <ROUTE_NO_EVENT fromNode="AH" fromField="keyToButton" toNode="KEYS" toField="value" />
 
     <ROUTE fromNode="CAM_INTRINSICS" fromField="matrix" toNode="AH" toField="camIntrinsics" />
     <ROUTE fromNode="AH" fromField="camIntrinsics" toNode="VP" toField="cameraIntrinsics" />

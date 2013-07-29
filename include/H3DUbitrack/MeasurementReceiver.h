@@ -96,12 +96,12 @@ public:
 	}
 
 	/** called to connect push receivers/pull senders. */
-	virtual bool connect(Ubitrack::Facade::AdvancedFacade* facade) {
+	virtual bool connect(FacadePtr facade) {
 		throw NotImplementedError("MeasurementReceiverBase::connect");
 	}
 
 	/** called to disconnect push receivers/pull senders. */
-	virtual bool disconnect(Ubitrack::Facade::AdvancedFacade* facade) {
+	virtual bool disconnect(FacadePtr facade) {
 		throw NotImplementedError("MeasurementReceiverBase::disconnect");
 	}
 
@@ -188,8 +188,8 @@ public:
 	    }
 	}
 
-	virtual bool connect(Ubitrack::Facade::AdvancedFacade* sf) {
-	    if (sf == NULL)
+	virtual bool connect(FacadePtr sf) {
+	    if (!sf)
 	        return false;
 
 	    // check if already connected here !
@@ -225,8 +225,8 @@ public:
 	    }
 	}
 
-	virtual bool disconnect(Ubitrack::Facade::AdvancedFacade* sf) {
-	    if (sf == NULL)
+	virtual bool disconnect(FacadePtr sf) {
+	    if (!sf)
 	        return false;
 
 	    H3D::Console(4) << "Disconnect Receiver: " << pattern->getValue() << std::endl;
