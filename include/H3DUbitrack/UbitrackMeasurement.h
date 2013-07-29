@@ -47,7 +47,7 @@ public:
 
     virtual void initialize() = 0;
 
-    virtual void update(unsigned long long ts) = 0;
+    virtual void update(H3D::TraverseInfo &ti, unsigned long long ts) = 0;
 
 	/** called to connect push receivers/pull senders. */
     virtual bool connect(Ubitrack::Facade::AdvancedFacade* facade) = 0;

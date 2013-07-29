@@ -41,7 +41,7 @@ public:
 		// noop per default
 	}
 
-	virtual void update(unsigned long long ts) {
+	virtual void update( H3D::TraverseInfo &ti, unsigned long long ts) {
 		throw NotImplementedError("MeasurementSenderBase::update");
 	}
 
@@ -96,20 +96,20 @@ public:
 		{
 		};
 
-	virtual M getMeasurement(unsigned long long ts) {
+	virtual M getMeasurement(H3D::TraverseInfo &ti, unsigned long long ts) {
 		H3D::Console(4) << "Missing implementation for Sender: " << pattern->getValue(id) << std::endl;
 		throw NotImplementedError("MeasurementSender::getMeasurement");
 	}
 
 
-	virtual void update( unsigned long long ts) {
+	virtual void update( H3D::TraverseInfo &ti, unsigned long long ts) {
 		if (!connected)
 			return;
 
 		// check if field is dirty here !!
 		if(dirty && (push_sender != NULL)) {
 			try {
-				push_sender->send(getMeasurement(ts));
+				push_sender->send(getMeasurement(ti, ts));
 				// clear dirty flag
 				reset();
 			} catch (Ubitrack::Util::Exception &e) {

@@ -38,7 +38,7 @@ public:
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;
 
-    Ubitrack::Measurement::Button getMeasurement(unsigned long long ts);
+    Ubitrack::Measurement::Button getMeasurement(H3D::TraverseInfo &ti, unsigned long long ts);
 
 };
 

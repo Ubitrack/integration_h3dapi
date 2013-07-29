@@ -240,14 +240,14 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 		for ( MFMeasurementSender::const_iterator i = sender->begin(); i != sender->end(); ++i )
 		{
 			MeasurementSenderBase *um = static_cast < MeasurementSenderBase* > (*i);
-			um->update(ts);
+			um->update(ti, ts);
 		}
 		// second execute receivers (get data from ubitrack)
 		for ( MFMeasurementReceiver::const_iterator i = receiver->begin(); i != receiver->end(); ++i )
 		{
 			MeasurementReceiverBase *um = static_cast < MeasurementReceiverBase* > (*i);
 			//Console(4) << "update receiver: " << um->pattern->getValue() << std::endl;
-			um->update(ts);
+			um->update(ti, ts);
 		}
     }
 }

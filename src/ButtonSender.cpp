@@ -34,7 +34,7 @@ ButtonSender::ButtonSender(H3D::Inst< H3D::SFNode > _metadata,
     value->routeNoEvent(hasChanges, id);
 }
 
-Ubitrack::Measurement::Button ButtonSender::getMeasurement(unsigned long long ts)
+Ubitrack::Measurement::Button ButtonSender::getMeasurement(TraverseInfo &ti, unsigned long long ts)
 {
 	boost::lock_guard<boost::mutex> lock(data_lock);
 	return Ubitrack::Measurement::Button(ts, (int)value->getValue(id));

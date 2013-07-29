@@ -91,7 +91,7 @@ public:
 		// noop per default
 	}
 
-	virtual void update(unsigned long long ts) {
+	virtual void update(H3D::TraverseInfo &ti, unsigned long long ts) {
 		throw NotImplementedError("MeasurementReceiverBase::update");
 	}
 
@@ -171,7 +171,7 @@ public:
 	}
 
 
-	virtual void update( unsigned long long ts) {
+	virtual void update( H3D::TraverseInfo &ti, unsigned long long ts ) {
 		if (!connected)
 			return;
 	    if ((!mode->is_push()) && (pull_receiver != NULL)) {
