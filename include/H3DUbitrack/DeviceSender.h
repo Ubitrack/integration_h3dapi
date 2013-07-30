@@ -13,10 +13,11 @@
 
 #include <H3D/SFString.h>
 #include <H3D/SFBool.h>
+#include <H3D/SFInt32.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/MeasurementSender.h>
-#include <H3DUbitrack/DeviceSenderForceEffect.h>
+#include <H3DUbitrack/DeviceSenderHapticForceEffect.h>
 
 #include <vector>
 
@@ -29,10 +30,14 @@ class H3DUBITRACK_API DeviceSender : public MeasurementSenderBase {
 public:
     DeviceSender( H3D::Inst< H3D::SFNode     > _metadata = 0,
                     H3D::Inst< H3D::SFString   > _pattern = 0,
-                    H3D::Inst< H3D::SFString    > _jointAnglesPattern = 0,
-                    H3D::Inst< H3D::SFString    > _gimbalAnglesPattern = 0,
-                    H3D::Inst< H3D::SFBool    > _isActive = 0
+                    H3D::Inst< H3D::SFInt32    > _deviceIndex = 0,
+                    H3D::Inst< H3D::SFString   > _jointAnglesPattern = 0,
+                    H3D::Inst< H3D::SFString   > _gimbalAnglesPattern = 0,
+                    H3D::Inst< H3D::SFBool     > _isActive = 0
                     );
+
+    // the deviceIndex to be used
+    std::auto_ptr< H3D::SFInt32 > deviceIndex;
 
     // pattern names for sources to connect
     std::auto_ptr< H3D::SFString > jointAnglesPattern;
@@ -46,89 +51,27 @@ public:
 
     Ubitrack::Measurement::Pose getMeasurement(H3D::TraverseInfo &ti, unsigned long long ts);
 
-	virtual void update( H3D::TraverseInfo &ti, unsigned long long ts) {
-		if (!connected)
-			return;
+	virtual void update( H3D::TraverseInfo &ti, unsigned long long ts);
 
-/*		// call traverseSG from the ForceEffect here
-		// check if field is dirty here !!
-		if(dirty && (push_sender_pose != NULL)) {
-			try {
-				push_sender->send(getMeasurement(ti, ts));
-				// clear dirty flag
-				reset();
-			} catch (Ubitrack::Util::Exception &e) {
-				H3D::Console(4) << "Error while pushing measurement: " << pattern->getValue(id) << ": " << e.what() << std::endl;
-			}
-		}
-*/
-	}
+	virtual bool connect(FacadePtr sf);
 
-	virtual bool connect(FacadePtr sf) {
-	    if (!sf)
-	        return false;
-
-	    // check if already connected here !
-		H3D::Console(4) << "Connect DeviceSender: " << pattern->getValue() << std::endl;
-
-		// push sender pose
-		try
-		{
-			push_sender_pose = sf->componentByName< Ubitrack::Components::ApplicationPushSourcePose >( pattern->getValue(id).c_str() ).get();
-			connected = true;
-		}
-		catch ( const Ubitrack::Util::Exception& e )
-		{
-			H3D::Console(4) << "Caught exception in componentByName( " << pattern->getValue(id).c_str() <<" ): " << e  << std::endl;
-			connected = false;
-		}
-		if (jointAnglesPattern->getValue(id) != "") {
-			// push sender jointAngles (optional)
-			try
-			{
-				push_sender_jointAngles = sf->componentByName< Ubitrack::Components::ApplicationPushSourcePosition >( jointAnglesPattern->getValue(id).c_str() ).get();
-			}
-			catch ( const Ubitrack::Util::Exception& e )
-			{
-				H3D::Console(4) << "Caught exception in componentByName( " << jointAnglesPattern->getValue(id).c_str() <<" ): " << e  << std::endl;
-			}
-		}
-		if (gimbalAnglesPattern->getValue(id) != "") {
-			// push sender gimbalAngles (optional)
-			try
-			{
-				push_sender_gimbalAngles = sf->componentByName< Ubitrack::Components::ApplicationPushSourcePosition >( gimbalAnglesPattern->getValue(id).c_str() ).get();
-			}
-			catch ( const Ubitrack::Util::Exception& e )
-			{
-				H3D::Console(4) << "Caught exception in componentByName( " << gimbalAnglesPattern->getValue(id).c_str() <<" ): " << e  << std::endl;
-			}
-		}
-
-
-		return connected;
-	}
-
-	virtual bool disconnect(FacadePtr sf) {
-	    if (!sf)
-	        return false;
-
-	    H3D::Console(4) << "Disconnect DeviceSender: " << pattern->getValue() << std::endl;
-
-		// pull receiver
-		push_sender_pose = NULL;
-		push_sender_jointAngles = NULL;
-		push_sender_gimbalAngles = NULL;
-		return true;
-	}
+	virtual bool disconnect(FacadePtr sf);
 
 protected:
+
+	/// Internal function used to create a haptic force effect for the
+	/// haptics device of the given index.
+	void createHapticForceEffect( int index );
+	void updateValuesFromDevice( int index );
+
 
 	Ubitrack::Components::ApplicationPushSourcePose* push_sender_pose;
 	Ubitrack::Components::ApplicationPushSourcePosition* push_sender_jointAngles;
 	Ubitrack::Components::ApplicationPushSourcePosition* push_sender_gimbalAngles;
 
-    std::auto_ptr<DeviceSenderForceEffect> forceeffect;
+    std::auto_ptr<DeviceSenderHapticForceEffect> forceeffect;
+    bool connected_jointAngles;
+    bool connected_gimbalAngles;
 };
 
 } // namespace H3DUbitrack

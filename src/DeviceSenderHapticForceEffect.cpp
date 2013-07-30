@@ -29,6 +29,9 @@
 
 #include <H3DUbitrack/DeviceSenderHapticForceEffect.h>
 
+#include <H3DUbitrack/H3DUbitrack.h>
+#include <H3DUbitrack/MeasurementSender.h>
+#include <HAPI/PhantomHapticsDevice.h>
 
 #include <H3DUtil/ReadWriteH3DTypes.h>
 #include <H3DUtil/Console.h>
@@ -36,187 +39,80 @@
 using namespace H3DUbitrack;
 using namespace HAPI;
 
-DeviceSenderHapticForceEffect::DeviceSenderHapticForceEffect(const HAPI::Vec3 &_holeOrigin, const HAPI::Vec3 &_holeTarget,
-	HAPIFloat _radius, HAPIFloat _torqueSpringConstant, HAPIFloat _maxAngleDiff, 
-	HAPIFloat _lockPositionSpring, HAPIFloat _lockPositionDamping) :
-	holeOrigin(_holeOrigin), holeTarget(_holeTarget), 
-	radius(_radius), torqueSpringConstant(_torqueSpringConstant),
-	maxAngleDiff(_maxAngleDiff), 
-	lockPositionSpring(_lockPositionSpring), lockPositionDamping(_lockPositionDamping),
-	force(Vec3(0, 0, 0)), torque(Vec3(0, 0, 0)), max_force(Vec3(0, 0, 0)), max_torque(Vec3(0, 0, 0)), 
-	lock_position(Vec3(0,0,0)), is_locked(false), position_error(0), orientation_error(0), 
-	rotOK(false), rotationDiff(Rotation(Vec3(1,0,0), 0)), unlock_ts(0.0), enable_debuglog(false)
+DeviceSenderHapticForceEffect::DeviceSenderHapticForceEffect(
+		Ubitrack::Components::ApplicationPushSourcePose* _push_source_pose,
+		Ubitrack::Components::ApplicationPushSourcePosition* _push_source_jointAngles,
+		Ubitrack::Components::ApplicationPushSourcePosition* _push_source_gimbalAngles,
+		bool _is_active)
+: push_source_pose(_push_source_pose)
+, push_source_jointAngles(_push_source_jointAngles)
+, push_source_gimbalAngles(_push_source_gimbalAngles)
+, is_active(_is_active)
 {
-	if(enable_debuglog) {
-		ios_base::openmode mode = ios::out | ios::trunc;
-		log_file.open( "debug_effect.log", mode );
-		if( !log_file.is_open() )
-			H3DUtil::Console(3) << "The debug_effect.log file could not be opened.";
-
-		if( log_file.is_open() ) {
-			log_file << "TIMESTAMP";
-			log_file << " ";
-			log_file << "FORCE";
-			log_file << " ";
-			log_file << "TORQUE";
-			log_file << " ";
-			log_file << "POSITIONERROR";
-			log_file << " ";
-			log_file << "ORIENTATIONERROR";
-			log_file << " ";
-			log_file << "SLIDEIN";
-			log_file << " ";
-			log_file << "ISLOCKED";
-			log_file << " ";
-			log_file << "LOCKPOSITION";
-			log_file << " ";
-			log_file << "UNLOCKTS";
-			log_file << std::endl;
-		}
-	}
 
 }
 
 DeviceSenderHapticForceEffect::~DeviceSenderHapticForceEffect() {
-  if( log_file.is_open() )
-    log_file.close();	
+
 }
 
 HAPIForceEffect::EffectOutput DeviceSenderHapticForceEffect::calculateForces( const HAPIForceEffect::EffectInput &input) {
 
-	const Vec3 pos = input.hd->getPosition();
-	const Vec3 vel = input.hd->getVelocity();
-	const Rotation orn = input.hd->getOrientation();
-	const Matrix3 hipMat = Matrix3(Quaternion(orn));
-	const Matrix3 hipMatInv = hipMat.inverse();
+	unsigned long long tstamp = Ubitrack::Measurement::now();
 
-	const Vec3 hole_vec = holeOrigin - holeTarget;
-    const Vec3 hip_vec_device = Vec3(0,0,1);
-    const Vec3 hip_vec = hipMat * hip_vec_device;
-
-	position_error = -1.0;
-	orientation_error = -1.0;
-
-	force = Vec3(0, 0, 0);
-	torque = Vec3(0, 0, 0);
-
-	if (hole_vec.length() > 0.0) {
-		// check if pos is within the cylinder
-		// based on http://www.cs.cf.ac.uk/Dave/CM0268/PDF/12_CM0268_Geometric_Computing2.pdf
-		const HAPIFloat x0 = holeOrigin.x;
-		const HAPIFloat y0 = holeOrigin.y;
-		const HAPIFloat z0 = holeOrigin.z;
-		const HAPIFloat f = hole_vec.x;
-		const HAPIFloat g = hole_vec.y;
-		const HAPIFloat h = hole_vec.z;
-		const HAPIFloat t = (f*(x0 - pos.x) + g*(y0 - pos.y) + h*(z0 - pos.z))/(f*f + g*g + h*h);
-
-		//// p = point on line projected from pos, dist is distance to pos from line
-		const Vec3 p(x0-f*t, y0-g*t, z0-h*t);
-		const HAPIFloat dist = (pos - p).length();
-	
-		Vec3 hole_vec_norm = hole_vec;
-		hole_vec_norm.normalizeSafe();
-		Vec3 hip_vec_norm = hip_vec;
-		hip_vec_norm.normalizeSafe();
-
-		//// check if within bounds
-		bool peg_in_hole = false;
-		// goal == 1.1 to leave a bit room for inprecise positioning ...
-		// needs to be improved to avoid artifacts on the entry
-		if ((t >= 0.0+radius) && (t <= 1.1+radius) && (dist <= radius))
-			peg_in_hole = true;
-
-		double slide_in = 1.0 - max(0.0, min(1.0, pow((1.0 - t),5)));
-
-		if (peg_in_hole) {
-
-			// calculate rotation difference and torque in device space
-			Rotation rotDiff( hip_vec_norm, hole_vec_norm );
-			
-			Vec3 euler_angles = hipMat * ( Matrix3(1,0,0, 0,1,0, 0,0,0) * (hipMatInv * rotDiff.toEulerAngles()) );
-			torque = slide_in*(euler_angles * torqueSpringConstant) /* - damping * input.hd->getDeviceValues().angular_velocity)*/;
-
-			// save for retrieval from scene graph
-			//rotationDiff = Rotation(euler_angles);
-			rotationDiff = rotDiff;
-
-			position_error = 1.0 - t;
-			if (position_error < 0.0)
-				position_error = 0.0;
-
-			rotOK = false;
-
-			// calculate the angle difference
-			const HAPIFloat angleDiff = acos(hip_vec_norm.dotProduct(hole_vec_norm));
-			orientation_error = fabs(2.0*angleDiff/H3DUtil::Constants::pi);
-
-			if (angleDiff <= maxAngleDiff) {
-					rotOK = true;
-			}
-
-			if(!rotOK) {
-				if (!is_locked) {
-					lock_position = pos;
-					is_locked = true;
-				}
-				// needs 0.05 seconds of correct orientation .. therefore reset anytime 
-				// the rotation is not ok ..
-				unlock_ts = H3DUtil::TimeStamp(0.0);
-			} else {
-				// if more than 0.05 secs are ok .. and it's currently locked, 
-				// then release lock
-				if ( is_locked &&  ((H3DUtil::TimeStamp::now()-unlock_ts) > 0.1)) {
-					is_locked = false;
-					lock_position = Vec3(0,0,0);
-					unlock_ts = H3DUtil::TimeStamp(0.0);
-				} else if ((double)unlock_ts == 0.0) {
-					// 
-					unlock_ts = H3DUtil::TimeStamp::now();
-				}
-			}
-		} else if (dist < radius) {
-			is_locked = false;
-			lock_position = Vec3(0,0,0);
-		}
-
-		if (is_locked && lockingEnabled) {
-			// lock stylus here using a spring-damper system
-			force = (lockPositionSpring * (lock_position - pos) - lockPositionDamping * vel ) * ((1.0 - position_error) + orientation_error);
-		}
-		if(enable_debuglog) {
-			if( log_file.is_open() ) {
-				log_file << H3DUtil::TimeStamp::now();
-				log_file << " ";
-				log_file << force;
-				log_file << " ";
-				log_file << torque;
-				log_file << " ";
-				log_file << position_error;
-				log_file << " ";
-				log_file << orientation_error;
-				log_file << " ";
-				log_file << slide_in;
-				log_file << " ";
-				log_file << is_locked;
-				log_file << " ";
-				log_file << lock_position;
-				log_file << " ";
-				log_file << unlock_ts;
-				log_file << std::endl;
+	if (is_active) {
+#ifdef HAVE_OPENHAPTICS
+		// retrieve information from haptic device state
+		HAPI::PhantomHapticsDevice* hd = static_cast<HAPI::PhantomHapticsDevice*>(input.hd);
+#else
+		HAPI::HAPIHapticsDevice* hd = input.hd;
+#endif
+		if (push_source_pose != NULL) {
+			HAPI::Vec3 device_pos = hd->getPosition();
+			HAPI::Quaternion device_orn = HAPI::Quaternion(
+					hd->getOrientation());
+			// convert HAPI -> Ubitrack
+			Ubitrack::Measurement::Pose p(tstamp,
+					Ubitrack::Math::Pose(
+							Ubitrack::Math::Quaternion(device_orn.v.x,
+									device_orn.v.y, device_orn.v.z,
+									device_orn.w),
+							Ubitrack::Math::Vector<3>(device_pos.x,
+									device_pos.y, device_pos.z)));
+			try {
+				push_source_pose->send(p);
+			} catch (Ubitrack::Util::Exception &e) {
+				H3D::Console(4)
+						<< "Error while pushing device sender measurement: "
+						<< e.what() << std::endl;
 			}
 		}
+
+#ifdef HAVE_OPENHAPTICS
+		if (push_source_jointAngles != NULL) {
+			HAPI::Vec3 jA = hd->getJointAngles();
+			// convert HAPI -> Ubitrack
+			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< 3 >(jA.x, jA.y, jA.z));
+			try {
+				push_source_jointAngles->send(p);
+			} catch (Ubitrack::Util::Exception &e) {
+				H3D::Console(4) << "Error while pushing device sender measurement: " << e.what() << std::endl;
+			}
+		}
+
+		if (push_source_gimbalAngles != NULL) {
+			HAPI::Vec3 gA = hd->getGimbalAngles();
+			// convert HAPI -> Ubitrack
+			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< 3 >(gA.x, gA.y, gA.z));
+			try {
+				push_source_gimbalAngles->send(p);
+			} catch (Ubitrack::Util::Exception &e) {
+				H3D::Console(4) << "Error while pushing device sender measurement: " << e.what() << std::endl;
+			}
+		}
+
+#endif
 	}
-
-
-	if (force.lengthSqr() >= max_force.lengthSqr())
-		max_force = force;
-
-	if (torque.lengthSqr() >= max_torque.lengthSqr())
-		max_torque = torque;
-
-	if (torqueFeedbackEnabled)
-		return HAPIForceEffect::EffectOutput(force, torque);
-	else
-		return HAPIForceEffect::EffectOutput(force);
+	// no return value
+	return HAPIForceEffect::EffectOutput();
 }

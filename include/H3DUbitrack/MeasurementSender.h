@@ -63,7 +63,7 @@ protected:
     bool connected;
     bool dirty;
 
-	class ChangesCollectorField : public H3D::AutoUpdate < H3D::Field > {
+	class ChangesCollectorField : public H3D::Field {
 	      virtual void update ();
 	    };
 
@@ -106,6 +106,9 @@ public:
 		if (!connected)
 			return;
 
+		if (!hasChanges->isUpToDate()) {
+			hasChanges->upToDate();
+		}
 		// check if field is dirty here !!
 		if(dirty && (push_sender != NULL)) {
 			try {

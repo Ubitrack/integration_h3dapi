@@ -33,7 +33,7 @@ MeasurementSenderBase::MeasurementSenderBase(
 
 
 void MeasurementSenderBase::ChangesCollectorField::update() {
-	AutoUpdate < Field >::update();
+	Field::update();
 	MeasurementSenderBase * ms = static_cast< MeasurementSenderBase * >( getOwner() );
 	ms->touch();
 }
