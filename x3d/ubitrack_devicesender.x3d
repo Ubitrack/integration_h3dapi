@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<X3D profile='H3DAPI' version='1.4'>
+  <head>
+    <meta name='title' content='ubitrack_test.x3d'/>
+    <meta name='description' content='test scene for ubitrack.'/>
+    <meta name='author' content='Magic  Vision Lab'/>
+  </head>
+  <ImportLibrary library="libh3dubitrack.so" />
+  <Scene>
+	<DeviceInfo>
+		<FalconDevice DEF='HDEV'>
+			<Group containerField='stylus'>
+				<Shape>
+					<Appearance>
+						<Material diffuseColor="1 0 0" />
+					</Appearance>
+					<Sphere DEF="PROXY" radius="0.002"/>
+				</Shape>
+			</Group>
+		</FalconDevice>
+	</DeviceInfo>
+
+	<UbitrackInstance url="simple_haptic_test.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
+		<ButtonSender pattern="KeyboardInput" DEF="KEYS" />
+		<DeviceSender pattern="DevicePose" deviceIndex="0" isActive="true" DEF="DEVICE_SENDER" />
+		<PoseReceiver pattern="DevicePoseDebug" mode="PULL" DEF="TEST_POSE"/>
+	</UbitrackInstance>
+
+	<Viewpoint DEF="VP" />
+
+	<KeySensor DEF="KS" />
+
+	<PythonScript url="app_helpers.py" DEF="AH"/>
+
+	<ROUTE fromNode="KS" fromField="keyPress" toNode="AH" toField="keyToButton" />
+	<ROUTE_NO_EVENT fromNode="AH" fromField="keyToButton" toNode="KEYS" toField="value" />
+
+  </Scene>
+</X3D>
