@@ -75,8 +75,12 @@ void UTCameraViewpoint::SFPoseReceiver::onAdd(Node *n){
   UTCameraViewpoint *parent =
     static_cast<UTCameraViewpoint*>(owner);
   PoseReceiver *tracker = dynamic_cast<PoseReceiver*>(n);
-  tracker->translation->route(parent->position);
-  tracker->rotation->route(parent->orientation);
+  if (tracker != NULL) {
+	  tracker->translation->route(parent->position);
+	  tracker->rotation->route(parent->orientation);
+  } else {
+	Console(4) << "Invalid Configuration - UTCameraViewpoint needs PoseReceiver" << std::endl;
+  }
 }
 
 void UTCameraViewpoint::SFPoseReceiver::onRemove(Node *n){
@@ -87,8 +91,12 @@ void UTCameraViewpoint::SFPoseReceiver::onRemove(Node *n){
   UTCameraViewpoint *parent = static_cast<UTCameraViewpoint*>(owner);
   PoseReceiver *tracker = dynamic_cast<PoseReceiver*>(n);
 
-  tracker->translation->unroute(parent->position);
-  tracker->rotation->unroute(parent->orientation);
+  if (tracker != NULL) {
+    tracker->translation->unroute(parent->position);
+    tracker->rotation->unroute(parent->orientation);
+  } else {
+	Console(4) << "Invalid Configuration - UTCameraViewpoint needs PoseReceiver" << std::endl;
+  }
 }
 
 void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFloat height, H3DFloat clip_near,
@@ -164,7 +172,6 @@ void UTCameraViewpoint::setupViewMatrix(EyeMode eye_mode,
 
 	  setupStereoView(eye_mode, stereo_info);
 
-
 	  // set up view matrix based on X3DViewpointNode field values.
 	  glRotatef( (H3DFloat) -(180/Constants::pi)*vp_orientation.angle,
 	             vp_orientation.axis.x,
@@ -174,6 +181,8 @@ void UTCameraViewpoint::setupViewMatrix(EyeMode eye_mode,
 	  glTranslatef( -vp_position.x,
 	                -vp_position.y,
 	                -vp_position.z );
+
+
 	  glMultMatrixf( vp_inv_transform );
 }
 
@@ -185,14 +194,16 @@ void UTCameraViewpoint::setupStereoView(EyeMode eye_mode, StereoInfo * stereo_in
 			eye_transform[0][1], eye_transform[1][1], eye_transform[2][1], 0,
 			eye_transform[0][2], eye_transform[1][2], eye_transform[2][2], 0,
 			eye_transform[0][3], eye_transform[1][3], eye_transform[2][3], 1 };
+			//Console(3) << "right eye transform" << eye_transform << std::endl;
 		  glMultMatrixf(eye_transform_gl);
 	  } else if ((eye_mode == LEFT_EYE) && (eyeTransform->size() > 0)) {
-		  const Matrix4f &eye_transform = eyeTransform->getValueByIndex(1, id);
+		  const Matrix4f &eye_transform = eyeTransform->getValueByIndex(0, id);
 		  GLfloat eye_transform_gl[] = { 
 			eye_transform[0][0], eye_transform[1][0], eye_transform[2][0], 0,
 			eye_transform[0][1], eye_transform[1][1], eye_transform[2][1], 0,
 			eye_transform[0][2], eye_transform[1][2], eye_transform[2][2], 0,
 			eye_transform[0][3], eye_transform[1][3], eye_transform[2][3], 1 };
+			//Console(3) << "left eye transform" << eye_transform << std::endl;
 		  glMultMatrixf(eye_transform_gl);
 	  } else {
 		  if( eye_mode != MONO ) {

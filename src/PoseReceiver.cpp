@@ -50,9 +50,9 @@ void PoseReceiver::updateMeasurement(const Ubitrack::Measurement::Pose& m)
     rotation->setValue( Rotation(r) , id );
 
     H3D::Matrix4f mat(r);
-    mat.setElement(0,1, t.x);
-    mat.setElement(0,2, t.y);
-    mat.setElement(0,3, t.z);
+    mat.setElement(0,3, t.x);
+    mat.setElement(1,3, t.y);
+    mat.setElement(2,3, t.z);
     matrix->setValue( mat , id );
 }
 

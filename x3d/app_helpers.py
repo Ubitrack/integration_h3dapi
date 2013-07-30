@@ -26,6 +26,19 @@ class CombineMat3(TypedField(MFMatrix3d, (SFMatrix3d, SFMatrix3d))):
 
 camIntrinsics = CombineMat3()
 
+
+class EyeTransform(TypedField(MFMatrix4f, (SFMatrix4f, SFMatrix4f))):
+    def update(self, event):
+        ri = self.getRoutesIn()
+        if len(ri) == 1:
+           return [Matrix4f(), ri[0].getValue(),]
+        elif len(ri) == 2:
+           return [ri[0].getValue(),ri[1].getValue(),]
+        return []
+
+
+eyeTransform = EyeTransform()
+
 class MarkerVisibilityTest(AutoUpdate(SFBool)):
     def update(self, event):
         if event.getValue():

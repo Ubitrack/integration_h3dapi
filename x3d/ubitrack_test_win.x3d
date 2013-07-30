@@ -11,29 +11,30 @@
 	<UbitrackInstance url="ubitrack_test_win_vuzix_stereo.dfg" autoStart="true" 
 					  componentDir="H:\\Libraries\\UbiTrack-build\\bin\\ubitrack"
 					  log4cppConfig="H:/H3D/bin32/log4cpp.conf">
-	  <PoseReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
+	  <ButtonReceiver pattern="ImageReady" mode="PUSH" DEF="SYNC" isSyncSource="true"/>
 	  <ImageReceiver pattern="CameraImageLeft" mode="PULL" DEF="CAM_IMG_LEFT">
 		  <UTImageTexture DEF="TEXTURE0" />
 	  </ImageReceiver>
 	  <ImageReceiver pattern="CameraImageRight" mode="PULL" DEF="CAM_IMG_RIGHT">
 		  <UTImageTexture DEF="TEXTURE1" />
 	  </ImageReceiver>
-	  <PoseReceiver pattern="TrackerPose" mode="PULL" DEF="OBJ_POSE"/>
+	  <PoseReceiver pattern="CameraPose" mode="PULL" DEF="CAM_POSE"/>
+	  <PoseReceiver pattern="Left2RightTransformInv" mode="PULL" DEF="CAM_LEFT2RIGHT"/>
+	  <Matrix3Receiver pattern="CameraIntrinsicsLeft" mode="PULL" DEF="CAM_INTR_LEFT"/>
+	  <Matrix3Receiver pattern="CameraIntrinsicsRight" mode="PULL" DEF="CAM_INTR_RIGHT"/>
 	</UbitrackInstance>
 
-	<!--
-	<UTCameraViewpoint DEF="VP" fieldOfView="0.32463124087094525">
-	  <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
-	</UTCameraViewpoint>
-	-->
-	<PythonScript url="viewpoint_setup.py" DEF="PS" />
+	<PythonScript url="app_helpers.py" DEF="PS" />
 	
-	<UTCameraViewpoint DEF="VP" fieldOfView="0.32463124087094525">
-	  <PoseReceiver USE="OBJ_POSE" containerField="tracker" />
+	<UTCameraViewpoint DEF="VP" cameraResolution="640 480, 640 480">
+	  <PoseReceiver USE="CAM_POSE" containerField="tracker" />
 	</UTCameraViewpoint>
 
-	<ROUTE fromNode="PS" fromField="cameraIntrinsics" toNode="VP" toField="cameraIntrinsics" />
-	<ROUTE fromNode="PS" fromField="cameraResolution" toNode="VP" toField="cameraResolution" />
+	<ROUTE fromNode="CAM_INTR_LEFT" fromField="matrix" toNode="PS" toField="camIntrinsics" />
+	<ROUTE fromNode="CAM_INTR_RIGHT" fromField="matrix" toNode="PS" toField="camIntrinsics" />
+	<ROUTE fromNode="PS" fromField="camIntrinsics" toNode="VP" toField="cameraIntrinsics" />
+	
+	<ROUTE fromNode="CAM_LEFT2RIGHT" fromField="matrix" toNode="PS" toField="eyeTransform" />
 	<ROUTE fromNode="PS" fromField="eyeTransform" toNode="VP" toField="eyeTransform" />
 
 	<UTImageBackground>
@@ -44,9 +45,9 @@
     <Transform DEF="TRANSFORM_SHAPE">
     <Shape>
       <Appearance>
-	      <Material diffuseColor="1 0 0" />
+	      <Material diffuseColor="1 0 0" transparency="0.5"/>
       </Appearance>      
-      <Box size='0.02 0.01 0.05' solid='true' />
+      <Rectangle2D size='0.18 0.18' solid='true' />
     </Shape>
     </Transform>
 
