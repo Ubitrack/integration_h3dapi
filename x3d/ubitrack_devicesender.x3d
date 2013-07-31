@@ -8,7 +8,19 @@
   <ImportLibrary library="libh3dubitrack.so" />
   <Scene>
 	<DeviceInfo>
+	<!--
 		<FalconDevice DEF='HDEV'>
+			<Group containerField='stylus'>
+				<Shape>
+					<Appearance>
+						<Material diffuseColor="1 0 0" />
+					</Appearance>
+					<Sphere DEF="PROXY" radius="0.002"/>
+				</Shape>
+			</Group>
+		</FalconDevice>
+	-->
+		<PhantomDevice DEF='HDEV'>
 			<Group containerField='stylus'>
 				<Shape>
 					<Appearance>
