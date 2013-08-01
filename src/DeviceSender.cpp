@@ -17,6 +17,7 @@ H3DNodeDatabase DeviceSender::database(
 namespace DeviceSenderInternals {
     // DeviceSender
 	FIELDDB_ELEMENT( DeviceSender, deviceIndex, INPUT_OUTPUT );
+	FIELDDB_ELEMENT( DeviceSender, frequency, INPUT_OUTPUT );
     FIELDDB_ELEMENT( DeviceSender, jointAnglesPattern, INPUT_ONLY );
     FIELDDB_ELEMENT( DeviceSender, gimbalAnglesPattern, INPUT_ONLY );
     FIELDDB_ELEMENT( DeviceSender, isActive, INPUT_ONLY );
@@ -25,16 +26,18 @@ namespace DeviceSenderInternals {
 
 DeviceSender::DeviceSender(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFString   > _pattern,
-                           H3D::Inst< H3D::SFInt32    > _deviceIndex,
                            H3D::Inst< H3D::SFString   > _jointAnglesPattern,
                            H3D::Inst< H3D::SFString   > _gimbalAnglesPattern,
-                           H3D::Inst< H3D::SFBool     > _isActive
+                           H3D::Inst< H3D::SFBool     > _isActive,
+                           H3D::Inst< H3D::SFInt32    > _deviceIndex,
+                           H3D::Inst< H3D::SFInt32    > _frequency
                            )
 : MeasurementSenderBase(_metadata, _pattern )
 , deviceIndex(_deviceIndex)
 , jointAnglesPattern(_jointAnglesPattern)
 , gimbalAnglesPattern(_gimbalAnglesPattern)
 , isActive(_isActive)
+, frequency(_frequency)
 , connected_jointAngles(false)
 , connected_gimbalAngles(false)
 , push_sender_pose(NULL)
@@ -48,9 +51,12 @@ DeviceSender::DeviceSender(H3D::Inst< H3D::SFNode > _metadata,
     deviceIndex->setValue(0, id);
     deviceIndex->routeNoEvent(hasChanges, id);
 
+	frequency->setValue( 100 , id );
+	frequency->route( hasChanges, id );
+	
+	// active is set directly on the effect, no need to 
+	// route into hasChanges
     isActive->setValue(false);
-    //isActive->routeNoEvent(hasChanges, id);
-
 
 }
 

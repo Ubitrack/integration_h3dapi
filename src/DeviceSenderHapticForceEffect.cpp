@@ -43,13 +43,14 @@ DeviceSenderHapticForceEffect::DeviceSenderHapticForceEffect(
 		Ubitrack::Components::ApplicationPushSourcePose* _push_source_pose,
 		Ubitrack::Components::ApplicationPushSourcePosition* _push_source_jointAngles,
 		Ubitrack::Components::ApplicationPushSourcePosition* _push_source_gimbalAngles,
-		bool _is_active)
+		bool _is_active, int _freq)
 : push_source_pose(_push_source_pose)
 , push_source_jointAngles(_push_source_jointAngles)
 , push_source_gimbalAngles(_push_source_gimbalAngles)
 , is_active(_is_active)
 {
-
+  last_time = -1;
+  time_diff = 1.0/_freq;
 }
 
 DeviceSenderHapticForceEffect::~DeviceSenderHapticForceEffect() {
@@ -57,10 +58,23 @@ DeviceSenderHapticForceEffect::~DeviceSenderHapticForceEffect() {
 }
 
 HAPIForceEffect::EffectOutput DeviceSenderHapticForceEffect::calculateForces( const HAPIForceEffect::EffectInput &input) {
+	bool ready = false;
+
+    if( last_time < 0 ) {
+      start_time = TimeStamp::now();
+      last_time = start_time;
+	  ready = true;
+    } else {
+      HAPITime this_time = TimeStamp::now();
+      if( this_time - last_time >= time_diff ) {
+        last_time = this_time;
+		ready = true;
+	  }
+    }
 
 	unsigned long long tstamp = Ubitrack::Measurement::now();
 
-	if (is_active) {
+	if (is_active && ready) {
 #ifdef HAVE_OPENHAPTICS
 		// retrieve information from haptic device state
 		HAPI::PhantomHapticsDevice* hd = static_cast<HAPI::PhantomHapticsDevice*>(input.hd);

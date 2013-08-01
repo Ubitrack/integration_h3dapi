@@ -28,18 +28,25 @@ namespace H3DUbitrack {
 class H3DUBITRACK_API DeviceSender : public MeasurementSenderBase {
 
 public:
-    DeviceSender( H3D::Inst< H3D::SFNode     > _metadata = 0,
+    DeviceSender( H3D::Inst< H3D::SFNode       > _metadata = 0,
                     H3D::Inst< H3D::SFString   > _pattern = 0,
-                    H3D::Inst< H3D::SFInt32    > _deviceIndex = 0,
-                    H3D::Inst< H3D::SFString   > _jointAnglesPattern = 0,
+					H3D::Inst< H3D::SFString   > _jointAnglesPattern = 0,
                     H3D::Inst< H3D::SFString   > _gimbalAnglesPattern = 0,
-                    H3D::Inst< H3D::SFBool     > _isActive = 0
+                    H3D::Inst< H3D::SFBool     > _isActive = 0,
+                    H3D::Inst< H3D::SFInt32    > _deviceIndex = 0,
+					H3D::Inst< H3D::SFInt32    > _frequency = 0
                     );
 
     // the deviceIndex to be used
     std::auto_ptr< H3D::SFInt32 > deviceIndex;
 
-    // pattern names for sources to connect
+    /// The log frequency.
+    ///
+    /// <b>Access type:</b> initializeOnly \n
+    /// <b>Default value:</b> 100 \n
+    auto_ptr< H3D::SFInt32 > frequency;
+
+	// pattern names for sources to connect
     std::auto_ptr< H3D::SFString > jointAnglesPattern;
     std::auto_ptr< H3D::SFString > gimbalAnglesPattern;
 
