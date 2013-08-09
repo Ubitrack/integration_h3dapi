@@ -10,6 +10,7 @@
 #include <H3D/X3DTextureCoordinateNode.h>
 #include <H3D/DependentNodeFields.h>
 #include <H3D/SFFloat.h>
+#include <H3D/SFBool.h>
 
 #include <H3D/X3DBackgroundNode.h>
 #include <H3D/H3DWindowNode.h>
@@ -57,7 +58,9 @@ namespace H3DUbitrack {
 		       Inst< SFTime    > _bindTime    = 0,
 		       Inst< SFBool    > _isBound     = 0,
 		       Inst< DisplayList > _displayList = 0,
-		       Inst< MFImageTextureNode  > _texture     = 0);
+		       Inst< MFImageTextureNode  > _texture     = 0,
+			   Inst< SFBool > _horizontalFlip = 0,
+			   Inst< SFBool > _verticalFlip = 0);
     
     static H3D::H3DNodeDatabase database;
     
@@ -77,6 +80,11 @@ namespace H3DUbitrack {
     /// \dotfile TextureBackground_frontTexture.dot
     auto_ptr< MFImageTextureNode >  texture;
 
+	// horizontal flip
+    auto_ptr< SFBool >  horizontalFlip;
+
+	// vertical flip
+    auto_ptr< SFBool >  verticalFlip;
 
   protected:
     inline void renderTexCoordForTexture( const Vec3f &tc, 

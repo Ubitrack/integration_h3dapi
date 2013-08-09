@@ -12,6 +12,8 @@ H3DNodeDatabase UTImageBackground::database
 
 namespace UTImageBackgroundInternals {
 	FIELDDB_ELEMENT( UTImageBackground, texture, INPUT_OUTPUT );
+	FIELDDB_ELEMENT( UTImageBackground, horizontalFlip, INPUT_OUTPUT );
+	FIELDDB_ELEMENT( UTImageBackground, verticalFlip, INPUT_OUTPUT );
 }
 
 void UTImageBackground::MFImageTextureNode::onAdd( Node *n) {
@@ -41,14 +43,21 @@ UTImageBackground::UTImageBackground(Inst< SFSetBind > _set_bind,
                                       Inst< SFTime    > _bindTime,
                                       Inst< SFBool    > _isBound,
                                       Inst< DisplayList > _displayList,
-                                      Inst< MFImageTextureNode  > _texture) :
-  X3DBackgroundNode( _set_bind, _metadata, _bindTime, _isBound, _displayList),
-  texture( _texture ) {
+                                      Inst< MFImageTextureNode  > _texture,
+									  Inst< SFBool > _horizontalFlip,
+									  Inst< SFBool > _verticalFlip) 
+  : X3DBackgroundNode( _set_bind, _metadata, _bindTime, _isBound, _displayList)
+  , texture( _texture )
+  , horizontalFlip(_horizontalFlip)
+  , verticalFlip(_verticalFlip)
+{
 
   type_name = "UTImageBackground";
   database.initFields( this );
 
   texture->route( displayList );
+  horizontalFlip->route( displayList );
+  verticalFlip->route( displayList );
 }
 
 
@@ -99,18 +108,27 @@ void UTImageBackground::render() {
 
 		glColor4f( 1, 1, 1, 1 );
 
+		int b, t, l, r;
+		bool hflip = horizontalFlip->getValue( id );
+		bool vflip = verticalFlip->getValue( id );
+
+		t = vflip ? 0 : 1;
+		b = vflip ? 1 : 0;
+		l = hflip ? 0 : 1;
+		r = hflip ? 1 : 0;
+
 		if( _texture  ) {
 			_texture->preRender();
 			_texture->displayList->callList();
 			glBegin( GL_QUADS );
 			//glNormal3f( 0, 0, 1 );
-			renderTexCoordForTexture( Vec3f( 0, 1, 0 ), _texture );
+			renderTexCoordForTexture( Vec3f( b, r, 0 ), _texture );
 			glVertex2i( (GLint)viewport.x, (GLint)viewport.z );
-			renderTexCoordForTexture( Vec3f( 1, 1, 0 ), _texture );
+			renderTexCoordForTexture( Vec3f( t, r, 0 ), _texture );
 			glVertex2i( (GLint)viewport.y, (GLint)viewport.z );
-			renderTexCoordForTexture( Vec3f( 1, 0, 0 ), _texture );
+			renderTexCoordForTexture( Vec3f( t, l, 0 ), _texture );
 			glVertex2i( (GLint)viewport.y, (GLint)viewport.w );
-			renderTexCoordForTexture( Vec3f( 0, 0, 0 ), _texture );
+			renderTexCoordForTexture( Vec3f( b, l, 0 ), _texture );
 			glVertex2i( (GLint)viewport.x, (GLint)viewport.w );
 			glEnd();
 			_texture->postRender();
