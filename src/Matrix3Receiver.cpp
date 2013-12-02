@@ -37,7 +37,7 @@ Matrix3Receiver::Matrix3Receiver(H3D::Inst< H3D::SFNode > _metadata,
 void Matrix3Receiver::updateMeasurement(const Ubitrack::Measurement::Matrix3x3& m)
 {
 	boost::lock_guard<boost::mutex> lock(data_lock);
-	Ubitrack::Math::Matrix3x3 v = *(m.get());
+	Ubitrack::Math::Matrix3x3d v = *(m.get());
 	Matrix3d mat(v(0,0), v(0,1), v(0,2),
 				 v(1,0), v(1,1), v(1,2),
 				 v(2,0), v(2,1), v(2,2) );

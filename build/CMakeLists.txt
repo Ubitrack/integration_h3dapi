@@ -114,36 +114,37 @@ ELSE( H3D_USE_DEPENDENCIES_ONLY )
     SET(requiredLibs ${requiredLibs} ${H3DAPI_LIBRARIES} )
   ENDIF(H3DAPI_FOUND)
 
-  # OpenHaptics Toolkit  
-  FIND_PACKAGE(OpenHaptics)
-
-  IF(OPENHAPTICS_FOUND)
-    SET(HAVE_OPENHAPTICS 1)
-    INCLUDE_DIRECTORIES( ${OPENHAPTICS_INCLUDE_DIR} )
-    SET(requiredLibs ${requiredLibs} ${OPENHAPTICS_LIBRARIES} )
-  ENDIF(OPENHAPTICS_FOUND)
-
-  # UbiTrack  
-  FIND_PACKAGE(Ubitrack REQUIRED)
-
-  IF(UBITRACK_FOUND)
-    SET(HAVE_UBITRACK 1)
-    INCLUDE_DIRECTORIES( ${UBITRACK_INCLUDE_DIR} )
-	# currently needed because of relative include :(
-    INCLUDE_DIRECTORIES( "${UBITRACK_INCLUDE_DIR}/utFacade" )
-    SET(requiredLibs ${requiredLibs} ${UBITRACK_LIBRARIES} )
-  ENDIF(UBITRACK_FOUND)
-
-  if(WIN32)
-	set(H3DUbitrack_COMPILE_FLAGS "${H3DUbitrack_COMPILE_FLAGS} /EHsc /c /W3 /GR /wd4355 /wd4996 /wd4251 /wd4275 /wd4819 /wd4290")
-	set(H3DUbitrack_LINK_FLAGS "/SUBSYSTEM:CONSOLE")
-	set(H3DUbitrack_DEFINES "WIN32" "_MBCS" "_WIN32_WINNT=0x501")	
-  endif(WIN32) 
 ENDIF( H3D_USE_DEPENDENCIES_ONLY )
+
+# UbiTrack  
+FIND_PACKAGE(Ubitrack REQUIRED)
+
+IF(UBITRACK_FOUND)
+  SET(HAVE_UBITRACK 1)
+  INCLUDE_DIRECTORIES( ${UBITRACK_INCLUDE_DIR} )
+  # currently needed because of relative include :(
+  INCLUDE_DIRECTORIES( "${UBITRACK_INCLUDE_DIR}/utFacade" )
+  SET(requiredLibs ${requiredLibs} ${UBITRACK_LIBRARIES} )
+ENDIF(UBITRACK_FOUND)
+
+if(WIN32)
+  set(H3DUbitrack_COMPILE_FLAGS "${H3DUbitrack_COMPILE_FLAGS} /EHsc /c /W3 /GR /wd4355 /wd4996 /wd4251 /wd4275 /wd4819 /wd4290")
+  set(H3DUbitrack_LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+  set(H3DUbitrack_DEFINES "WIN32" "_MBCS" "_WIN32_WINNT=0x501")	
+endif(WIN32) 
 
 # settings for 3rdparty libraries
 add_definitions(-DTIXML_USE_STL)
 add_definitions(-DHAVE_TINYXML)
+
+# OpenHaptics Toolkit  
+FIND_PACKAGE(OpenHaptics)
+
+IF(OPENHAPTICS_FOUND)
+  SET(HAVE_OPENHAPTICS 1)
+  INCLUDE_DIRECTORIES( ${OPENHAPTICS_INCLUDE_DIR} )
+  SET(requiredLibs ${requiredLibs} ${OPENHAPTICS_LIBRARIES} )
+ENDIF(OPENHAPTICS_FOUND)
 
 
 
