@@ -147,8 +147,8 @@ void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFl
 
 		//H3D::Console(4) << " l " << l << " r " << r << " b " << b << " t " << t << " n " << n << " f " << f << std::endl;
 		// transpose matrix colum-row major
-		Ubitrack::Math::Matrix< 3, 3, double > m_intrinsics((double *)(camera_intrinsics[0]));
-		Ubitrack::Math::Matrix< 4, 4 > m = Ubitrack::Calibration::projectionMatrixToOpenGL( l, r, b, t, n, f, m_intrinsics );
+		Ubitrack::Math::Matrix< double, 3, 3 > m_intrinsics((double *)(camera_intrinsics[0]));
+		Ubitrack::Math::Matrix< double, 4, 4 > m = Ubitrack::Calibration::projectionMatrixToOpenGL( l, r, b, t, n, f, m_intrinsics );
 
 		glMultMatrixd( m.content() );
 	} else {

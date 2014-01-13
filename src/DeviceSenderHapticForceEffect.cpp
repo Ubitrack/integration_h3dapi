@@ -91,7 +91,7 @@ HAPIForceEffect::EffectOutput DeviceSenderHapticForceEffect::calculateForces( co
 							Ubitrack::Math::Quaternion(device_orn.v.x,
 									device_orn.v.y, device_orn.v.z,
 									device_orn.w),
-							Ubitrack::Math::Vector<3>(device_pos.x,
+							Ubitrack::Math::Vector< double, 3 >(device_pos.x,
 									device_pos.y, device_pos.z)));
 			try {
 				push_source_pose->send(p);
@@ -106,7 +106,7 @@ HAPIForceEffect::EffectOutput DeviceSenderHapticForceEffect::calculateForces( co
 		if (push_source_jointAngles != NULL) {
 			HAPI::Vec3 jA = hd->getJointAngles();
 			// convert HAPI -> Ubitrack
-			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< 3 >(jA.x, jA.y, jA.z));
+			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< double, 3 >(jA.x, jA.y, jA.z));
 			try {
 				push_source_jointAngles->send(p);
 			} catch (Ubitrack::Util::Exception &e) {
@@ -117,7 +117,7 @@ HAPIForceEffect::EffectOutput DeviceSenderHapticForceEffect::calculateForces( co
 		if (push_source_gimbalAngles != NULL) {
 			HAPI::Vec3 gA = hd->getGimbalAngles();
 			// convert HAPI -> Ubitrack
-			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< 3 >(gA.x, gA.y, gA.z));
+			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< double, 3 >(gA.x, gA.y, gA.z));
 			try {
 				push_source_gimbalAngles->send(p);
 			} catch (Ubitrack::Util::Exception &e) {

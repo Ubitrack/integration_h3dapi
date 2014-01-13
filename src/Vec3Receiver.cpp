@@ -37,7 +37,7 @@ Vec3Receiver::Vec3Receiver(H3D::Inst< H3D::SFNode > _metadata,
 void Vec3Receiver::updateMeasurement(const Ubitrack::Measurement::Position& m)
 {
 	boost::lock_guard<boost::mutex> lock(data_lock);
-	Ubitrack::Math::Vector< 3 > v = *(m.get());
+	Ubitrack::Math::Vector< double, 3 > v = *(m.get());
 	Vec3d vec(v(0), v(1), v(2));
     value->setValue( vec , id );
 }
