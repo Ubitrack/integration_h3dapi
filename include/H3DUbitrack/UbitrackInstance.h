@@ -57,14 +57,14 @@ public:
 
     
     /// Constructor
-    UbitrackInstance(Inst< SFNode                > _metadata     = 0,
-                     Inst< MFString              > _url          = 0,
-                     Inst< SFString              > _componentDir = 0,
-                     Inst< SFString              > _log4cppConfig      = 0,
-                     Inst< SFBool                > _autoStart    = 0,
-                     Inst< SFRunning             >  _running     = 0,
-                     Inst< MFMeasurementReceiver > receiver      = 0,
-                     Inst< MFMeasurementSender   > sender        = 0
+    UbitrackInstance(Inst< SFNode                > _metadata      = 0,
+                     Inst< MFString              > _url           = 0,
+                     Inst< SFString              > _componentDir  = 0,
+                     Inst< SFString              > _log4cppConfig = 0,
+                     Inst< SFBool                > _autoStart     = 0,
+                     Inst< SFRunning             > _running       = 0,
+                     Inst< MFMeasurementReceiver > receiver       = 0,
+                     Inst< MFMeasurementSender   > sender         = 0
                      );
     
     ~UbitrackInstance();

@@ -21,9 +21,9 @@ namespace PhantomDeviceSenderInternals {
     // DeviceSender
 	FIELDDB_ELEMENT( PhantomDeviceSender, deviceIndex, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( PhantomDeviceSender, frequency, INPUT_OUTPUT );
-    FIELDDB_ELEMENT( PhantomDeviceSender, jointAnglesPattern, INPUT_ONLY );
-    FIELDDB_ELEMENT( PhantomDeviceSender, gimbalAnglesPattern, INPUT_ONLY );
-    FIELDDB_ELEMENT( PhantomDeviceSender, isActive, INPUT_ONLY );
+    FIELDDB_ELEMENT( PhantomDeviceSender, jointAnglesPattern, INITIALIZE_ONLY );
+    FIELDDB_ELEMENT( PhantomDeviceSender, gimbalAnglesPattern, INITIALIZE_ONLY );
+    FIELDDB_ELEMENT( PhantomDeviceSender, isActive, INPUT_OUTPUT );
 }
 
 
@@ -59,7 +59,7 @@ PhantomDeviceSender::PhantomDeviceSender(H3D::Inst< H3D::SFNode > _metadata,
 	
 	// active is set directly on the effect, no need to 
 	// route into hasChanges
-    isActive->setValue(false);
+    isActive->setValue(false, id);
 
 }
 

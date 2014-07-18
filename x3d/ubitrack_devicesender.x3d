@@ -5,7 +5,7 @@
     <meta name='description' content='test scene for ubitrack.'/>
     <meta name='author' content='Magic  Vision Lab'/>
   </head>
-  <ImportLibrary library="libh3dubitrack.so" />
+  <ImportLibrary library="H3DUbitrack_vc10.dll" />
   <Scene>
 	<DeviceInfo>
 	<!--
@@ -29,12 +29,12 @@
 					<Sphere DEF="PROXY" radius="0.002"/>
 				</Shape>
 			</Group>
-		</FalconDevice>
+		</PhantomDevice>
 	</DeviceInfo>
 
-	<UbitrackInstance url="simple_haptic_test.dfg" autoStart="true" componentDir="/usr/local/lib/ubitrack">
+	<UbitrackInstance url="simple_haptic_test.dfg" autoStart="true" componentDir="H:\\Libraries\\Ubitrack-build\\bin\\ubitrack">
 		<ButtonSender pattern="KeyboardInput" DEF="KEYS" />
-		<DeviceSender pattern="DevicePose" deviceIndex="0" isActive="true" DEF="DEVICE_SENDER" />
+		<PhantomDeviceSender pattern="DevicePose" deviceIndex="0" isActive="true" DEF="DEVICE_SENDER" />
 		<PoseReceiver pattern="DevicePoseDebug" mode="PULL" DEF="TEST_POSE"/>
 	</UbitrackInstance>
 

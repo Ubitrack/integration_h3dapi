@@ -21,9 +21,9 @@ namespace CalibratedPhantomDeviceSenderInternals {
     // DeviceSender
 	FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, deviceIndex, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, frequency, INPUT_OUTPUT );
-    FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, jointAnglesPattern, INPUT_ONLY );
-    FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, gimbalAnglesPattern, INPUT_ONLY );
-    FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, isActive, INPUT_ONLY );
+    FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, jointAnglesPattern, INITIALIZE_ONLY );
+    FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, gimbalAnglesPattern, INITIALIZE_ONLY );
+    FIELDDB_ELEMENT( CalibratedPhantomDeviceSender, isActive, INPUT_OUTPUT );
 }
 
 
@@ -59,7 +59,7 @@ CalibratedPhantomDeviceSender::CalibratedPhantomDeviceSender(H3D::Inst< H3D::SFN
 	
 	// active is set directly on the effect, no need to 
 	// route into hasChanges
-    isActive->setValue(false);
+    isActive->setValue(false, id);
 
 }
 

@@ -18,7 +18,7 @@ namespace DeviceSenderInternals {
     // DeviceSender
 	FIELDDB_ELEMENT( DeviceSender, deviceIndex, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( DeviceSender, frequency, INPUT_OUTPUT );
-    FIELDDB_ELEMENT( DeviceSender, isActive, INPUT_ONLY );
+    FIELDDB_ELEMENT( DeviceSender, isActive, INPUT_OUTPUT );
 }
 
 
