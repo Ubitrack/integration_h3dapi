@@ -22,12 +22,13 @@ namespace ImageReceiverInternals {
 ImageReceiver::ImageReceiver(
 		H3D::Inst< H3D::SFNode > _metadata,
         H3D::Inst< H3D::SFString   > _pattern,
+        H3D::Inst< H3D::SFBool     > _isActive,
         H3D::Inst< H3D::SFBool     > _isSyncSource,
         H3D::Inst< H3D::SFBool     > _isDataAvailable,
         H3D::Inst< MeasurementMode > _mode,
         H3D::Inst< SFUTImageTexture > _texture
 		)
-: ImageReceiverBase( _metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
+: ImageReceiverBase( _metadata, _pattern, _isActive, _isSyncSource, _isDataAvailable, _mode)
 , texture(_texture)
 {
     type_name = "ImageReceiver";

@@ -22,12 +22,13 @@ namespace Matrix3ReceiverInternals {
 
 Matrix3Receiver::Matrix3Receiver(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFString   > _pattern,
+                           H3D::Inst< H3D::SFBool     > _isActive,
                            H3D::Inst< H3D::SFBool     > _isSyncSource,
                            H3D::Inst< H3D::SFBool     > _isDataAvailable,
                            H3D::Inst< MeasurementMode > _mode,
                            H3D::Inst< H3D::SFMatrix3d > _matrix
                            )
-: Matrix3ReceiverBase(_metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
+: Matrix3ReceiverBase(_metadata, _pattern, _isActive, _isSyncSource, _isDataAvailable, _mode)
 , matrix(_matrix)
 {
     type_name = "Matrix3Receiver";

@@ -72,6 +72,7 @@ public:
 	MeasurementReceiverBase(
 	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
 	        H3D::Inst< H3D::SFString   > _pattern = 0,
+	        H3D::Inst< H3D::SFBool     > _isActive = 0,
 	        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
 	        H3D::Inst< H3D::SFBool     > _isDataAvailable = 0,
 			H3D::Inst< MeasurementMode > _mode = 0
@@ -79,6 +80,8 @@ public:
 
 	// mode: PUSH/PULL
 	std::auto_ptr< MeasurementMode > mode;
+
+	std::auto_ptr< H3D::SFBool > isActive;
 
 	// bool identifier if this measurement should be used as sync source
 	std::auto_ptr< H3D::SFBool > isSyncSource;
@@ -156,10 +159,11 @@ public:
 	MeasurementReceiver(
 	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
 	        H3D::Inst< H3D::SFString   > _pattern = 0,
+	        H3D::Inst< H3D::SFBool     > _isActive = 0,
 	        H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
 	        H3D::Inst< H3D::SFBool     > _isDataAvailable = 0,
 			H3D::Inst< MeasurementMode > _mode = 0
-	) : MeasurementReceiverBase(_metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
+	) : MeasurementReceiverBase(_metadata, _pattern, _isActive, _isSyncSource, _isDataAvailable, _mode)
 		, pull_receiver(NULL)
 		{
 		};
@@ -173,6 +177,8 @@ public:
 
 	virtual void update( H3D::TraverseInfo &ti, unsigned long long ts ) {
 		if (!connected)
+			return;
+		if (!isActive->getValue( id ))
 			return;
 	    if ((!mode->is_push()) && (pull_receiver != NULL)) {
 	    	try {

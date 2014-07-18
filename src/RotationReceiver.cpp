@@ -22,12 +22,13 @@ namespace RotationReceiverInternals {
 
 RotationReceiver::RotationReceiver(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFString   > _pattern,
+                           H3D::Inst< H3D::SFBool     > _isActive,
                            H3D::Inst< H3D::SFBool     > _isSyncSource,
                            H3D::Inst< H3D::SFBool     > _isDataAvailable,
                            H3D::Inst< MeasurementMode > _mode,
                            H3D::Inst< H3D::SFRotation > _rotation
                            )
-: RotationReceiverBase(_metadata, _pattern, _isSyncSource, _isDataAvailable, _mode)
+: RotationReceiverBase(_metadata, _pattern, _isActive, _isSyncSource, _isDataAvailable, _mode)
 , rotation(_rotation)
 {
     type_name = "RotationReceiver";
