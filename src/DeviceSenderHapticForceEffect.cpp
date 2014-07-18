@@ -31,7 +31,7 @@
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/MeasurementSender.h>
-#include <HAPI/PhantomHapticsDevice.h>
+#include <HAPI/HAPIHapticsDevice.h>
 
 #include <H3DUtil/ReadWriteH3DTypes.h>
 #include <H3DUtil/Console.h>
@@ -41,12 +41,8 @@ using namespace HAPI;
 
 DeviceSenderHapticForceEffect::DeviceSenderHapticForceEffect(
 		Ubitrack::Components::ApplicationPushSourcePose* _push_source_pose,
-		Ubitrack::Components::ApplicationPushSourcePosition* _push_source_jointAngles,
-		Ubitrack::Components::ApplicationPushSourcePosition* _push_source_gimbalAngles,
 		bool _is_active, int _freq)
 : push_source_pose(_push_source_pose)
-, push_source_jointAngles(_push_source_jointAngles)
-, push_source_gimbalAngles(_push_source_gimbalAngles)
 , is_active(_is_active)
 {
   last_time = -1;
@@ -75,12 +71,8 @@ HAPIForceEffect::EffectOutput DeviceSenderHapticForceEffect::calculateForces( co
 	unsigned long long tstamp = Ubitrack::Measurement::now();
 
 	if (is_active && ready) {
-#ifdef HAVE_OPENHAPTICS
-		// retrieve information from haptic device state
-		HAPI::PhantomHapticsDevice* hd = static_cast<HAPI::PhantomHapticsDevice*>(input.hd);
-#else
 		HAPI::HAPIHapticsDevice* hd = input.hd;
-#endif
+
 		if (push_source_pose != NULL) {
 			HAPI::Vec3 device_pos = hd->getPosition();
 			HAPI::Quaternion device_orn = HAPI::Quaternion(
@@ -101,31 +93,6 @@ HAPIForceEffect::EffectOutput DeviceSenderHapticForceEffect::calculateForces( co
 						<< e.what() << std::endl;
 			}
 		}
-
-#ifdef HAVE_OPENHAPTICS
-		if (push_source_jointAngles != NULL) {
-			HAPI::Vec3 jA = hd->getJointAngles();
-			// convert HAPI -> Ubitrack
-			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< double, 3 >(jA.x, jA.y, jA.z));
-			try {
-				push_source_jointAngles->send(p);
-			} catch (Ubitrack::Util::Exception &e) {
-				H3D::Console(4) << "Error while pushing device sender measurement: " << e.what() << std::endl;
-			}
-		}
-
-		if (push_source_gimbalAngles != NULL) {
-			HAPI::Vec3 gA = hd->getGimbalAngles();
-			// convert HAPI -> Ubitrack
-			Ubitrack::Measurement::Position p(tstamp, Ubitrack::Math::Vector< double, 3 >(gA.x, gA.y, gA.z));
-			try {
-				push_source_gimbalAngles->send(p);
-			} catch (Ubitrack::Util::Exception &e) {
-				H3D::Console(4) << "Error while pushing device sender measurement: " << e.what() << std::endl;
-			}
-		}
-
-#endif
 	}
 	// no return value
 	return HAPIForceEffect::EffectOutput();

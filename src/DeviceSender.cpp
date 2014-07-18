@@ -18,31 +18,21 @@ namespace DeviceSenderInternals {
     // DeviceSender
 	FIELDDB_ELEMENT( DeviceSender, deviceIndex, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( DeviceSender, frequency, INPUT_OUTPUT );
-    FIELDDB_ELEMENT( DeviceSender, jointAnglesPattern, INPUT_ONLY );
-    FIELDDB_ELEMENT( DeviceSender, gimbalAnglesPattern, INPUT_ONLY );
     FIELDDB_ELEMENT( DeviceSender, isActive, INPUT_ONLY );
 }
 
 
 DeviceSender::DeviceSender(H3D::Inst< H3D::SFNode > _metadata,
                            H3D::Inst< H3D::SFString   > _pattern,
-                           H3D::Inst< H3D::SFString   > _jointAnglesPattern,
-                           H3D::Inst< H3D::SFString   > _gimbalAnglesPattern,
                            H3D::Inst< H3D::SFBool     > _isActive,
                            H3D::Inst< H3D::SFInt32    > _deviceIndex,
                            H3D::Inst< H3D::SFInt32    > _frequency
                            )
 : MeasurementSenderBase(_metadata, _pattern )
 , deviceIndex(_deviceIndex)
-, jointAnglesPattern(_jointAnglesPattern)
-, gimbalAnglesPattern(_gimbalAnglesPattern)
 , isActive(_isActive)
 , frequency(_frequency)
-, connected_jointAngles(false)
-, connected_gimbalAngles(false)
 , push_sender_pose(NULL)
-, push_sender_jointAngles(NULL)
-, push_sender_gimbalAngles(NULL)
 , forceeffect(NULL)
 {
     type_name = "DeviceSender";
@@ -103,35 +93,6 @@ bool DeviceSender::connect(FacadePtr sf) {
 		H3D::Console(4) << "Caught exception in componentByName( " << pattern->getValue(id).c_str() <<" ): " << e  << std::endl;
 		connected = false;
 	}
-#ifdef HAVE_OPENHAPTICS
-	if (jointAnglesPattern->getValue(id) != "") {
-		// push sender jointAngles (optional)
-		try
-		{
-			push_sender_jointAngles = sf->componentByName< Ubitrack::Components::ApplicationPushSourcePosition >( jointAnglesPattern->getValue(id).c_str() ).get();
-			connected_jointAngles = true;
-		}
-		catch ( const Ubitrack::Util::Exception& e )
-		{
-			H3D::Console(4) << "Caught exception in componentByName( " << jointAnglesPattern->getValue(id).c_str() <<" ): " << e  << std::endl;
-			connected_jointAngles = false;
-		}
-	}
-	if (gimbalAnglesPattern->getValue(id) != "") {
-		// push sender gimbalAngles (optional)
-		try
-		{
-			push_sender_gimbalAngles = sf->componentByName< Ubitrack::Components::ApplicationPushSourcePosition >( gimbalAnglesPattern->getValue(id).c_str() ).get();
-			connected_gimbalAngles = true;
-		}
-		catch ( const Ubitrack::Util::Exception& e )
-		{
-			H3D::Console(4) << "Caught exception in componentByName( " << gimbalAnglesPattern->getValue(id).c_str() <<" ): " << e  << std::endl;
-			connected_gimbalAngles = false;
-		}
-	}
-#endif
-
 	return connected;
 }
 
@@ -143,11 +104,7 @@ bool DeviceSender::disconnect(FacadePtr sf) {
 
 	// pull receiver
 	push_sender_pose = NULL;
-	push_sender_jointAngles = NULL;
-	push_sender_gimbalAngles = NULL;
 	connected = false;
-	connected_jointAngles = false;
-	connected_gimbalAngles = false;
 
 	return true;
 }
@@ -166,8 +123,6 @@ void DeviceSender::createHapticForceEffect(int index) {
 	// Create an instance of the DeviceSenderHapticForceEffect class.
 	forceeffect.reset(new DeviceSenderHapticForceEffect(
 			push_sender_pose,
-			push_sender_jointAngles,
-			push_sender_gimbalAngles,
 			isActive->getValue(id)
 		)
 	);

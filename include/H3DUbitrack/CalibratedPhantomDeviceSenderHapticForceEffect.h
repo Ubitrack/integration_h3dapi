@@ -7,8 +7,8 @@
 ///
 //
 //////////////////////////////////////////////////////////////////////////////
-#ifndef __DEVICESENDERHAPTICFORCEEFFECT_H__
-#define __DEVICESENDERHAPTICFORCEEFFECT_H__
+#ifndef __CALIBRATEDPHANTOMDEVICESENDERHAPTICFORCEEFFECT_H__
+#define __CALIBRATEDPHANTOMDEVICESENDERHAPTICFORCEEFFECT_H__
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/MeasurementSender.h>
@@ -27,15 +27,17 @@ namespace H3DUbitrack {
 /// \brief A haptic force effect which sends a pos/orn to an external
 /// haptic renderer and receives force/torque
 
-class H3DUBITRACK_API DeviceSenderHapticForceEffect: public HAPI::HAPIForceEffect {
+class H3DUBITRACK_API CalibratedPhantomDeviceSenderHapticForceEffect: public HAPI::HAPIForceEffect {
 public:
-	DeviceSenderHapticForceEffect(
+	CalibratedPhantomDeviceSenderHapticForceEffect(
 			Ubitrack::Components::ApplicationPushSourcePose* _push_source_pose,
+			Ubitrack::Components::ApplicationPushSourcePosition* _push_source_jointAngles,
+			Ubitrack::Components::ApplicationPushSourcePosition* _push_source_gimbalAngles,
 			bool _is_active,
 			int _freq = 100
 	);
 
-	~DeviceSenderHapticForceEffect();
+	~CalibratedPhantomDeviceSenderHapticForceEffect();
 
 	/// The force of the EffectOutput is calculated from the provided functions
 	HAPIForceEffect::EffectOutput virtual calculateForces( const HAPIForceEffect::EffectInput &input );
@@ -50,6 +52,8 @@ public:
 
 protected:
     Ubitrack::Components::ApplicationPushSourcePose* push_source_pose;
+	Ubitrack::Components::ApplicationPushSourcePosition* push_source_jointAngles;
+	Ubitrack::Components::ApplicationPushSourcePosition* push_source_gimbalAngles;
 	bool is_active;
 
     HAPI::HAPITime last_time, start_time;
