@@ -81,9 +81,9 @@ HAPIForceEffect::EffectOutput PhantomDeviceSenderHapticForceEffect::calculateFor
 		// retrieve information from haptic device state
 		HAPI::PhantomHapticsDevice* hd = static_cast<HAPI::PhantomHapticsDevice*>(input.hd);
 		if (push_source_pose != NULL) {
-			HAPI::Vec3 device_pos = hd->getPosition();
+			HAPI::Vec3 device_pos = hd->getRawPosition();
 			HAPI::Quaternion device_orn = HAPI::Quaternion(
-					hd->getOrientation());
+					hd->getRawOrientation());
 			// convert HAPI -> Ubitrack
 			Ubitrack::Measurement::Pose p(tstamp,
 					Ubitrack::Math::Pose(
