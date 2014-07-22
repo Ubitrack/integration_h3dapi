@@ -28,13 +28,12 @@ typedef MeasurementReceiver<Ubitrack::Measurement::PositionList , Ubitrack::Comp
 class H3DUBITRACK_API MVec3Receiver : public MVec3ReceiverBase {
 
 public:
-    Vec3Receiver( H3D::Inst< H3D::SFNode     > _metadata = 0,
+    MVec3Receiver( H3D::Inst< H3D::SFNode     > _metadata = 0,
                     H3D::Inst< H3D::SFString   > _pattern = 0,
                     H3D::Inst< H3D::SFBool     > _isActive = 0,
                     H3D::Inst< H3D::SFBool     > _isSyncSource = 0,
         	        H3D::Inst< H3D::SFBool     > _isDataAvailable = 0,
-                    H3D::Inst< MeasurementMode > _mode = 0,
-                    H3D::Inst< H3D::MFVec3d    > _value = 0
+                    H3D::Inst< MeasurementMode > _mode = 0
                     );
 
     std::auto_ptr< H3D::MFVec3d    > value;
