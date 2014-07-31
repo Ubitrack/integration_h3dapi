@@ -28,7 +28,7 @@ UTImageTexture::UTImageTexture(Inst<DisplayList> _displayList,
 		Inst<SFTextureProperties> _textureProperties)
 	: X3DTexture2DNode(_displayList, _metadata, _repeatS, _repeatT, _scaleToP2,
 					_image, _textureProperties)
-    , ut_last_timestamp(0)
+        , ut_last_timestamp(0)
 	, frame_bytes_allocated(0)
 	{
 	type_name = "UTImageTexture";
@@ -42,11 +42,16 @@ UTImageTexture::~UTImageTexture() {
 
 void UTImageTexture::render() {
 
+	if (!ut_image) {
+		return;
+	}
+
 	unsigned int required_frame_bytes = ut_image->width * ut_image->height * ut_image->nChannels;
 
 	if (frame_bytes_allocated != required_frame_bytes) {
         Image::PixelType pt = Image::RGB;
         unsigned int bits = 24;
+
     	switch ( ut_image->nChannels ) {
     		case 1: pt = Image::LUMINANCE;
     				 bits = 8;
@@ -59,7 +64,6 @@ void UTImageTexture::render() {
     				break;
     	}
 
-  	    //Console(4) << "DBG image: w,h: " << cvimg->width << ", " << cvimg->height << ";" << std::endl;
 		image->setValue( new PixelImage( ut_image->width,
 										  ut_image->height,
 										  1,
@@ -68,6 +72,7 @@ void UTImageTexture::render() {
 										  Image::UNSIGNED ) );
 
 		frame_bytes_allocated = required_frame_bytes;
+
 		X3DTexture2DNode::render();
 	} else {
 		PixelImage *pi = dynamic_cast<PixelImage *> (image->getValue());
@@ -79,7 +84,6 @@ void UTImageTexture::render() {
 			unsigned char* srcData = (unsigned char*) ut_image->imageData;
 			unsigned char* dstData = (unsigned char*) pi->getImageData();
 			memcpy(dstData, srcData, sizeof(unsigned char)*frame_bytes_allocated);
-
 			renderSubImage(pi, texture_target, 0, 0,
 							 ut_image->width, ut_image->height);
 			enableTexturing();
