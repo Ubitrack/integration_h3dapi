@@ -30,6 +30,7 @@ namespace UbitrackInstanceInternals
     FIELDDB_ELEMENT( UbitrackInstance, log4cppConfig, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, autoStart, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, running, INPUT_OUTPUT );
+    FIELDDB_ELEMENT( UbitrackInstance, pollEvery, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, receiver, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, sender, INPUT_OUTPUT );
 }
@@ -41,6 +42,7 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< SFString   > _log4cppConfig,
                                  Inst< SFBool     >  _autoStart,
                                  Inst< SFRunning  >  _running,
+                                 Inst< SFInt32  >  _pollEvery,
                                  Inst< MFMeasurementReceiver >  _receiver,
                                  Inst< MFMeasurementSender >  _sender
                                  )
@@ -52,7 +54,9 @@ UbitrackInstance::UbitrackInstance(
 , receiver(_receiver)
 , sender(_sender)
 , running(_running)
+, pollEvery(_pollEvery)
 , is_loaded(false)
+, traversal_counter(0)
 //, facade(NULL)
 , sync_receiver(NULL)
 {
@@ -61,6 +65,7 @@ UbitrackInstance::UbitrackInstance(
     database.initFields( this );
 
     autoStart->setValue(true, id);
+	pollEvery->setValue(0, id);
     componentDir->setValue("lib/ubitrack", id);
     log4cppConfig->setValue("log4cpp.conf", id);
 }
@@ -88,6 +93,8 @@ void UbitrackInstance::initialize()
 {
 	Ubitrack::Util::initLogging(log4cppConfig->getValue( id ).c_str());
 	H3D::Console << "Initializing Ubitrack Logging: " << log4cppConfig->getValue( id ) << std::endl;
+
+	traversal_counter = pollEvery->getValue(id);
 
     try {
         facade.reset(new AdvancedFacade(componentDir->getValue( id ).c_str() ));
@@ -228,6 +235,18 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
         	is_running = running->getValue(id);
         }
 
+		// only poll every n-th traversal .. e.g. 
+		int pe = pollEvery->getValue(id);
+		if (pe > 0) {
+			if (traversal_counter == 0) {
+				traversal_counter = pe;
+			}
+			if (traversal_counter < pe) {
+				traversal_counter--;
+				return;
+			}
+			traversal_counter--;
+		}
 
 		unsigned long long ts = Ubitrack::Measurement::now();
 		if ((sync_receiver != NULL) && (is_running)) {

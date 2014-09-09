@@ -10,6 +10,7 @@
 
 #include <H3D/X3DChildNode.h>
 #include <H3D/SFString.h>
+#include <H3D/SFInt32.h>
 #include <H3D/MFString.h>
 #include <H3D/MFNode.h>
 #include <H3D/X3DUrlObject.h>
@@ -63,6 +64,7 @@ public:
                      Inst< SFString              > _log4cppConfig = 0,
                      Inst< SFBool                > _autoStart     = 0,
                      Inst< SFRunning             > _running       = 0,
+                     Inst< SFInt32               > _pollEvery     = 0,
                      Inst< MFMeasurementReceiver > receiver       = 0,
                      Inst< MFMeasurementSender   > sender         = 0
                      );
@@ -87,6 +89,9 @@ public:
     
     /// should the dataflow be started automatically ?
     auto_ptr< SFBool > autoStart;
+
+	// poll every nth traversal
+	auto_ptr< SFInt32 > pollEvery;
     
     /// is the dataflow currently running, setting this field to true actually starts the dataflow
     auto_ptr< SFRunning > running;
@@ -108,7 +113,7 @@ protected:
     MeasurementReceiverBase* sync_receiver;
     bool is_loaded;
         
-    
+    unsigned int traversal_counter;
     
 };
     
