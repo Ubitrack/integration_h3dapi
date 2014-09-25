@@ -55,10 +55,15 @@ void UTImageTexture::render() {
     	switch ( ut_image->nChannels ) {
     		case 1: pt = Image::LUMINANCE;
     				 bits = 8;
+					 //H3D::Console << "Grayscale Texture" << std::endl;
     				 break;
     		case 3:
-    				if (ut_image->channelSeq[ 0 ] == 'B' && ut_image->channelSeq[ 1 ] == 'G' && ut_image->channelSeq[ 2 ] == 'R' )
+    				if (ut_image->channelSeq[ 0 ] == 'B' && ut_image->channelSeq[ 1 ] == 'G' && ut_image->channelSeq[ 2 ] == 'R' ) {
     					pt = Image::BGR;
+						//H3D::Console << "BGR Texture" << std::endl;
+					} else {
+						//H3D::Console << "RGB Texture" << std::endl;
+					}
     				break;
     		default:
     				break;
