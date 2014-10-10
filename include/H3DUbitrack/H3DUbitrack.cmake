@@ -39,7 +39,12 @@
 // whereas this DLL sees symbols defined with this macro as being
 // exported.
 #ifdef WIN32
+#ifndef _WINDOWS_
+#include <WinSock2.h>
+#define _WINSOCKAPI_
+#define NOMINMAX
 #include <windows.h>
+#endif
 #ifdef H3DUBITRACK_EXPORTS
 #define H3DUBITRACK_API __declspec(dllexport)
 #else
