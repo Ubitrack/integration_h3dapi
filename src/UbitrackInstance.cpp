@@ -96,41 +96,45 @@ UbitrackInstance::~UbitrackInstance()
 
 void UbitrackInstance::initialize()
 {
-	Ubitrack::Util::initLogging(log4cppConfig->getValue( id ).c_str());
-	H3D::Console << "Initializing Ubitrack Logging: " << log4cppConfig->getValue( id ) << std::endl;
+    bool is_tmp_file= false;
+
+	std::string logging_filename = resolveURLAsFile( log4cppConfig->getValue( id ), &is_tmp_file );
+	H3D::Console << "Initializing Ubitrack Logging: " << logging_filename << std::endl;
+	Ubitrack::Util::initLogging(logging_filename.c_str());
 
 	traversal_counter = pollEvery->getValue(id);
 
     try {
-        facade.reset(new AdvancedFacade(componentDir->getValue( id ).c_str() ));
+		std::string components_path = componentDir->getValue( id );
+		H3D::Console << "Components path: " << components_path << std::endl;
+        facade.reset(new AdvancedFacade(components_path.c_str() ));
     } catch (const Ubitrack::Util::Exception& e ) {
-        // log error here
+		H3D::Console << "Error creating facade instance: " << e.what() << std::endl; 
         is_loaded = false;
         return;
     }
     Console(4) << "Initialize UbitrackInstance" << std::endl;
     if (facade != NULL) {
         for( MFString::const_iterator i = url->begin(); i != url->end(); i++ ) {
-            bool is_tmp_file= false;
-            Console(4) << "Find DFG file: " << *i << std::endl;
+            H3D::Console << "Find DFG file: " << *i << std::endl;
 
             string resolved_url = resolveURLAsFile( *i, &is_tmp_file );
-            Console(4) << "Resolved URL: " << resolved_url << std::endl;
+            H3D::Console << "Resolved URL: " << resolved_url << std::endl;
             
             if (resolved_url != "") {
                 setURLUsed( *i );
             
-                Console(4) << "Load DFG: " << resolved_url << std::endl;
+                H3D::Console << "Load DFG: " << resolved_url << std::endl;
                 
                 try {
                 	facade->loadDataflow(resolved_url.c_str());
                     is_loaded = true;
                 } catch (const Ubitrack::Util::Exception& e ) {
                     // log error here
-                    Console(4) << "Ubitrack Error loading DFG: " << e.what() << std::endl;
+                    H3D::Console << "Ubitrack Error loading DFG: " << e.what() << std::endl;
                     is_loaded = false;
                 } catch (const std::exception& e) {
-                    Console(4) << "Generic Exception loading DFG: " << e.what() << std::endl;
+                    H3D::Console << "Generic Exception loading DFG: " << e.what() << std::endl;
                     is_loaded = false;
                 }
                 
@@ -146,7 +150,7 @@ bool UbitrackInstance::startDataflow()
     if (!is_loaded)
         return false;
     
-    Console(4) << "Start DFG" << std::endl;
+    H3D::Console << "Start DFG" << std::endl;
     bool started = false;
     if (facade != NULL) {
 
@@ -169,7 +173,7 @@ bool UbitrackInstance::startDataflow()
             started = true;
         } catch (const Ubitrack::Util::Exception& e ) {
             // log error here
-            Console(4) << "Error starting DFG: " << e.what() << std::endl;
+            H3D::Console << "Error starting DFG: " << e.what() << std::endl;
         }
 
         // connect senders
@@ -189,7 +193,7 @@ bool UbitrackInstance::stopDataflow()
         return false;
 
 
-    Console(4) << "Stop DFG" << std::endl;
+    H3D::Console << "Stop DFG" << std::endl;
     bool stopped = false;
     if (facade != NULL) {
         // disconnect senders
@@ -211,6 +215,7 @@ bool UbitrackInstance::stopDataflow()
             stopped = true;
         } catch (const Ubitrack::Util::Exception& e ) {
             // log error here
+			H3D::Console << "Error while stopping dataflow: " << e.what() << std::endl;
         }
 
         // disconnect receivers
@@ -235,7 +240,7 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
     	bool is_running = running->getValue(id);
 
     	if ((!is_running) && (is_loaded) && (autoStart->getValue( id ))) {
-            Console(4) << "Autostart DFG " <<  std::endl;
+            H3D::Console << "Autostart DFG " <<  std::endl;
             running->setValue( true, id );
         	is_running = running->getValue(id);
         }
