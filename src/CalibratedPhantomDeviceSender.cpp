@@ -169,7 +169,8 @@ void CalibratedPhantomDeviceSender::createHapticForceEffect(int index) {
 			push_sender_pose,
 			push_sender_jointAngles,
 			push_sender_gimbalAngles,
-			isActive->getValue(id)
+			isActive->getValue(id),
+			frequency->getValue(id)
 		)
 	);
 }
