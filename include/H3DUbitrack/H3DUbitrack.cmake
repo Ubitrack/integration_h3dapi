@@ -92,6 +92,7 @@ extern "C" H3DUBITRACK_API H3D::LibraryInfo getLibraryInfo();
 
 #cmakedefine HAVE_CALIBRATEDPHANTOM
 #cmakedefine HAVE_REMOTEPHANTOM
+#cmakedefine HAVE_VIRTUOSEAPI
 
 #ifdef H3DUBITRACK_USE_THREADSAFE_FIELDS
 #define TSSField(TYPE) H3D::ThreadSafeSField< TYPE >

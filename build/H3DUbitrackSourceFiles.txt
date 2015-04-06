@@ -32,6 +32,8 @@ SET( H3DUbitrack_HEADERS "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/Ubitr
                      "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/CalibratedPhantomDeviceSenderHapticForceEffect.h"
                      "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/RemotePhantomDeviceSender.h"
                      "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/RemotePhantomDeviceSenderHapticForceEffect.h"
+                     "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/HaptionDeviceSender.h"
+                     "${H3DUbitrack_SOURCE_DIR}/../include/H3DUbitrack/HaptionDeviceSenderHapticForceEffect.h"
 					)
 
 SET( H3DUbitrack_SRCS "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackInstance.cpp" 
@@ -67,4 +69,6 @@ SET( H3DUbitrack_SRCS "${H3DUbitrack_SOURCE_DIR}/../src/UbitrackInstance.cpp"
                   "${H3DUbitrack_SOURCE_DIR}/../src/PhantomDeviceSenderHapticForceEffect.cpp"
                   "${H3DUbitrack_SOURCE_DIR}/../src/RemotePhantomDeviceSender.cpp"
                   "${H3DUbitrack_SOURCE_DIR}/../src/RemotePhantomDeviceSenderHapticForceEffect.cpp"
+                  "${H3DUbitrack_SOURCE_DIR}/../src/HaptionDeviceSender.cpp"
+                  "${H3DUbitrack_SOURCE_DIR}/../src/HaptionDeviceSenderHapticForceEffect.cpp"
 				)
