@@ -184,7 +184,7 @@ public:
 	    	try {
 				updateMeasurement(pull_receiver->get(ts));
 				isDataAvailable->setValue(true, id);
-	    	} catch (Ubitrack::Util::Exception &e) {
+	    	} catch (Ubitrack::Util::Exception /* &e */) {
 				isDataAvailable->setValue(false, id);
 	    	}
 	    } else if (mode->is_push()) {

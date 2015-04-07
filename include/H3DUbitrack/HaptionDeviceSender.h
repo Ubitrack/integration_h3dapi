@@ -30,9 +30,9 @@ class H3DUBITRACK_API HaptionDeviceSender : public MeasurementSenderBase {
 public:
     HaptionDeviceSender( H3D::Inst< H3D::SFNode       > _metadata = 0,
                     H3D::Inst< H3D::SFString   > _pattern = 0,
-                    H3D::Inst< H3D::SFString   > _platformSensorPattern = 0,
-					H3D::Inst< H3D::SFString   > _jointSensorPattern = 0,
-                    H3D::Inst< H3D::SFString   > _gimbalSensorPattern = 0,
+                    H3D::Inst< H3D::SFString   > _platformSensorsPattern = 0,
+					H3D::Inst< H3D::SFString   > _jointSensorsPattern = 0,
+                    H3D::Inst< H3D::SFString   > _gimbalSensorsPattern = 0,
                     H3D::Inst< H3D::SFBool     > _isActive = 0,
                     H3D::Inst< H3D::SFInt32    > _deviceIndex = 0,
 					H3D::Inst< H3D::SFInt32    > _frequency = 0
@@ -48,9 +48,9 @@ public:
     auto_ptr< H3D::SFInt32 > frequency;
 
 	// pattern names for sources to connect
-    std::auto_ptr< H3D::SFString > platformSensorPattern;
-    std::auto_ptr< H3D::SFString > jointSensorPattern;
-    std::auto_ptr< H3D::SFString > gimbalSensorPattern;
+    std::auto_ptr< H3D::SFString > platformSensorsPattern;
+    std::auto_ptr< H3D::SFString > jointSensorsPattern;
+    std::auto_ptr< H3D::SFString > gimbalSensorsPattern;
 
     // activate transmission
     std::auto_ptr< H3D::SFBool > isActive;
@@ -75,9 +75,9 @@ protected:
 
 
 	Ubitrack::Components::ApplicationPushSourcePose* push_sender_pose;
-    Ubitrack::Components::ApplicationPushSourcePosition* push_sender_platformSensor;
-	Ubitrack::Components::ApplicationPushSourcePosition* push_sender_jointSensor;
-	Ubitrack::Components::ApplicationPushSourcePosition* push_sender_gimbalSensor;
+    Ubitrack::Components::ApplicationPushSourcePosition* push_sender_platformSensors;
+	Ubitrack::Components::ApplicationPushSourcePosition* push_sender_jointSensors;
+	Ubitrack::Components::ApplicationPushSourcePosition* push_sender_gimbalSensors;
 
     std::auto_ptr<HaptionDeviceSenderHapticForceEffect> forceeffect;
     bool connected_platformSensors;
