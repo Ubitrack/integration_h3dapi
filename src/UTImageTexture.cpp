@@ -103,3 +103,19 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
 	ut_image = cvimg;
 	repeatS->setValue(true, id);
 }
+
+void UTImageTexture::drawAsStencilBuffer() {
+
+	// Inserted this line to reset the position of the raster
+	// so that the entire stencil_mask will be copied into the stencil
+	// buffer by glDrawPixels.  This ensures that even if user calls such
+	// as glDrawPixels(), glCopyPixels(), or glBindFramebufferEXT()
+	// leave glRasterPos in the middle of the screen, the entire stencil
+	// stencil_mack still gets copied to the stencil buffery by
+	// glDrawPixels()
+	glWindowPos2f(0.000000f, 0.000000f);
+
+	// what is the correct width/height .. screen or texture ?
+	glDrawPixels( ut_image->width, ut_image->height,
+				  GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, ut_image->imageData );
+}
