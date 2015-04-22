@@ -93,6 +93,8 @@ void UTFullscreenRectangle::render() {
 	UTImageTexture *_texture = dynamic_cast<UTImageTexture *>(texture->getValueByIndex(texture_idx, id));
 
 
+	// this should be configurable
+	glDisable(GL_STENCIL_TEST);
 
 	glPushAttrib( GL_ALL_ATTRIB_BITS );
 

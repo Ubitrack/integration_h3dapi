@@ -52,7 +52,9 @@ namespace H3DUbitrack {
     /** Initializes local members */
     UTStencilBuffer(Inst< SFNode    > _metadata = 0,
 		       Inst< DisplayList > _displayList = 0,
-		       Inst< MFImageTextureNode  > _texture = 0);
+		       Inst< MFImageTextureNode  > _texture = 0,
+			   Inst< SFBool > _horizontalFlip = 0,
+			   Inst< SFBool > _verticalFlip = 0);
     
     static H3D::H3DNodeDatabase database;
     
@@ -66,6 +68,12 @@ namespace H3DUbitrack {
     /// 
     /// \dotfile TextureBackground_frontTexture.dot
     auto_ptr< MFImageTextureNode >  texture;
+
+	// horizontal flip
+    auto_ptr< SFBool >  horizontalFlip;
+
+	// vertical flip
+    auto_ptr< SFBool >  verticalFlip;
 
   protected:
     inline void renderTexCoordForTexture( const Vec3f &tc, 

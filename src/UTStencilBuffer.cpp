@@ -12,6 +12,8 @@ H3DNodeDatabase UTStencilBuffer::database
 
 namespace UTStencilBufferInternals {
 	FIELDDB_ELEMENT( UTStencilBuffer, texture, INPUT_OUTPUT );
+	FIELDDB_ELEMENT( UTStencilBuffer, horizontalFlip, INPUT_OUTPUT );
+	FIELDDB_ELEMENT( UTStencilBuffer, verticalFlip, INPUT_OUTPUT );
 }
 
 void UTStencilBuffer::MFImageTextureNode::onAdd( Node *n) {
@@ -38,10 +40,14 @@ void UTStencilBuffer::MFImageTextureNode::onRemove( Node *n) {
 
 UTStencilBuffer::UTStencilBuffer(Inst< SFNode    > _metadata,
                                       Inst< DisplayList > _displayList,
-                                      Inst< MFImageTextureNode  > _texture)
+                                      Inst< MFImageTextureNode  > _texture,
+									  Inst< SFBool > _horizontalFlip,
+									  Inst< SFBool > _verticalFlip)
   : X3DChildNode( _metadata )
   , H3DDisplayListObject( _displayList )
   , texture( _texture )
+  , horizontalFlip(_horizontalFlip)
+  , verticalFlip(_verticalFlip)
 {
 
   type_name = "UTStencilBuffer";
@@ -51,6 +57,8 @@ UTStencilBuffer::UTStencilBuffer(Inst< SFNode    > _metadata,
   displayList->touch();
 
   texture->route( displayList );
+  horizontalFlip->route( displayList );
+  verticalFlip->route( displayList );
 }
 
 
@@ -76,11 +84,74 @@ void UTStencilBuffer::render() {
 	}
 	UTImageTexture *_texture = dynamic_cast<UTImageTexture *>(texture->getValueByIndex(texture_idx, id));
 
-	_texture->drawAsStencilBuffer();
-
 	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_EQUAL,1,1);
-	glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF); // Set any stencil to 1
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilMask(0xFF); // Write to stencil buffer
+	glDepthMask(GL_FALSE); // Don't write to depth buffer
+	glClear(GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
+
+	glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glOrtho(viewport.x, viewport.y, viewport.z, viewport.w, -1, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	
+	glDisable(GL_BLEND);
+
+	//glCullFace( GL_BACK );
+	//glEnable( GL_CULL_FACE );
+	glDisable( GL_LIGHTING );
+
+
+	glColor4f( 1, 1, 1, 1 );
+
+	int b, t, l, r;
+	bool hflip = horizontalFlip->getValue( id );
+	bool vflip = verticalFlip->getValue( id );
+
+	t = vflip ? 0 : 1;
+	b = vflip ? 1 : 0;
+	l = hflip ? 0 : 1;
+	r = hflip ? 1 : 0;
+
+	if( _texture  ) {
+		_texture->preRender();
+		_texture->displayList->callList();
+		glBegin( GL_QUADS );
+		//glNormal3f( 0, 0, 1 );
+		renderTexCoordForTexture( Vec3f( b, r, 0. ), _texture );
+		glVertex2i( (GLint)viewport.x, (GLint)viewport.z );
+		renderTexCoordForTexture( Vec3f( t, r, 0. ), _texture );
+		glVertex2i( (GLint)viewport.y, (GLint)viewport.z );
+		renderTexCoordForTexture( Vec3f( t, l, 0. ), _texture );
+		glVertex2i( (GLint)viewport.y, (GLint)viewport.w );
+		renderTexCoordForTexture( Vec3f( b, l, 0. ), _texture );
+		glVertex2i( (GLint)viewport.x, (GLint)viewport.w );
+		glEnd();
+		_texture->postRender();
+	}
+
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode( GL_MODELVIEW );
+	glPopMatrix();
+
+	glPopAttrib();
+
+    glStencilFunc(GL_EQUAL, 1, 0x01); // Pass test if stencil value is != 1
+    glStencilMask(0x00); // Don't write anything to stencil buffer
+    glDepthMask(GL_TRUE); // Write to depth buffer
 
 }
 
