@@ -43,8 +43,6 @@ namespace H3DUbitrack {
 
     void updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg);
 
-    void drawAsStencilBuffer();
-
     /// The H3DNodeDatabase for this node.
     static H3DNodeDatabase database;
 
