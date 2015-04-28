@@ -1,5 +1,5 @@
-#ifndef _UBITRACKIMAGEBACKGROUND_HH_
-#define _UBITRACKIMAGEBACKGROUND_HH_
+#ifndef _UTSTEREOTEXTURESELECTOR_HH_
+#define _UTSTEREOTEXTURESELECTOR_HH_
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/UTCameraViewpoint.h>
@@ -14,7 +14,7 @@
 
 #include <H3D/X3DChildNode.h>
 #include <H3D/H3DWindowNode.h>
-#include <H3D/SFFloat.h>
+#include <H3D/SFInt32.h>
 
 namespace H3DUbitrack {
 	using namespace H3D;
@@ -26,9 +26,8 @@ namespace H3DUbitrack {
       The stencil buffer. \eol
      \endX3D
   */
-  class H3DUBITRACK_API UTStencilBuffer
-    : public H3D::X3DChildNode,
-      public H3DDisplayListObject {
+  class H3DUBITRACK_API UTStereoTextureSelector
+    : public H3D::X3DChildNode {
   
   public:
 
@@ -49,12 +48,22 @@ namespace H3DUbitrack {
     };
 
 
+    /// The SFTextureNode field is dependent on the displayList field
+    /// of the containing X3DTextureNode node.
+    typedef DependentSFNode< X3DTextureNode, 
+                             FieldRef< H3DDisplayListObject,
+                                       H3DDisplayListObject::DisplayList,
+                                       &H3DDisplayListObject::displayList >, 
+                             true >
+    SFTextureNode;
+
+
+
     /** Initializes local members */
-    UTStencilBuffer(Inst< SFNode    > _metadata = 0,
-		       Inst< DisplayList > _displayList = 0,
-		       Inst< MFImageTextureNode  > _texture = 0,
-			   Inst< SFBool > _horizontalFlip = 0,
-			   Inst< SFBool > _verticalFlip = 0);
+    UTStereoTextureSelector(Inst< SFNode    > _metadata = 0,
+		       Inst< MFImageTextureNode     > _texture = 0,
+			   Inst< SFTextureNode          > _textureOut = 0,
+			   Inst< SFInt32                > _textureId = 0);
     
     static H3D::H3DNodeDatabase database;
     
@@ -62,18 +71,24 @@ namespace H3DUbitrack {
     /// Renders the background with OpenGL.
     virtual void render();
 
-    /// The texture to use
+    /// The texture input
     ///
     /// <b>Access type:</b> inputOutput \n
     /// 
-    /// \dotfile TextureBackground_frontTexture.dot
     auto_ptr< MFImageTextureNode >  texture;
 
-	// horizontal flip
-    auto_ptr< SFBool >  horizontalFlip;
+    /// The texture Output
+    ///
+    /// <b>Access type:</b> outputOnly \n
+    /// 
+    auto_ptr< SFTextureNode >  textureOut;
 
-	// vertical flip
-    auto_ptr< SFBool >  verticalFlip;
+    /// The texture ID
+    ///
+    /// <b>Access type:</b> outputOnly \n
+    /// 
+    auto_ptr< SFInt32 >  textureId;
+
 
   protected:
     inline void renderTexCoordForTexture( const Vec3f &tc, 

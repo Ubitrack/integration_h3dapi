@@ -1,9 +1,9 @@
-#ifndef _UBITRACKIMAGEBACKGROUND_HH_
-#define _UBITRACKIMAGEBACKGROUND_HH_
+#ifndef _UTFULLSCREENRECTANGLE_HH_
+#define _UTFULLSCREENRECTANGLE_HH_
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/UTCameraViewpoint.h>
-#include <H3DUbitrack/UTImageTexture.h>
+#include <H3D/X3DAppearanceNode.h>
 
 #include <H3D/X3DTexture2DNode.h>
 #include <H3D/X3DTextureNode.h>
@@ -34,33 +34,26 @@ namespace H3DUbitrack {
   
   public:
 
-    /// The SFTextureNode field is dependent on the displayList field
-    /// of the containing X3DTextureNode node.
-    typedef DependentMFNode< X3DTexture2DNode, 
-                             FieldRef< H3DDisplayListObject,
-                                       H3DDisplayListObject::DisplayList,
-                                       &H3DDisplayListObject::displayList >, 
-                             true >
-    MFImageTextureNode_t;
-
-	/// A SFNode encapsulating a CVImageBuffer Class
-	struct MFImageTextureNode : MFImageTextureNode_t {
-      inline ~MFImageTextureNode(){ clear(); }
-      void onAdd(Node *n);
-      void onRemove(Node *n);
-    };
-
+    /// SFAppearanceNode is dependent on the displayList field of its
+    /// encapsulated X3DAppearanceNode node, i.e. an event from that
+    /// field will trigger an event from the SFAppearanceNode as well.
+    typedef DependentSFNode< X3DAppearanceNode,
+                             FieldRef<H3DDisplayListObject, 
+                                      H3DDisplayListObject::DisplayList,
+                                      &H3DDisplayListObject::displayList >, 
+                             true > 
+    SFAppearanceNode;
 
 
 
     /** Initializes local members */
-    UTFullscreenRectangle(Inst< SFNode    > _metadata = 0,
-		       Inst< DisplayList > _displayList = 0,
-		       Inst< MFImageTextureNode  > _texture = 0,
-			   Inst< SFBool > _horizontalFlip = 0,
-			   Inst< SFBool > _verticalFlip = 0,
-			   Inst< SFBool > _depthMaskEnable = 0,
-			   Inst< SFBool > _depthTestEnable = 0);
+    UTFullscreenRectangle(Inst< SFNode > _metadata = 0,
+		       Inst< DisplayList       > _displayList = 0,
+		       Inst< SFAppearanceNode  > _appearance  = 0,
+			   Inst< SFBool            > _horizontalFlip = 0,
+			   Inst< SFBool            > _verticalFlip = 0,
+			   Inst< SFBool            > _depthMaskEnable = 0,
+			   Inst< SFBool            > _depthTestEnable = 0);
     
     static H3D::H3DNodeDatabase database;
     
@@ -68,12 +61,13 @@ namespace H3DUbitrack {
     /// Renders the background with OpenGL.
     virtual void render();
 
-    /// The texture to use
-    ///
-    /// <b>Access type:</b> inputOutput \n
+    /// The field containing the X3DAppearance node to be used when
+    /// rendering the shape.
     /// 
-    /// \dotfile TextureBackground_frontTexture.dot
-    auto_ptr< MFImageTextureNode >  texture;
+    /// <b>Access type:</b> inputOutput
+    /// 
+    /// \dotfile X3DShapeNode_appearance.dot
+    auto_ptr<    SFAppearanceNode  >  appearance;
 
 	// horizontal flip
     auto_ptr< SFBool >  horizontalFlip;
