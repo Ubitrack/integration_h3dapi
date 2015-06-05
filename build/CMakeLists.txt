@@ -212,17 +212,18 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 add_definitions(-DBOOST_SPIRIT_USE_OLD_NAMESPACE)
 
 
-if(MSVC)
-  # force dynamic linking of boost libs on windows ..
-  add_definitions(-DBOOST_ALL_DYN_LINK)
-endif(MSVC)
+# if(MSVC)
+#   # force dynamic linking of boost libs on windows ..
+#   add_definitions(-DBOOST_ALL_DYN_LINK)
+# endif(MSVC)
 
 SET(HAVE_BOOST 0)
-set(Boost_USE_STATIC_LIBS   OFF)
+set(Boost_USE_STATIC_LIBS   ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package( Boost 1.49 COMPONENTS thread date_time system filesystem regex chrono locale serialization program_options REQUIRED)
 if(Boost_FOUND)
+  add_definitions("-DBOOST_ALL_NO_LIB")
   add_definitions("-DBOOST_FILESYSTEM_VERSION=3")
   add_definitions(-DHAVE_BOOST)
   SET(HAVE_BOOST 1)
