@@ -195,7 +195,7 @@ IF(HAPTIONHAPI_FOUND)
     SET(requiredLibs ${requiredLibs} ${VIRTUOSE_LIBRARIES} )
   ENDIF(VIRTUOSE_FOUND)
 
-ENDIF(REMOTEPHANTOM_FOUND)
+ENDIF(HAPTIONHAPI_FOUND)
 
 
 # Find Boost library. Required to compile.
