@@ -63,6 +63,7 @@ public:
                      Inst< SFString              > _componentDir  = 0,
                      Inst< SFString              > _log4cppConfig = 0,
                      Inst< SFBool                > _autoStart     = 0,
+                     Inst< SFBool                > _dropEvents    = 0,
                      Inst< SFRunning             > _running       = 0,
                      Inst< SFInt32               > _pollEvery     = 0,
 					 Inst< SFInt32               > _eventQueueLength = 0,
@@ -91,7 +92,10 @@ public:
     /// should the dataflow be started automatically ?
     auto_ptr< SFBool > autoStart;
 
-	// poll every nth traversal
+    /// should the eventqueue drop events ?
+    auto_ptr< SFBool > dropEvents;
+
+    // poll every nth traversal
 	auto_ptr< SFInt32 > pollEvery;
     
     /// is the dataflow currently running, setting this field to true actually starts the dataflow

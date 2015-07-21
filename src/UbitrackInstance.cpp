@@ -30,6 +30,7 @@ namespace UbitrackInstanceInternals
     FIELDDB_ELEMENT( UbitrackInstance, componentDir, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, log4cppConfig, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, autoStart, INITIALIZE_ONLY );
+    FIELDDB_ELEMENT( UbitrackInstance, dropEvents, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, running, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, pollEvery, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, eventQueueLength, OUTPUT_ONLY );
@@ -43,6 +44,7 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< SFString   > _componentDir,
                                  Inst< SFString   > _log4cppConfig,
                                  Inst< SFBool     >  _autoStart,
+                                 Inst< SFBool     >  _dropEvents,
                                  Inst< SFRunning  >  _running,
                                  Inst< SFInt32  >  _pollEvery,
 								 Inst< SFInt32  >  _eventQueueLength,
@@ -54,6 +56,7 @@ UbitrackInstance::UbitrackInstance(
 , componentDir(_componentDir)
 , log4cppConfig(_log4cppConfig)
 , autoStart(_autoStart)
+, dropEvents(_dropEvents)
 , receiver(_receiver)
 , sender(_sender)
 , running(_running)
@@ -69,6 +72,7 @@ UbitrackInstance::UbitrackInstance(
     database.initFields( this );
 
     autoStart->setValue(true, id);
+    dropEvents->setValue(false, id);
 	pollEvery->setValue(0, id);
 	eventQueueLength->setValue(0, id);
     componentDir->setValue("lib/ubitrack", id);
@@ -106,8 +110,9 @@ void UbitrackInstance::initialize()
 
     try {
 		std::string components_path = componentDir->getValue( id );
-		H3D::Console << "Components path: " << components_path << std::endl;
-        facade.reset(new AdvancedFacade(components_path.c_str() ));
+        bool drop_ev = dropEvents->getValue( id );
+		H3D::Console << "Components path: " << components_path << " drop events: " << drop_ev << std::endl;
+        facade.reset(new AdvancedFacade(drop_ev, components_path.c_str() ));
     } catch (const Ubitrack::Util::Exception& e ) {
 		H3D::Console << "Error creating facade instance: " << e.what() << std::endl; 
         is_loaded = false;
