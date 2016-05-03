@@ -19,6 +19,8 @@
 #include <boost/bind.hpp>
 #include <vector>
 
+#include "utDataflow/TracingProvider.h"
+
 using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
@@ -117,6 +119,10 @@ public:
         	data_ready = true;
 
     	}
+
+#ifdef HAVE_ETW
+		ETWUbitrackEventQueueApplication(0, ts, "H3D:Ubitrack:MeasurementReceiver", pattern->getValue(id).c_str(), "data_ready");
+#endif
     	cond.notify_all();
     }
 

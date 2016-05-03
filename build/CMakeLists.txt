@@ -6,6 +6,15 @@ ENDIF(WIN32)
 
 PROJECT(H3DUbitrack)
 
+# optionally enable ETW Tracing manually
+IF(WIN32)
+OPTION(UBITRACK_USE_ETW "Use EventTracing for Windows Providers" OFF)
+
+IF(UBITRACK_USE_ETW)
+ADD_DEFINITIONS(-DHAVE_ETW)
+ENDIF(UBITRACK_USE_ETW)
+ENDIF(WIN32)
+
 # set the install directory to the H3DUbitrack directory on Windows
 IF( WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT H3D_CMAKE_INSTALL_PREFIX_ALREADY_SET ) 
   SET( CMAKE_INSTALL_PREFIX ${H3DUbitrack_SOURCE_DIR}/.. CACHE PATH "Install path prefix, prepended onto install directories." FORCE )
