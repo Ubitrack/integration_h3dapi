@@ -23,7 +23,7 @@ using namespace Ubitrack::Facade;
 
 namespace H3DUbitrack {
 
-typedef MeasurementSender<Ubitrack::Measurement::Vector4D , Ubitrack::Components::ApplicationPushSourceVector4 > Vec4SenderBase;
+typedef MeasurementSender<Ubitrack::Measurement::Vector4D , Ubitrack::Components::ApplicationPushSourceVector4D > Vec4SenderBase;
 
 class H3DUBITRACK_API Vec4Sender : public Vec4SenderBase {
 

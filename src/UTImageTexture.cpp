@@ -46,31 +46,38 @@ void UTImageTexture::render() {
 		return;
 	}
 
-	unsigned int required_frame_bytes = ut_image->width * ut_image->height * ut_image->nChannels;
+	unsigned int required_frame_bytes = ut_image->width() * ut_image->height() * ut_image->channels();
 
 	if (frame_bytes_allocated != required_frame_bytes) {
         Image::PixelType pt = Image::RGB;
         unsigned int bits = 24;
 
-    	switch ( ut_image->nChannels ) {
-    		case 1: pt = Image::LUMINANCE;
-    				 bits = 8;
-					 //H3D::Console << "Grayscale Texture" << std::endl;
-    				 break;
-    		case 3:
-    				if (ut_image->channelSeq[ 0 ] == 'B' && ut_image->channelSeq[ 1 ] == 'G' && ut_image->channelSeq[ 2 ] == 'R' ) {
-    					pt = Image::BGR;
-						//H3D::Console << "BGR Texture" << std::endl;
-					} else {
-						//H3D::Console << "RGB Texture" << std::endl;
-					}
-    				break;
-    		default:
-    				break;
-    	}
+	    switch (ut_image->pixelFormat()) {
+	    case Ubitrack::Vision::Image::LUMINANCE:
+	        pt = Image::LUMINANCE;
+	        bits = 8;
+	        break;
+	    case Ubitrack::Vision::Image::RGB:
+	        pt = Image::RGB;
+	        break;
+	    case Ubitrack::Vision::Image::BGR:
+	        pt = Image::BGR;
+	        break;
+	    case Ubitrack::Vision::Image::BGRA:
+	        pt = Image::BGRA;
+	        bits = 32;
+	        break;
+	    case Ubitrack::Vision::Image::RGBA:
+	        pt = Image::RGBA;
+	        bits = 32;
+	        break;
+	    default:
+	        // Log Error ?
+	        break;
+	    }
 
-		image->setValue( new PixelImage( ut_image->width,
-										  ut_image->height,
+		image->setValue( new PixelImage( ut_image->width(),
+										  ut_image->height(),
 										  1,
 										  bits,
 										  pt,
@@ -86,11 +93,11 @@ void UTImageTexture::render() {
 		if (ut_last_timestamp < ut_image.time()) {
 			// copy data because the texture could be updated less often than the
 			// scene is rendered (true only for async capture devices)
-			unsigned char* srcData = (unsigned char*) ut_image->imageData;
+			unsigned char* srcData = (unsigned char*) ut_image->Mat().data;
 			unsigned char* dstData = (unsigned char*) pi->getImageData();
 			memcpy(dstData, srcData, sizeof(unsigned char)*frame_bytes_allocated);
 			renderSubImage(pi, texture_target, 0, 0,
-							 ut_image->width, ut_image->height);
+							 ut_image->width(), ut_image->height());
 			enableTexturing();
 			ut_last_timestamp = ut_image.time();
 		}
