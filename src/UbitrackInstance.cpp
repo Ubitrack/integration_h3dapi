@@ -11,7 +11,6 @@
 
 #include <utUtil/Exception.h>
 #include <utUtil/Logging.h>
-#include <utDataflow/EventQueue.h>
 
 
 using namespace H3DUbitrack;
@@ -33,7 +32,6 @@ namespace UbitrackInstanceInternals
     FIELDDB_ELEMENT( UbitrackInstance, dropEvents, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, running, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, pollEvery, INPUT_OUTPUT );
-    FIELDDB_ELEMENT( UbitrackInstance, eventQueueLength, OUTPUT_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, receiver, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, sender, INPUT_OUTPUT );
 }
@@ -47,7 +45,6 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< SFBool     >  _dropEvents,
                                  Inst< SFRunning  >  _running,
                                  Inst< SFInt32  >  _pollEvery,
-								 Inst< SFInt32  >  _eventQueueLength,
                                  Inst< MFMeasurementReceiver >  _receiver,
                                  Inst< MFMeasurementSender >  _sender
                                  )
@@ -61,7 +58,6 @@ UbitrackInstance::UbitrackInstance(
 , sender(_sender)
 , running(_running)
 , pollEvery(_pollEvery)
-, eventQueueLength(_eventQueueLength)
 , is_loaded(false)
 , traversal_counter(0)
 //, facade(NULL)
@@ -74,7 +70,6 @@ UbitrackInstance::UbitrackInstance(
     autoStart->setValue(true, id);
     dropEvents->setValue(false, id);
 	pollEvery->setValue(0, id);
-	eventQueueLength->setValue(0, id);
     componentDir->setValue("lib/ubitrack", id);
     log4cppConfig->setValue("log4cpp.conf", id);
 }
@@ -285,7 +280,5 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 			um->update(ti, ts);
 		}
 
-		/** provide event queue length information **/
-		eventQueueLength->setValue(Ubitrack::Dataflow::EventQueue::singleton().getCurrentQueueLength(), id);
     }
 }

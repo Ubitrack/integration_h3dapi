@@ -66,7 +66,6 @@ public:
                      Inst< SFBool                > _dropEvents    = 0,
                      Inst< SFRunning             > _running       = 0,
                      Inst< SFInt32               > _pollEvery     = 0,
-					 Inst< SFInt32               > _eventQueueLength = 0,
                      Inst< MFMeasurementReceiver > receiver       = 0,
                      Inst< MFMeasurementSender   > sender         = 0
                      );
@@ -100,8 +99,6 @@ public:
     
     /// is the dataflow currently running, setting this field to true actually starts the dataflow
     auto_ptr< SFRunning > running;
-    
-	auto_ptr< SFInt32 > eventQueueLength;
 
     inline FacadePtr getFacadePtr() { return facade; }
     
