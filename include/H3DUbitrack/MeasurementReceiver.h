@@ -19,7 +19,7 @@
 #include <boost/bind.hpp>
 #include <vector>
 
-#include "utDataflow/TracingProvider.h"
+#include "utUtil/TracingProvider.h"
 
 using namespace Ubitrack::Facade;
 
@@ -120,8 +120,8 @@ public:
 
     	}
 
-#ifdef HAVE_ETW
-		ETWUbitrackEventQueueApplication(0, ts, "H3D:Ubitrack:MeasurementReceiver", pattern->getValue(id).c_str(), "data_ready");
+#ifdef ENABLE_EVENT_TRACING
+		TRACEPOINT_MEASUREMENT_RECEIVE(0, m_background[num].time(), getName().c_str(), "ImageReceived")
 #endif
     	cond.notify_all();
     }

@@ -49,7 +49,7 @@ macro( FIND_UBITRACK_HEADER MYHEADER MYHEADERNAME )
 endmacro()
 
 unset( UBITRACK_INCLUDE_DIR )
-FIND_UBITRACK_HEADER( UBITRACK_INCLUDE_DIR utFacade/SimpleFacade.h )
+FIND_UBITRACK_HEADER( UBITRACK_INCLUDE_DIR utFacade/AdvancedFacade.h )
 
 
 
@@ -61,7 +61,7 @@ macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
 	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}
 	        NAMES
 	            ${MYLIBRARYNAME}
-				${MYLIBRARYNAME}100 
+				${MYLIBRARYNAME}130 
 	        HINTS
 	            ${UBITRACK_ROOT}
 	            $ENV{UBITRACK_ROOT}
@@ -80,7 +80,7 @@ macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
 	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}_d
 	        NAMES
 	            ${MYLIBRARYNAME}d
-	            ${MYLIBRARYNAME}100d
+	            ${MYLIBRARYNAME}130d
 	        HINTS
 	            ${UBITRACK_ROOT}
 	            $ENV{UBITRACK_ROOT}
@@ -112,9 +112,11 @@ macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
 	ENDFOREACH(MYLIBRARYNAME)
 endmacro()
 
+set(UBITRACK_LIBRARIES_NEEDED "utcore" "utdataflow" "utvision" "utfacade" "uthaptics" )
+
 unset( UBITRACK_LIBRARIES )
-FIND_UBITRACK_LIBRARY( UBITRACK_LIBRARY utcore utdataflow utvision utfacade )
-#message( STATUS "Ubitrack Libraries: ${UBITRACK_LIBRARIES}" )
+FIND_UBITRACK_LIBRARY( UBITRACK_LIBRARY ${UBITRACK_LIBRARIES_NEEDED} )
+message( STATUS "Ubitrack Libraries: ${UBITRACK_LIBRARIES}" )
 
 # handle the QUIETLY and REQUIRED arguments and set FMOD_FOUND to TRUE if all listed variables are TRUE
 include( FindPackageHandleStandardArgs )
