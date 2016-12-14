@@ -27,13 +27,13 @@ namespace H3DUbitrack {
 
 class H3DUBITRACK_API MeasurementReceiverBase : public UbitrackMeasurement {
 public:
-	H3D_VALUE_EXCEPTION( string, NotImplementedError );
+	H3D_VALUE_EXCEPTION( std::string, NotImplementedError );
 
-    /// The mode for rendering specified as a string.
+    /// The mode for rendering specified as a std::string.
     class H3DUBITRACK_API MeasurementMode: public H3D::SFString {
     public:
       /// Thrown when the value of MeasurementMode is an invalid mode.
-      H3D_VALUE_EXCEPTION( string, InvalidMeasurementMode );
+      H3D_VALUE_EXCEPTION( std::string, InvalidMeasurementMode );
       /// The different measurement modes supported.
       typedef enum {
         /// Pull
@@ -43,7 +43,7 @@ public:
       } Mode;
 
       /// Get the current MeasurementMode
-      /// \throws InvalidMeasurementMode if the string is an invalid MeasurementMode.
+      /// \throws InvalidMeasurementMode if the std::string is an invalid MeasurementMode.
       inline MeasurementMode::Mode getMeasurementMode() {
       	upToDate();
       	if( value == "PULL" )
@@ -51,7 +51,7 @@ public:
       	else if( value == "PUSH" )
       		return PUSH;
       	else {
-      		stringstream s;
+      		std::stringstream s;
       		s << "Must be one of "
       		<< "PULL, "
       		<< "PUSH ";
@@ -90,7 +90,7 @@ public:
 
 	std::auto_ptr< H3D::SFBool > isDataAvailable;
 
-    virtual string defaultXMLContainerField() { return "receiver"; }
+    virtual std::string defaultXMLContainerField() { return "receiver"; }
 
 	virtual void initialize() {
 		// noop per default

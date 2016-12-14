@@ -45,7 +45,7 @@ public:
     ///
     /// <b>Access type:</b> initializeOnly \n
     /// <b>Default value:</b> 100 \n
-    auto_ptr< H3D::SFInt32 > frequency;
+    std::auto_ptr< H3D::SFInt32 > frequency;
 
 	// pattern names for sources to connect
     std::auto_ptr< H3D::SFString > platformSensorsPattern;

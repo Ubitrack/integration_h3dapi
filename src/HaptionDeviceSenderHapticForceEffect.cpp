@@ -28,7 +28,8 @@
 //////////////////////////////////////////////////////////////////////////////
 #include <H3DUbitrack/H3DUbitrack.h>
 
-#ifdef HAVE_VIRTUOSEAPI
+// needs a modified version of HAPI and the latest release of ScaleAPI from Haption
+#ifdef HAVE_VIRTUOSEAPI_CUSTOM
 
 #include <H3DUbitrack/HaptionDeviceSenderHapticForceEffect.h>
 
@@ -142,4 +143,4 @@ HAPIForceEffect::EffectOutput HaptionDeviceSenderHapticForceEffect::calculateFor
 }
 
 
-#endif // HAVE_VIRTUOSEAPI
+#endif // HAVE_VIRTUOSEAPI_CUSTOM

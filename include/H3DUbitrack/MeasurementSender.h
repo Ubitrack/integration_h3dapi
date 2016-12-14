@@ -28,14 +28,14 @@ namespace H3DUbitrack {
 
 class H3DUBITRACK_API MeasurementSenderBase : public UbitrackMeasurement {
 public:
-	H3D_VALUE_EXCEPTION( string, NotImplementedError );
+	H3D_VALUE_EXCEPTION( std::string, NotImplementedError );
 
 	MeasurementSenderBase(
 	    	H3D::Inst< H3D::SFNode     > _metadata = 0,
 	        H3D::Inst< H3D::SFString   > _pattern = 0
 			);
 
-    virtual string defaultXMLContainerField() { return "sender"; }
+    virtual std::string defaultXMLContainerField() { return "sender"; }
 
 	virtual void initialize() {
 		// noop per default
@@ -67,7 +67,7 @@ protected:
 	      virtual void update ();
 	    };
 
-    auto_ptr< ChangesCollectorField > hasChanges;
+    std::auto_ptr< ChangesCollectorField > hasChanges;
 
 	inline void touch() {
 		dirty = true;
