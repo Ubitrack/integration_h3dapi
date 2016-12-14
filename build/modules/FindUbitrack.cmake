@@ -10,6 +10,7 @@
 # You can also use Ubitrack out of a source tree by specifying UBITRACK_SOURCE_DIR
 # and UBITRACK_BUILD_DIR (in environment or CMake).
 
+set(UBITRACK_LIBRARY_VERSION_SUFFIX "130" CACHE INTERNAL "Ubitrack Library Version Suffix")
 
 set( _libUbitrackSearchPaths
     /usr/local
@@ -61,7 +62,7 @@ macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
 	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}
 	        NAMES
 	            ${MYLIBRARYNAME}
-				${MYLIBRARYNAME}130 
+				${MYLIBRARYNAME}${UBITRACK_LIBRARY_VERSION_SUFFIX} 
 	        HINTS
 	            ${UBITRACK_ROOT}
 	            $ENV{UBITRACK_ROOT}
@@ -80,7 +81,7 @@ macro( FIND_UBITRACK_LIBRARY MYLIBRARY)
 	    find_library( ${MYLIBRARY}_${MYLIBRARYNAME}_d
 	        NAMES
 	            ${MYLIBRARYNAME}d
-	            ${MYLIBRARYNAME}130d
+	            ${MYLIBRARYNAME}${UBITRACK_LIBRARY_VERSION_SUFFIX}d
 	        HINTS
 	            ${UBITRACK_ROOT}
 	            $ENV{UBITRACK_ROOT}

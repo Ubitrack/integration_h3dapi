@@ -435,14 +435,20 @@ endfunction()
 # Guesses Boost's compiler prefix used in built library names
 # Returns the guess by setting the variable pointed to by _ret
 function(_Boost_GUESS_COMPILER_PREFIX _ret)
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"
-      OR "${CMAKE_CXX_COMPILER}" MATCHES "icl"
-      OR "${CMAKE_CXX_COMPILER}" MATCHES "icpc")
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel"
+      OR ${CMAKE_CXX_COMPILER} MATCHES "icl"
+      OR ${CMAKE_CXX_COMPILER} MATCHES "icpc")
     if(WIN32)
       set (_boost_COMPILER "-iw")
     else()
       set (_boost_COMPILER "-il")
     endif()
+  elseif (MSVC14)
+    set(_boost_COMPILER "-vc140")
+  elseif (MSVC12)
+    set(_boost_COMPILER "-vc120")
+  elseif (MSVC12)
+    set(_boost_COMPILER "-vc120")
   elseif (MSVC11)
     set(_boost_COMPILER "-vc110")
   elseif (MSVC10)
@@ -459,7 +465,7 @@ function(_Boost_GUESS_COMPILER_PREFIX _ret)
     set(_boost_COMPILER "-vc6") # yes, this is correct
   elseif (BORLAND)
     set(_boost_COMPILER "-bcb")
-  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+  elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "SunPro")
     set(_boost_COMPILER "-sw")
   elseif (MINGW)
     if(${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} VERSION_LESS 1.34)
@@ -531,8 +537,7 @@ else()
   # The user has not requested an exact version.  Among known
   # versions, find those that are acceptable to the user request.
   set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS}
-    "1.62.0" "1.62" "1.61.0" "1.61" "1.60.0" "1.60" "1.59.0" "1.59" 
-    "1.58.0" "1.58" "1.57.0" "1.57" "1.56.0" "1.56" "1.55.0" "1.55" "1.54.0" "1.54"
+    "1.59.0" "1.59" "1.58.0" "1.58" "1.57.0" "1.57" "1.56.0" "1.56" "1.55.0" "1.55" "1.54.0" "1.54"
     "1.53.0" "1.53" "1.52.0" "1.52" "1.51.0" "1.51"
     "1.50.0" "1.50" "1.49.0" "1.49" "1.48.0" "1.48" "1.47.0" "1.47" "1.46.1"
     "1.46.0" "1.46" "1.45.0" "1.45" "1.44.0" "1.44" "1.43.0" "1.43" "1.42.0" "1.42"
