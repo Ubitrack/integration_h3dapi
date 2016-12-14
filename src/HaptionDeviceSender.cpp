@@ -1,6 +1,6 @@
 #include <H3DUbitrack/H3DUbitrack.h>
 
-#ifdef HAVE_VIRTUOSEAPI
+#ifdef HAVE_VIRTUOSEAPI_CUSTOM
 
 #include <H3DUbitrack/HaptionDeviceSender.h>
 #include <boost/bind.hpp>
@@ -195,4 +195,4 @@ void HaptionDeviceSender::createHapticForceEffect(int index) {
 	);
 }
 
-#endif // HAVE_VIRTUOSEAPI
+#endif // HAVE_VIRTUOSEAPI_CUSTOM
