@@ -111,6 +111,7 @@ public:
     /// Add this node to the H3DNodeDatabase system.
     static H3DNodeDatabase database;
 
+	static bool loggingIsInitialized;
 
 protected:
     FacadePtr facade;

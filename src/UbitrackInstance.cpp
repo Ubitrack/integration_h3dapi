@@ -23,6 +23,8 @@ H3DNodeDatabase UbitrackInstance::database( "UbitrackInstance",
                                           typeid( UbitrackInstance ),
                                           &X3DChildNode::database  );
 
+bool UbitrackInstance::loggingIsInitialized = false;
+
 namespace UbitrackInstanceInternals
 {
     FIELDDB_ELEMENT( UbitrackInstance, url, INITIALIZE_ONLY );
@@ -97,9 +99,12 @@ void UbitrackInstance::initialize()
 {
     bool is_tmp_file= false;
 
-	std::string logging_filename = resolveURLAsFile( log4cppConfig->getValue( id ), &is_tmp_file );
-	H3D::Console << "Initializing Ubitrack Logging: " << logging_filename << std::endl;
-	Ubitrack::Util::initLogging(logging_filename.c_str());
+	if (!loggingIsInitialized) {
+		std::string logging_filename = resolveURLAsFile( log4cppConfig->getValue( id ), &is_tmp_file );
+		H3D::Console << "Initializing Ubitrack Logging: " << logging_filename << std::endl;
+		Ubitrack::Util::initLogging(logging_filename.c_str());
+		loggingIsInitialized = true;
+	}
 
 	traversal_counter = pollEvery->getValue(id);
 
