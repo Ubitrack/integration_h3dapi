@@ -239,7 +239,7 @@ add_definitions(-DBOOST_SPIRIT_USE_OLD_NAMESPACE)
 # endif(MSVC)
 
 SET(HAVE_BOOST 0)
-set(Boost_USE_STATIC_LIBS   ON)
+set(Boost_USE_STATIC_LIBS   OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package( Boost 1.49 COMPONENTS thread date_time system filesystem regex chrono locale serialization program_options REQUIRED)
