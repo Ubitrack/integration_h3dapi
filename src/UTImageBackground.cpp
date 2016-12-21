@@ -11,13 +11,14 @@ H3DNodeDatabase UTImageBackground::database
   &X3DBackgroundNode::database );
 
 namespace UTImageBackgroundInternals {
-	FIELDDB_ELEMENT( UTImageBackground, texture, INPUT_OUTPUT );
+	FIELDDB_ELEMENT( UTImageBackground, texture_left, INPUT_OUTPUT );
+	FIELDDB_ELEMENT( UTImageBackground, texture_right, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( UTImageBackground, horizontalFlip, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( UTImageBackground, verticalFlip, INPUT_OUTPUT );
 }
 
-void UTImageBackground::MFImageTextureNode::onAdd( Node *n) {
-  MFImageTextureNode_t::onAdd(n);
+void UTImageBackground::SFImageTextureNode::onAdd( Node *n) {
+  SFImageTextureNode_t::onAdd(n);
   UTImageBackground *parent =
     static_cast<UTImageBackground*>(owner);
   UTImageTexture *t = dynamic_cast<UTImageTexture*>(n);
@@ -26,8 +27,8 @@ void UTImageBackground::MFImageTextureNode::onAdd( Node *n) {
 
 }
 
-void UTImageBackground::MFImageTextureNode::onRemove( Node *n) {
-  MFImageTextureNode_t::onRemove(n);
+void UTImageBackground::SFImageTextureNode::onRemove( Node *n) {
+  SFImageTextureNode_t::onRemove(n);
 
   if( n == NULL ){ return; }
 
@@ -43,59 +44,80 @@ UTImageBackground::UTImageBackground(Inst< SFSetBind > _set_bind,
                                       Inst< SFTime    > _bindTime,
                                       Inst< SFBool    > _isBound,
                                       Inst< DisplayList > _displayList,
-                                      Inst< MFImageTextureNode  > _texture,
+                                      Inst< SFImageTextureNode  > _texture_left,
+                                      Inst< SFImageTextureNode  > _texture_right,
 									  Inst< SFBool > _horizontalFlip,
 									  Inst< SFBool > _verticalFlip) 
   : X3DBackgroundNode( _set_bind, _metadata, _bindTime, _isBound, _displayList)
-  , texture( _texture )
+  , texture_left( _texture_left )
+  , texture_right( _texture_right )
   , horizontalFlip(_horizontalFlip)
   , verticalFlip(_verticalFlip)
+  , m_texture_update_left()
+  , m_texture_update_right()
 {
 
   type_name = "UTImageBackground";
   database.initFields( this );
 
-  texture->route( displayList );
+  // does not make sense to cache anything in this node ..
+  displayList->setCacheMode(H3DDisplayListObject::DisplayList::OFF);
+
+  texture_left->route( displayList );
+  texture_right->route( displayList );
   horizontalFlip->route( displayList );
   verticalFlip->route( displayList );
 }
 
-
+void UTImageBackground::renderBackground() {
+	render_enabled = true;
+	displayList->callList(false);
+	render_enabled = false;
+}
 
 void UTImageBackground::render() {
 	if( render_enabled ) {
 		Vec4f viewport = Vec4f(0, 1, 0, 1);
 		Viewpoint::EyeMode eye_mode = Viewpoint::MONO;
-		int texture_idx = 0;
+		UTImageTexture *_texture = NULL;
 
-		if (texture->size() > 1) {
-			UTCameraViewpoint *cvp = dynamic_cast<UTCameraViewpoint *>(UTCameraViewpoint::getActive());
-			if (cvp) {
-				viewport = cvp->getViewport();
-				eye_mode = cvp->getCurrentEye();
-			}
-			if (eye_mode == Viewpoint::RIGHT_EYE) {
-				texture_idx = 1;
-			}
+		UTCameraViewpoint *cvp = dynamic_cast<UTCameraViewpoint *>(UTCameraViewpoint::getActive());
+		if (cvp) {
+			viewport = cvp->getViewport();
+			eye_mode = cvp->getCurrentEye();
+		}
 
-		} else if (!(texture->size() > 0)) {
+		if (eye_mode == Viewpoint::RIGHT_EYE) {
+			_texture =  dynamic_cast<UTImageTexture *>(texture_right->getValue());
+		} else {
+			_texture =  dynamic_cast<UTImageTexture *>(texture_left->getValue());
+		}
+
+		if (_texture == NULL) {
+			Console(LogLevel::Warning) << "no texture for UTImageBackground" << std::endl;
 			return;
 		}
-		UTImageTexture *_texture = dynamic_cast<UTImageTexture *>(texture->getValueByIndex(texture_idx, id));
 
+		if (!_texture->getImageMeasurement()) {
+			Console(LogLevel::Warning) << "no ImageMeasurement for UTImageBackground" << std::endl;
+			return;
+		}
 
+		if ((_texture->getImageMeasurement()->width() == 0) || (_texture->getImageMeasurement()->height() == 0)) {
+			Console(LogLevel::Warning) << "incorrect dimensions for UTImageBackground" << std::endl;
+			return;
+		}
 
 		glPushAttrib( GL_ALL_ATTRIB_BITS );
 
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
+		gluOrtho2D(viewport.x, viewport.y, viewport.z, viewport.w);
 
-		glOrtho(viewport.x, viewport.y, viewport.z, viewport.w, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
-
 
 
 		glDisable(GL_BLEND);
@@ -105,42 +127,89 @@ void UTImageBackground::render() {
 		//glEnable( GL_CULL_FACE );
 		glDisable( GL_LIGHTING );
 
+		glColor4f( 1.f, 1.f, 1.f, 1.f );
 
-		glColor4f( 1, 1, 1, 1 );
+		//int b, t, l, r;
+		//bool hflip = horizontalFlip->getValue( id );
+		//bool vflip = verticalFlip->getValue( id );
 
-		int b, t, l, r;
-		bool hflip = horizontalFlip->getValue( id );
-		bool vflip = verticalFlip->getValue( id );
+		//t = vflip ? 0 : 1;
+		//b = vflip ? 1 : 0;
+		//l = hflip ? 0 : 1;
+		//r = hflip ? 1 : 0;
 
-		t = vflip ? 0 : 1;
-		b = vflip ? 1 : 0;
-		l = hflip ? 0 : 1;
-		r = hflip ? 1 : 0;
+		double width = viewport.y - viewport.x;
+		double height = viewport.w - viewport.z;
+		unsigned int pow2width, pow2height;
 
-		if( _texture  ) {
-			_texture->preRender();
-			_texture->displayList->callList();
-			glBegin( GL_QUADS );
-			//glNormal3f( 0, 0, 1 );
-			renderTexCoordForTexture( Vec3f( b, r, 0 ), _texture );
-			glVertex2i( (GLint)viewport.x, (GLint)viewport.z );
-			renderTexCoordForTexture( Vec3f( t, r, 0 ), _texture );
-			glVertex2i( (GLint)viewport.y, (GLint)viewport.z );
-			renderTexCoordForTexture( Vec3f( t, l, 0 ), _texture );
-			glVertex2i( (GLint)viewport.y, (GLint)viewport.w );
-			renderTexCoordForTexture( Vec3f( b, l, 0 ), _texture );
-			glVertex2i( (GLint)viewport.x, (GLint)viewport.w );
-			glEnd();
-			_texture->postRender();
+		glEnable(GL_TEXTURE_2D);
+
+		if (eye_mode == Viewpoint::RIGHT_EYE) {
+			if (!m_texture_update_right.isInitialized()) {
+				m_texture_update_right.initializeTexture(_texture->getImageMeasurement());
+				Console(LogLevel::Info) << "Initialize Right Camera TextureUpdate: " << m_texture_update_right.pow2width() << ", " << m_texture_update_right.pow2height() << std::endl;
+			}
+			m_texture_update_right.updateTexture(_texture->getImageMeasurement());
+			pow2width = m_texture_update_right.pow2width();
+			pow2height = m_texture_update_right.pow2height();
+			glBindTexture(GL_TEXTURE_2D, m_texture_update_right.m_texture);
+		} else {
+			if (!m_texture_update_left.isInitialized()) {
+				m_texture_update_left.initializeTexture(_texture->getImageMeasurement());
+				Console(LogLevel::Info) << "Initialize Left Camera TextureUpdate" << m_texture_update_left.pow2width() << ", " << m_texture_update_left.pow2height() << std::endl;
+			}
+			m_texture_update_left.updateTexture(_texture->getImageMeasurement());
+			pow2width = m_texture_update_left.pow2width();
+			pow2height = m_texture_update_left.pow2height();
+			glBindTexture(GL_TEXTURE_2D, m_texture_update_left.m_texture);
 		}
 
+		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
+
+		if ((pow2width == 0) || (pow2height == 0)) {
+			Console(LogLevel::Error) << "Error pow2 dimensions .. viewport: " << viewport <<  " p2w: " << pow2width <<  " p2h: " << pow2height <<  " w: " << _texture->getImageMeasurement()->width() <<  " h: " << _texture->getImageMeasurement()->height() << std::endl;
+		}
+		
+		double y0 = _texture->getImageMeasurement()->origin() ? 0 : height;
+		double y1 = height - y0;
+		double tx = double( _texture->getImageMeasurement()->width() ) / pow2width;
+		double ty = double( _texture->getImageMeasurement()->height() ) / pow2height;
+
+		// draw two triangles
+		glBegin( GL_TRIANGLE_STRIP );
+		glTexCoord2d(  0, ty ); glVertex2d( 0, y1 );
+		glTexCoord2d(  0,  0 ); glVertex2d( 0, y0 );
+		glTexCoord2d( tx, ty ); glVertex2d( width, y1 );
+		glTexCoord2d( tx,  0 ); glVertex2d( width, y0 );
+		glEnd();
+
+
+		//glBegin( GL_QUADS );
+		//glTexCoord3f( (float)b, (float)r, 0.f );
+		//glVertex2i( (GLint)viewport.x, (GLint)viewport.z );
+
+		//glTexCoord3f( (float)t, (float)r, 0.f );
+		//glVertex2i( (GLint)viewport.y, (GLint)viewport.z );
+
+		//glTexCoord3f( (float)t, (float)l, 0.f );
+		//glVertex2i( (GLint)viewport.y, (GLint)viewport.w );
+
+		//glTexCoord3f( (float)b, (float)l, 0.f );
+		//glVertex2i( (GLint)viewport.x, (GLint)viewport.w );
+		//glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, 0); 
+
+		glDisable( GL_TEXTURE_2D );
 
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 
 		glMatrixMode( GL_MODELVIEW );
 		glPopMatrix();
+
 		glPopAttrib();
+
 	}
 }
 

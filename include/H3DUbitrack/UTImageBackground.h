@@ -16,6 +16,8 @@
 #include <H3D/H3DWindowNode.h>
 #include <H3D/SFFloat.h>
 
+#include <utVision/TextureUpdate.h>
+
 namespace H3DUbitrack {
 	using namespace H3D;
 	/**
@@ -35,16 +37,16 @@ namespace H3DUbitrack {
 
     /// The SFTextureNode field is dependent on the displayList field
     /// of the containing X3DTextureNode node.
-    typedef DependentMFNode< X3DTexture2DNode, 
+    typedef DependentSFNode< X3DTexture2DNode, 
                              FieldRef< H3DDisplayListObject,
                                        H3DDisplayListObject::DisplayList,
                                        &H3DDisplayListObject::displayList >, 
                              true >
-    MFImageTextureNode_t;
+    SFImageTextureNode_t;
 
 	/// A SFNode encapsulating a CVImageBuffer Class
-	struct MFImageTextureNode : MFImageTextureNode_t {
-      inline ~MFImageTextureNode(){ clear(); }
+	struct SFImageTextureNode : SFImageTextureNode_t {
+      inline ~SFImageTextureNode(){ /*clear();*/ }
       void onAdd(Node *n);
       void onRemove(Node *n);
     };
@@ -58,7 +60,8 @@ namespace H3DUbitrack {
 		       Inst< SFTime    > _bindTime    = 0,
 		       Inst< SFBool    > _isBound     = 0,
 		       Inst< DisplayList > _displayList = 0,
-		       Inst< MFImageTextureNode  > _texture     = 0,
+		       Inst< SFImageTextureNode  > _texture_left = 0,
+		       Inst< SFImageTextureNode  > _texture_right = 0,
 			   Inst< SFBool > _horizontalFlip = 0,
 			   Inst< SFBool > _verticalFlip = 0);
     
@@ -72,13 +75,15 @@ namespace H3DUbitrack {
     
     /// Renders the background with OpenGL.
     virtual void render();
+    virtual void renderBackground();
 
     /// The texture to use
     ///
     /// <b>Access type:</b> inputOutput \n
     /// 
     /// \dotfile TextureBackground_frontTexture.dot
-    auto_ptr< MFImageTextureNode >  texture;
+    auto_ptr< SFImageTextureNode >  texture_left;
+    auto_ptr< SFImageTextureNode >  texture_right;
 
 	// horizontal flip
     auto_ptr< SFBool >  horizontalFlip;
@@ -91,6 +96,9 @@ namespace H3DUbitrack {
                                           X3DTextureNode *t ) {
       X3DTextureCoordinateNode::renderTexCoordForTexture( tc, t );
     }
+
+	Ubitrack::Vision::TextureUpdate m_texture_update_left;
+	Ubitrack::Vision::TextureUpdate m_texture_update_right;
 
   };
 }

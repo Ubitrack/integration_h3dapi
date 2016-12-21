@@ -68,6 +68,8 @@ void UTStereoTextureSelector::render() {
 		if (cvp) {
 			viewport = cvp->getViewport();
 			eye_mode = cvp->getCurrentEye();
+		} else {
+			Console(3) << "UTCameraViewpoint missing" << std::endl;
 		}
 		if (eye_mode == Viewpoint::RIGHT_EYE) {
 			texture_idx = 1;

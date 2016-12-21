@@ -99,8 +99,11 @@ void UTCameraViewpoint::SFPoseReceiver::onRemove(Node *n){
   }
 }
 
-void UTCameraViewpoint::setupProjection( EyeMode eye_mode, H3DFloat width, H3DFloat height, H3DFloat clip_near,
-		H3DFloat clip_far, StereoInfo* stereo_info ){
+void UTCameraViewpoint::setupProjection( EyeMode eye_mode,
+                                  H3DFloat width, H3DFloat height,
+                                  H3DFloat clip_near, H3DFloat clip_far,
+                                  StereoInfo * stereo_info,
+                                  bool update_stereo_proj_shift ){
 
 	Matrix3d camera_intrinsics;
 	Vec2f camera_resolution;

@@ -43,6 +43,8 @@ namespace H3DUbitrack {
 
     void updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg);
 
+	Ubitrack::Measurement::ImageMeasurement& getImageMeasurement();
+
     /// The H3DNodeDatabase for this node.
     static H3DNodeDatabase database;
 

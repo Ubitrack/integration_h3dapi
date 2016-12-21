@@ -81,9 +81,10 @@ namespace H3DUbitrack {
 	/// uses default implementation in case no parameters are given,
 	/// otherwise the frustum is calculated based on the calibration.
 	virtual void setupProjection( EyeMode eye_mode,
-                                   H3DFloat width, H3DFloat height,
-                                   H3DFloat clip_near, H3DFloat clip_far,
-								   StereoInfo* stereo_info );
+                                  H3DFloat width, H3DFloat height,
+                                  H3DFloat clip_near, H3DFloat clip_far,
+                                  StereoInfo * stereo_info = 0,
+                                  bool update_stereo_proj_shift = false );
 
     /// Modified to support subclasses with different stereo behaviour
     virtual void setupViewMatrix( EyeMode eye_mode,

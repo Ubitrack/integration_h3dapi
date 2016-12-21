@@ -109,3 +109,7 @@ void UTImageTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement
 	ut_image = cvimg;
 	repeatS->setValue(true, id);
 }
+
+Ubitrack::Measurement::ImageMeasurement& UTImageTexture::getImageMeasurement() {
+	return ut_image;
+}
