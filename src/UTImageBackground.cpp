@@ -94,17 +94,17 @@ void UTImageBackground::render() {
 		}
 
 		if (_texture == NULL) {
-			Console(LogLevel::Warning) << "no texture for UTImageBackground" << std::endl;
+			Console(4) << "no texture for UTImageBackground" << std::endl;
 			return;
 		}
 
 		if (!_texture->getImageMeasurement()) {
-			Console(LogLevel::Warning) << "no ImageMeasurement for UTImageBackground" << std::endl;
+			Console(4) << "no ImageMeasurement for UTImageBackground" << std::endl;
 			return;
 		}
 
 		if ((_texture->getImageMeasurement()->width() == 0) || (_texture->getImageMeasurement()->height() == 0)) {
-			Console(LogLevel::Warning) << "incorrect dimensions for UTImageBackground" << std::endl;
+			Console(4) << "incorrect dimensions for UTImageBackground" << std::endl;
 			return;
 		}
 
@@ -147,7 +147,7 @@ void UTImageBackground::render() {
 		if (eye_mode == Viewpoint::RIGHT_EYE) {
 			if (!m_texture_update_right.isInitialized()) {
 				m_texture_update_right.initializeTexture(_texture->getImageMeasurement());
-				Console(LogLevel::Info) << "Initialize Right Camera TextureUpdate: " << m_texture_update_right.pow2width() << ", " << m_texture_update_right.pow2height() << std::endl;
+				Console(3) << "Initialize Right Camera TextureUpdate: " << m_texture_update_right.pow2width() << ", " << m_texture_update_right.pow2height() << std::endl;
 			}
 			m_texture_update_right.updateTexture(_texture->getImageMeasurement());
 			pow2width = m_texture_update_right.pow2width();
@@ -156,7 +156,7 @@ void UTImageBackground::render() {
 		} else {
 			if (!m_texture_update_left.isInitialized()) {
 				m_texture_update_left.initializeTexture(_texture->getImageMeasurement());
-				Console(LogLevel::Info) << "Initialize Left Camera TextureUpdate" << m_texture_update_left.pow2width() << ", " << m_texture_update_left.pow2height() << std::endl;
+				Console(3) << "Initialize Left Camera TextureUpdate" << m_texture_update_left.pow2width() << ", " << m_texture_update_left.pow2height() << std::endl;
 			}
 			m_texture_update_left.updateTexture(_texture->getImageMeasurement());
 			pow2width = m_texture_update_left.pow2width();
@@ -167,7 +167,7 @@ void UTImageBackground::render() {
 		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
 
 		if ((pow2width == 0) || (pow2height == 0)) {
-			Console(LogLevel::Error) << "Error pow2 dimensions .. viewport: " << viewport <<  " p2w: " << pow2width <<  " p2h: " << pow2height <<  " w: " << _texture->getImageMeasurement()->width() <<  " h: " << _texture->getImageMeasurement()->height() << std::endl;
+			Console(5) << "Error pow2 dimensions .. viewport: " << viewport <<  " p2w: " << pow2width <<  " p2h: " << pow2height <<  " w: " << _texture->getImageMeasurement()->width() <<  " h: " << _texture->getImageMeasurement()->height() << std::endl;
 		}
 		
 		double y0 = _texture->getImageMeasurement()->origin() ? 0 : height;
