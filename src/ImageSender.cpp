@@ -21,7 +21,9 @@ H3DNodeDatabase ImageSender::database(
 namespace ImageSenderInternals {
     // ImageSender
     FIELDDB_ELEMENT( ImageSender, value, INPUT_ONLY );
-    FIELDDB_ELEMENT( ImageSender, capture, INPUT_OUTPUT );
+	FIELDDB_ELEMENT(ImageSender, width, INPUT_OUTPUT);
+	FIELDDB_ELEMENT(ImageSender, height, INPUT_OUTPUT);
+	FIELDDB_ELEMENT(ImageSender, capture, INPUT_OUTPUT);
 }
 
 
