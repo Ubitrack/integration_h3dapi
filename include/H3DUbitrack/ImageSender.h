@@ -10,7 +10,12 @@
 
 #include <H3D/X3DNode.h>
 
-#include <H3D/H3DImageObject.h>
+#include <H3D/SFNode.h>
+#include <H3D/SFBool.h>
+#include <H3D/SFInt32.h>
+#include "H3D/H3DSingleTextureNode.h"
+#include <H3DUtil/Image.h>
+#include <H3D/FieldTemplates.h>
 #include <H3D/SFString.h>
 
 #include <H3DUbitrack/H3DUbitrack.h>
@@ -29,28 +34,35 @@ typedef MeasurementSender <Ubitrack::Measurement::ImageMeasurement, Ubitrack::Co
 
 class H3DUBITRACK_API ImageSender : public ImageSenderBase {
 
-    public:
+public:
 
-        class H3DAPI_API SFImage : public H3D::RefCountSField <H3D::Image, H3D::ParsableField> {
+    /// A field used to capture the texture
+    class H3DUBITRACK_API SFCapture : public H3D::OnNewValueSField < H3D::AutoUpdate < H3D::SFBool > > {
+        virtual void onNewValue( const bool &v );
+    };
 
-        public:
-            /// Constructor.
-            SFImage() {
-            }
 
-        protected:
-            virtual void setValueFromString(const string& s)
-            {
-                setValue(H3D::X3D::X3DStringTo3DImage(s));
-            }
-        };
+    typedef H3D::TypedSFNode< H3D::H3DSingleTextureNode > SFTexture;
 
     ImageSender( H3D::Inst<H3D::SFNode> _metadata = 0,
             H3D::Inst<H3D::SFString> _pattern = 0,
-            H3D::Inst<SFImage> _image = 0
+            H3D::Inst< H3D::SFInt32 > _width  = 0,
+            H3D::Inst< H3D::SFInt32 > _height  = 0,
+            H3D::Inst< SFTexture > _value  = 0,
+            H3D::Inst< SFCapture > _capture  = 0
     );
 
-    std::auto_ptr <SFImage> value;
+    /// manually capture
+    std::auto_ptr< SFCapture > capture;
+
+    /// width of the captured texture
+    std::auto_ptr< H3D::SFInt32 > width;
+
+    /// height of the captured texture
+    std::auto_ptr< H3D::SFInt32 > height;
+
+    /// Contains the texture to be captured
+    std::auto_ptr < SFTexture > value;
 
     /// Add this node to the H3DNodeDatabase system.
     static H3D::H3DNodeDatabase database;

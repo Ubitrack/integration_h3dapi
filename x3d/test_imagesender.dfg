@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UTQLResponse name="test_imagesender" xsi:schemaLocation="http://ar.in.tum.de/ubitrack/utql http://ar.in.tum.de/files/ubitrack/utql/utql_types.xsd" xmlns="http://ar.in.tum.de/ubitrack/utql" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Pattern name="ApplicationPushSourceVisionImage" id="testimage">
+        <Output>
+            <Node name="A" id="node_1">
+                <GuiPos x="315" y="32"/>
+            </Node>
+            <Node name="B" id="node_2">
+                <GuiPos x="435" y="232"/>
+            </Node>
+            <Edge name="Output" source="A" destination="B">
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="Image" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            </Edge>
+        </Output>
+        <DataflowConfiguration>
+            <UbitrackLib class="ApplicationPushSourceVisionImage"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="120 0" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+        </DataflowConfiguration>
+    </Pattern>
+    <Pattern name="ButtonPrintSink" id="pattern_2">
+        <Input>
+            <Node name="A" id="node_3">
+                <GuiPos x="496" y="284"/>
+            </Node>
+            <Node name="B" id="node_4">
+                <GuiPos x="616" y="484"/>
+            </Node>
+            <Edge name="Input" source="A" destination="B" pattern-ref="pattern_4" edge-ref="Output">
+                <GuiLandmark x="729" y="215"/>
+                <GuiLabelPos x="749" y="248"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="Button" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            </Edge>
+        </Input>
+        <DataflowConfiguration>
+            <UbitrackLib class="ButtonPrintSink"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 340" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+        </DataflowConfiguration>
+    </Pattern>
+    <Pattern name="ImageFileSink" id="pattern_3">
+        <Input>
+            <Node name="A" id="node_1">
+                <GuiPos x="315" y="32"/>
+            </Node>
+            <Node name="B" id="node_2">
+                <GuiPos x="435" y="232"/>
+            </Node>
+            <Edge name="Input" source="A" destination="B" pattern-ref="testimage" edge-ref="Output">
+                <GuiLandmark x="290" y="396"/>
+                <GuiLabelPos x="310" y="429"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="Image" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            </Edge>
+        </Input>
+        <DataflowConfiguration>
+            <UbitrackLib class="ImageFileRecorder"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="path" value="/Users/jack/mydeps/cpp/H3D/H3DUbitrack/x3d/test" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="prefix" value="img" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="suffix" value="png" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="file" value="/Users/jack/mydeps/cpp/H3D/H3DUbitrack/x3d/test/test.log" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="230 170" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+        </DataflowConfiguration>
+    </Pattern>
+    <Pattern name="ButtonGeneratorImage" id="pattern_4">
+        <Input>
+            <Node name="A" id="node_1">
+                <GuiPos x="315" y="32"/>
+            </Node>
+            <Node name="B" id="node_2">
+                <GuiPos x="435" y="232"/>
+            </Node>
+            <Edge name="Input" source="A" destination="B" pattern-ref="testimage" edge-ref="Output">
+                <GuiLandmark x="346" y="336"/>
+                <GuiLabelPos x="366" y="369"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="Image" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            </Edge>
+        </Input>
+        <Output>
+            <Node name="C" id="node_3">
+                <GuiPos x="496" y="284"/>
+            </Node>
+            <Node name="D" id="node_4">
+                <GuiPos x="616" y="484"/>
+            </Node>
+            <Edge name="Output" source="C" destination="D">
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="type" value="Button" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+                <Attribute xsi:type="utql:PrimitiveAttributeType" name="mode" value="push" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+            </Edge>
+        </Output>
+        <DataflowConfiguration>
+            <UbitrackLib class="ButtonGeneratorImage"/>
+            <Attribute xsi:type="utql:PrimitiveAttributeType" name="trackman-guipos" value="0 170" xmlns:utql="http://ar.in.tum.de/ubitrack/utql"/>
+        </DataflowConfiguration>
+    </Pattern>
+</UTQLResponse>

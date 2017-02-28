@@ -28,7 +28,7 @@ UTImageTexture::UTImageTexture(Inst<DisplayList> _displayList,
 		Inst<SFTextureProperties> _textureProperties)
 	: X3DTexture2DNode(_displayList, _metadata, _repeatS, _repeatT, _scaleToP2,
 					_image, _textureProperties)
-        , ut_last_timestamp(0)
+	, ut_last_timestamp(0)
 	, frame_bytes_allocated(0)
 	{
 	type_name = "UTImageTexture";

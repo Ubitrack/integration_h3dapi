@@ -112,7 +112,10 @@ public:
 		// check if field is dirty here !!
 		if(dirty && (push_sender != NULL)) {
 			try {
-				push_sender->send(getMeasurement(ti, ts));
+				M measurement = getMeasurement(ti, ts);
+				if (measurement) {
+					push_sender->send(measurement);
+				}
 				// clear dirty flag
 				reset();
 			} catch (Ubitrack::Util::Exception &e) {
