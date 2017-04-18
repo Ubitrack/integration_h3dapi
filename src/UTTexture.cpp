@@ -98,7 +98,7 @@ void UTTexture::render()     {
             (!ut_textureUpdate.isInitialized())) {
             // @todo check here it might be already initialized ..
             ut_textureUpdate.initializeTexture(ut_image);
-            texture_id = ut_textureUpdate.m_texture;
+            texture_id = ut_textureUpdate.textureId();
 
             unsigned int pow2width = ut_textureUpdate.pow2width();
             unsigned int pow2height = ut_textureUpdate.pow2height();
@@ -193,6 +193,7 @@ GLenum UTTexture::getTextureTarget() {
 
 std::pair<H3DInt32,H3DInt32> UTTexture::getDefaultSaveDimensions () {
     if ( ut_textureUpdate.isInitialized() ) {
+        // this should probably be image dimensions here ..
         return std::pair<H3DInt32,H3DInt32> ( ut_textureUpdate.pow2width(), ut_textureUpdate.pow2height() );
     } else {
         return X3DTextureNode::getDefaultSaveDimensions();

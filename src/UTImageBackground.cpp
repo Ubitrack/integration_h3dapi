@@ -152,7 +152,7 @@ void UTImageBackground::render() {
 			m_texture_update_right.updateTexture(_texture->getImageMeasurement());
 			pow2width = m_texture_update_right.pow2width();
 			pow2height = m_texture_update_right.pow2height();
-			glBindTexture(GL_TEXTURE_2D, m_texture_update_right.m_texture);
+			glBindTexture(GL_TEXTURE_2D, m_texture_update_right.textureId());
 		} else {
 			if (!m_texture_update_left.isInitialized()) {
 				m_texture_update_left.initializeTexture(_texture->getImageMeasurement());
@@ -161,7 +161,7 @@ void UTImageBackground::render() {
 			m_texture_update_left.updateTexture(_texture->getImageMeasurement());
 			pow2width = m_texture_update_left.pow2width();
 			pow2height = m_texture_update_left.pow2height();
-			glBindTexture(GL_TEXTURE_2D, m_texture_update_left.m_texture);
+			glBindTexture(GL_TEXTURE_2D, m_texture_update_left.textureId());
 		}
 
 		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
