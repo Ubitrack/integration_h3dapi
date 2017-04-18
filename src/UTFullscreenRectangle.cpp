@@ -18,6 +18,7 @@ namespace UTFullscreenRectangleInternals {
 	FIELDDB_ELEMENT( UTFullscreenRectangle, verticalFlip, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( UTFullscreenRectangle, depthMaskEnable, INPUT_OUTPUT );
 	FIELDDB_ELEMENT( UTFullscreenRectangle, depthTestEnable, INPUT_OUTPUT );
+    FIELDDB_ELEMENT( UTFullscreenRectangle, texCoord, INPUT_OUTPUT );
 }
 
 
@@ -27,7 +28,8 @@ UTFullscreenRectangle::UTFullscreenRectangle(Inst< SFNode    > _metadata,
 									  Inst< SFBool > _horizontalFlip,
 									  Inst< SFBool > _verticalFlip,
 									  Inst< SFBool > _depthMaskEnable,
-									  Inst< SFBool > _depthTestEnable) 
+									  Inst< SFBool > _depthTestEnable,
+									  Inst< SFVec2d > _texCoord)
   : X3DChildNode( _metadata )
   , H3DDisplayListObject( _displayList )
   , appearance( _appearance )
@@ -35,14 +37,16 @@ UTFullscreenRectangle::UTFullscreenRectangle(Inst< SFNode    > _metadata,
   , verticalFlip(_verticalFlip)
   , depthMaskEnable(_depthMaskEnable)
   , depthTestEnable(_depthTestEnable)
+  , texCoord(_texCoord)
 {
 
   type_name = "UTFullscreenRectangle";
   database.initFields( this );
   displayList->setOwner( this );
 
-  displayList->touch();
+  texCoord->setValue(Vec2d(1., 1.), id);
 
+  displayList->touch();
   appearance->route( displayList );
   horizontalFlip->route( displayList );
   verticalFlip->route( displayList );
@@ -104,14 +108,18 @@ void UTFullscreenRectangle::render() {
 
 	glColor4f( 1, 1, 1, 1 );
 
-	int b, t, l, r;
+	float b, t, l, r;
 	bool hflip = horizontalFlip->getValue( id );
 	bool vflip = verticalFlip->getValue( id );
 
-	t = vflip ? 0 : 1;
-	b = vflip ? 1 : 0;
-	l = hflip ? 0 : 1;
-	r = hflip ? 1 : 0;
+    Vec2d tc = texCoord->getValue(id);
+    float tx = (float)tc.x;
+    float ty = (float)tc.y;
+
+	t = vflip ? 0 : tx;
+	b = vflip ? tx : 0;
+	l = hflip ? 0 : ty;
+	r = hflip ? ty : 0;
 
 	glBegin( GL_QUADS );
 	//glNormal3f( 0, 0, 1 );

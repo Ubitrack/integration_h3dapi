@@ -3,7 +3,7 @@
 
 #include <H3DUbitrack/H3DUbitrack.h>
 #include <H3DUbitrack/UTCameraViewpoint.h>
-#include <H3DUbitrack/UTImageTexture.h>
+#include <H3DUbitrack/UTTextureNode.h>
 
 #include <H3D/X3DTexture2DNode.h>
 #include <H3D/X3DTextureNode.h>
@@ -33,7 +33,7 @@ namespace H3DUbitrack {
 
     /// The SFTextureNode field is dependent on the displayList field
     /// of the containing X3DTextureNode node.
-    typedef DependentMFNode< X3DTexture2DNode, 
+    typedef DependentMFNode< UTTextureNode,
                              FieldRef< H3DDisplayListObject,
                                        H3DDisplayListObject::DisplayList,
                                        &H3DDisplayListObject::displayList >, 

@@ -11,6 +11,7 @@
 #include <H3D/X3DChildNode.h>
 #include <H3D/SFString.h>
 #include <H3D/SFInt32.h>
+#include <H3D/SFString.h>
 #include <H3D/MFString.h>
 #include <H3D/MFNode.h>
 #include <H3D/X3DUrlObject.h>
@@ -52,6 +53,31 @@ public:
             }
         }
     };
+
+    class SFAddDataflow: public SFString {
+    public:
+        virtual void setValue( const std::string &v, int id = 0 )
+        {
+            if (v.empty()) {
+                SFString::setValue("", id);
+                return;
+            }
+            UbitrackInstance*ui_node = static_cast< UbitrackInstance* >( getOwner());
+
+            bool is_running = ui_node->running->getValue();
+            if (is_running) {
+                ui_node->stopDataflow();
+            }
+
+            bool loaded = ui_node->loadDataflow(v, false);
+
+            if (is_running) {
+                ui_node->startDataflow();
+            }
+
+            SFString::setValue(v, id);
+        }
+    };
     
     typedef TypedMFNode< MeasurementReceiverBase > MFMeasurementReceiver;
     typedef TypedMFNode< MeasurementSenderBase   > MFMeasurementSender;
@@ -66,6 +92,7 @@ public:
                      Inst< SFBool                > _dropEvents    = 0,
                      Inst< SFRunning             > _running       = 0,
                      Inst< SFInt32               > _pollEvery     = 0,
+                     Inst< SFAddDataflow         > _addDataflow   = 0,
                      Inst< MFMeasurementReceiver > receiver       = 0,
                      Inst< MFMeasurementSender   > sender         = 0
                      );
@@ -75,6 +102,8 @@ public:
     virtual void initialize(); 
     
     virtual void traverseSG ( TraverseInfo& ti );
+
+    virtual void render();
     
     /// Contains the ubitrack measurement receivers (Sinks) connected to the dataflow
     auto_ptr< MFMeasurementReceiver > receiver;
@@ -100,13 +129,18 @@ public:
     /// is the dataflow currently running, setting this field to true actually starts the dataflow
     auto_ptr< SFRunning > running;
 
+    auto_ptr< SFAddDataflow > addDataflow;
+
     inline FacadePtr getFacadePtr() { return facade; }
     
     bool startDataflow();
     bool stopDataflow();
+
     inline bool isLoaded() {
         return is_loaded;
     }
+
+    bool loadDataflow(const std::string& fname, bool replace=true);
 
     /// Add this node to the H3DNodeDatabase system.
     static H3DNodeDatabase database;
@@ -119,6 +153,7 @@ protected:
     bool is_loaded;
         
     unsigned int traversal_counter;
+    bool m_openglInitialized;
     
 };
     

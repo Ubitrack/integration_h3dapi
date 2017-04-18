@@ -11,6 +11,7 @@
 #include <H3D/DependentNodeFields.h>
 #include <H3D/SFFloat.h>
 #include <H3D/SFBool.h>
+#include <H3D/SFVec2d.h>
 
 #include <H3D/X3DChildNode.h>
 #include <H3D/H3DWindowNode.h>
@@ -53,7 +54,8 @@ namespace H3DUbitrack {
 			   Inst< SFBool            > _horizontalFlip = 0,
 			   Inst< SFBool            > _verticalFlip = 0,
 			   Inst< SFBool            > _depthMaskEnable = 0,
-			   Inst< SFBool            > _depthTestEnable = 0);
+			   Inst< SFBool            > _depthTestEnable = 0,
+               Inst< SFVec2d           > _texCoords = 0);
     
     static H3D::H3DNodeDatabase database;
     
@@ -81,7 +83,10 @@ namespace H3DUbitrack {
 	// enable DepthTest
     auto_ptr< SFBool >  depthTestEnable;
 
-  protected:
+    // texture coordinates tx, ty - often used with power-of-two textures
+    auto_ptr< SFVec2d >  texCoord;
+
+protected:
     inline void renderTexCoordForTexture( const Vec3f &tc, 
                                           X3DTextureNode *t ) {
       X3DTextureCoordinateNode::renderTexCoordForTexture( tc, t );

@@ -6,6 +6,7 @@
  */
 
 #include "H3DUbitrack/UbitrackInstance.h"
+#include "H3DUbitrack/UTSynchronization.h"
 #include "H3DUbitrack/UbitrackMeasurement.h"
 #include "H3D/ResourceResolver.h"
 
@@ -34,6 +35,7 @@ namespace UbitrackInstanceInternals
     FIELDDB_ELEMENT( UbitrackInstance, dropEvents, INITIALIZE_ONLY );
     FIELDDB_ELEMENT( UbitrackInstance, running, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, pollEvery, INPUT_OUTPUT );
+    FIELDDB_ELEMENT( UbitrackInstance, addDataflow, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, receiver, INPUT_OUTPUT );
     FIELDDB_ELEMENT( UbitrackInstance, sender, INPUT_OUTPUT );
 }
@@ -47,6 +49,7 @@ UbitrackInstance::UbitrackInstance(
                                  Inst< SFBool     >  _dropEvents,
                                  Inst< SFRunning  >  _running,
                                  Inst< SFInt32  >  _pollEvery,
+                                 Inst< SFAddDataflow > _addDataflow,
                                  Inst< MFMeasurementReceiver >  _receiver,
                                  Inst< MFMeasurementSender >  _sender
                                  )
@@ -59,9 +62,11 @@ UbitrackInstance::UbitrackInstance(
 , receiver(_receiver)
 , sender(_sender)
 , running(_running)
+, addDataflow(_addDataflow)
 , pollEvery(_pollEvery)
 , is_loaded(false)
 , traversal_counter(0)
+, m_openglInitialized(false)
 //, facade(NULL)
 , sync_receiver(NULL)
 {
@@ -72,6 +77,7 @@ UbitrackInstance::UbitrackInstance(
     autoStart->setValue(true, id);
     dropEvents->setValue(false, id);
 	pollEvery->setValue(0, id);
+    addDataflow->setValue("", id);
     componentDir->setValue("lib/ubitrack", id);
     log4cppConfig->setValue("log4cpp.conf", id);
 }
@@ -121,34 +127,35 @@ void UbitrackInstance::initialize()
     Console(4) << "Initialize UbitrackInstance" << std::endl;
     if (facade != NULL) {
         for( MFString::const_iterator i = url->begin(); i != url->end(); i++ ) {
-            H3D::Console << "Find DFG file: " << *i << std::endl;
-
-            string resolved_url = resolveURLAsFile( *i, &is_tmp_file );
-            H3D::Console << "Resolved URL: " << resolved_url << std::endl;
-            
-            if (resolved_url != "") {
-                setURLUsed( *i );
-            
-                H3D::Console << "Load DFG: " << resolved_url << std::endl;
-                
-                try {
-                	facade->loadDataflow(resolved_url.c_str());
-                    is_loaded = true;
-                } catch (const Ubitrack::Util::Exception& e ) {
-                    // log error here
-                    H3D::Console << "Ubitrack Error loading DFG: " << e.what() << std::endl;
-                    is_loaded = false;
-                } catch (const std::exception& e) {
-                    H3D::Console << "Generic Exception loading DFG: " << e.what() << std::endl;
-                    is_loaded = false;
-                }
-                
+            is_loaded = loadDataflow(*i);
+            if (is_loaded) {
+                break;
             }
-            
-            break;
         }
     }
 }
+
+bool UbitrackInstance::loadDataflow(const std::string& fname, bool replace) {
+    bool is_tmp_file = false;
+    string resolved_url = resolveURLAsFile( fname.c_str(), &is_tmp_file );
+    H3D::Console << "Resolved URL: " << resolved_url << std::endl;
+
+    if (resolved_url != "") {
+        H3D::Console << "Load DFG: " << resolved_url << std::endl;
+
+        try {
+            facade->loadDataflow(resolved_url.c_str(), replace);
+            return true;
+        } catch (const Ubitrack::Util::Exception& e ) {
+            // log error here
+            H3D::Console << "Ubitrack Error loading DFG: " << e.what() << std::endl;
+        } catch (const std::exception& e) {
+            H3D::Console << "Generic Exception loading DFG: " << e.what() << std::endl;
+        }
+    }
+    return false;
+}
+
 
 bool UbitrackInstance::startDataflow()
 {
@@ -235,6 +242,12 @@ bool UbitrackInstance::stopDataflow()
     return stopped;
 }
 
+void UbitrackInstance::render() {
+    if (!m_openglInitialized) {
+        Ubitrack::Facade::initGPU();
+        m_openglInitialized = true;
+    }
+}
 
 
 void UbitrackInstance::traverseSG ( TraverseInfo& ti )
@@ -263,13 +276,26 @@ void UbitrackInstance::traverseSG ( TraverseInfo& ti )
 			traversal_counter--;
 		}
 
-		unsigned long long ts = Ubitrack::Measurement::now();
-		if ((sync_receiver != NULL) && (is_running)) {
-			// This could potentially lock forever here here ...
-			//Console(4) << "wait for data .. " << std::endl;
-			ts = sync_receiver->wait_for_data_ready();
-			//Console(4) << "data is ready.. " << std::endl;
-		}
+        // timestamp synchronization happens automatic and uncoordinated.
+        // the each instance that has a push source configured as SyncSource
+        // will set a timestamp for all pulling instances to follow
+        // all others will retrieve the timestamps - therefore,
+        // the sync source must be the first instance to be traversed.
+        UTSynchronization *sync = UTSynchronization::getActive();
+        unsigned long long ts = 0;
+        if ((sync_receiver != NULL) && (is_running)) {
+            // This could potentially lock forever here here ...
+            //Console(4) << "wait for data .. " << std::endl;
+            ts = sync_receiver->wait_for_data_ready();
+            //Console(4) << "data is ready.. " << std::endl;
+            if (sync) {
+                sync->setTimestamp(ts);
+            }
+        } else if (sync) {
+            ts = sync->getTimestamp();
+        } else {
+            ts = Ubitrack::Measurement::now();
+        }
 
 		// first execute senders (send data to ubitrack)
 		for ( MFMeasurementSender::const_iterator i = sender->begin(); i != sender->end(); ++i )

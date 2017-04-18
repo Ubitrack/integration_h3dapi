@@ -21,7 +21,7 @@ void UTImageBackground::SFImageTextureNode::onAdd( Node *n) {
   SFImageTextureNode_t::onAdd(n);
   UTImageBackground *parent =
     static_cast<UTImageBackground*>(owner);
-  UTImageTexture *t = dynamic_cast<UTImageTexture*>(n);
+	UTTextureNode *t = dynamic_cast<UTTextureNode*>(n);
 
   t->repeatS->route(parent->displayList);
 
@@ -33,7 +33,7 @@ void UTImageBackground::SFImageTextureNode::onRemove( Node *n) {
   if( n == NULL ){ return; }
 
   UTImageBackground *parent = static_cast<UTImageBackground*>(owner);
-  UTImageTexture *t = dynamic_cast<UTImageTexture*>(n);
+	UTTextureNode *t = dynamic_cast<UTTextureNode*>(n);
 
   t->repeatS->unroute(parent->displayList);
 }
@@ -79,7 +79,7 @@ void UTImageBackground::render() {
 	if( render_enabled ) {
 		Vec4f viewport = Vec4f(0, 1, 0, 1);
 		Viewpoint::EyeMode eye_mode = Viewpoint::MONO;
-		UTImageTexture *_texture = NULL;
+		UTTextureNode *_texture = NULL;
 
 		UTCameraViewpoint *cvp = dynamic_cast<UTCameraViewpoint *>(UTCameraViewpoint::getActive());
 		if (cvp) {
@@ -88,9 +88,9 @@ void UTImageBackground::render() {
 		}
 
 		if (eye_mode == Viewpoint::RIGHT_EYE) {
-			_texture =  dynamic_cast<UTImageTexture *>(texture_right->getValue());
+			_texture =  dynamic_cast<UTTextureNode *>(texture_right->getValue());
 		} else {
-			_texture =  dynamic_cast<UTImageTexture *>(texture_left->getValue());
+			_texture =  dynamic_cast<UTTextureNode *>(texture_left->getValue());
 		}
 
 		if (_texture == NULL) {

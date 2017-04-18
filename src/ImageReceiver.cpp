@@ -26,7 +26,7 @@ ImageReceiver::ImageReceiver(
         H3D::Inst< H3D::SFBool     > _isSyncSource,
         H3D::Inst< H3D::SFBool     > _isDataAvailable,
         H3D::Inst< MeasurementMode > _mode,
-        H3D::Inst< SFUTImageTexture > _texture
+        H3D::Inst< SFUTTextureNode > _texture
 		)
 : ImageReceiverBase( _metadata, _pattern, _isActive, _isSyncSource, _isDataAvailable, _mode)
 , texture(_texture)
@@ -37,7 +37,7 @@ ImageReceiver::ImageReceiver(
 }
 void ImageReceiver::updateMeasurement(const Ubitrack::Measurement::ImageMeasurement& img)
 {
-	UTImageTexture* utit = dynamic_cast<UTImageTexture*>(texture->getValue(id));
+	UTTextureNode* utit = dynamic_cast<UTTextureNode*>(texture->getValue(id));
 	if (utit) {
 		boost::lock_guard<boost::mutex> lock(data_lock);
 		utit->updateTexture(img);

@@ -20,7 +20,7 @@ void UTStereoTextureSelector::MFImageTextureNode::onAdd( Node *n) {
   MFImageTextureNode_t::onAdd(n);
   UTStereoTextureSelector *parent =
     static_cast<UTStereoTextureSelector*>(owner);
-  UTImageTexture *t = dynamic_cast<UTImageTexture*>(n);
+	UTTextureNode *t = dynamic_cast<UTTextureNode*>(n);
 
 //  t->repeatS->route(parent->displayList);
 
@@ -32,7 +32,7 @@ void UTStereoTextureSelector::MFImageTextureNode::onRemove( Node *n) {
   if( n == NULL ){ return; }
 
   UTStereoTextureSelector *parent = static_cast<UTStereoTextureSelector*>(owner);
-  UTImageTexture *t = dynamic_cast<UTImageTexture*>(n);
+	UTTextureNode *t = dynamic_cast<UTTextureNode*>(n);
 
 //  t->repeatS->unroute(parent->displayList);
 }
@@ -83,7 +83,7 @@ void UTStereoTextureSelector::render() {
 	// this needs to happen during rendering in order to know which eye is rendered
 	// field value changes should normally only happen during traverseSG
 	// if there is a better way do do it - please let me know :)
-	UTImageTexture *_texture = dynamic_cast<UTImageTexture *>(texture->getValueByIndex(texture_idx, id));
+	UTTextureNode *_texture = dynamic_cast<UTTextureNode *>(texture->getValueByIndex(texture_idx, id));
 	if (_texture) {
 		textureOut->setValue( _texture, id);
 	}
