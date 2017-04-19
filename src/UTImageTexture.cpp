@@ -68,40 +68,6 @@ Ubitrack::Measurement::ImageMeasurement& UTImageTexture::getImageMeasurement() {
 	return ut_image;
 }
 
-void UTImageTexture::SFImage::setValueFromString( const string& s ) {
-	setValue( X3D::X3DStringTo2DImage( s ) );
-}
-
-string UTImageTexture::SFImage::getValueAsString( const string& separator) {
-	// Slow but convenient. is only used for JS engine
-
-	stringstream ss;
-	Image* img = getValue();
-	if( img ) {
-		ss << img->width() << separator << img->height()
-		   << separator << (int)img->pixelType() + 1;
-		for(unsigned int index = 0; index < img->width() * img->height(); ++index) {
-			int ix = index % img->width();
-			int iy = index / img->width();
-			RGBA color = img->getPixel( ix, iy );
-			unsigned char bytes_per_pixel = img->pixelType() + 1;
-			unsigned char* data = new unsigned char[ bytes_per_pixel ];
-			img->RGBAToImageValue(color, (void*) data);
-			int intval = 0;
-			for (int i = 0; i < bytes_per_pixel; ++i) {
-				intval = intval << 8;
-				intval = intval | data[i];
-			}
-			delete []data;
-			ss<< separator << intval;
-		}
-	} else {
-		ss << 0 << separator << 0
-		   << separator << 1;
-	}
-	return ss.str();
-}
-
 GLint UTImageTexture::glInternalFormat( Image *i ) {
 	TextureProperties *texture_properties = textureProperties->getValue();
 	if( GLEW_ARB_texture_compression &&

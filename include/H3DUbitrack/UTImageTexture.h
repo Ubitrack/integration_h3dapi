@@ -34,12 +34,8 @@ namespace H3DUbitrack {
   public:
 
     /// A SFNode encapsulating an Image class
-    class H3DAPI_API SFImage: public H3DImageObject::SFImage {
+    class H3DUBITRACK_API SFImage: public H3DImageObject::SFImage {
     public:
-        virtual void setValueFromString( const string &s );
-
-        virtual string getValueAsString(const string& separator = " ");
-
         virtual X3DTypes::X3DType getX3DType() { return X3DTypes::SFIMAGE; }
     };
 
