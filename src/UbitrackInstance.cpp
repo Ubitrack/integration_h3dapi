@@ -243,7 +243,7 @@ bool UbitrackInstance::stopDataflow()
 }
 
 void UbitrackInstance::render() {
-    if (!m_openglInitialized) {
+    if ((is_loaded) && (!m_openglInitialized)) {
         Ubitrack::Facade::initGPU();
         m_openglInitialized = true;
     }

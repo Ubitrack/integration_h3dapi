@@ -99,8 +99,13 @@ bool DeviceSender::connect(FacadePtr sf) {
 bool DeviceSender::disconnect(FacadePtr sf) {
     if (!sf)
         return false;
-
+	
     H3D::Console(4) << "Disconnect DeviceSender: " << pattern->getValue() << std::endl;
+	if (forceeffect.get() != 0){
+		forceeffect->m_lock.lock();
+		forceeffect->setActive(false);
+		forceeffect->m_lock.unlock();
+	}
 
 	// pull receiver
 	push_sender_pose = NULL;
@@ -110,7 +115,11 @@ bool DeviceSender::disconnect(FacadePtr sf) {
 }
 
 void DeviceSender::updateValuesFromDevice( int i ) {
-	forceeffect->setActive(isActive->getValue(id));
+	if (forceeffect.get() != 0){
+		forceeffect->m_lock.lock();
+		forceeffect->setActive(isActive->getValue(id));
+		forceeffect->m_lock.unlock();
+	}
 }
 
 void DeviceSender::createHapticForceEffect(int index) {

@@ -75,6 +75,7 @@ HAPIForceEffect::EffectOutput CalibratedPhantomDeviceSenderHapticForceEffect::ca
 	  }
     }
 
+	m_lock.lock();
 	unsigned long long tstamp = Ubitrack::Measurement::now();
 
 	if (is_active && ready) {
@@ -124,6 +125,7 @@ HAPIForceEffect::EffectOutput CalibratedPhantomDeviceSenderHapticForceEffect::ca
 		}
 
 	}
+	m_lock.unlock();
 	// no return value
 	return HAPIForceEffect::EffectOutput();
 }

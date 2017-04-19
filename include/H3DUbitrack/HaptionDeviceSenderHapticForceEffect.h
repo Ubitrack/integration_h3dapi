@@ -15,6 +15,7 @@
 
 #include <HAPI/HAPIForceEffect.h> 
 #include <HAPI/HAPIHapticsDevice.h>
+#include <H3DUtil/Threads.h>
 
 #include <string>
 #include <math.h>
@@ -50,6 +51,8 @@ public:
     inline  void setActive(bool _active) {
       is_active = _active;
     }
+
+	H3DUtil::MutexLock m_lock;
 
 protected:
     Ubitrack::Components::ApplicationPushSourcePose* push_source_pose;

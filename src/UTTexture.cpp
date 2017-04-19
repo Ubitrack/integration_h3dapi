@@ -25,31 +25,30 @@ UTTexture::UTTexture(
         Inst< SFBool  > _repeatS,
         Inst< SFBool  > _repeatT,
         Inst< SFBool  > _scaleToP2,
-        Inst<SFVec2d> _texCoord,
+        Inst< SFVec2d > _texCoord,
         Inst< SFTextureProperties > _textureProperties) :
         UTTextureNode( _displayList, _metadata, _repeatS, _repeatT, _scaleToP2, _textureProperties),
         texCoord( _texCoord ),
-        imageNeedsUpdate ( new Field ),
         texture_id( 0 ),
         texture_unit( GL_TEXTURE0_ARB ),
         texture_target( 0 ),
         ut_last_timestamp(0),
-        frame_bytes_allocated(0) {
+        frame_bytes_allocated(0),
+		ut_image(NULL) {
 
     type_name = "UTTexture";
-
     database.initFields( this );
 
-    repeatS->setValue( true );
-    repeatT->setValue( true );
-    scaleToPowerOfTwo->setValue( true );
-    texCoord->setValue(Vec2d(1., 1.), id);
-    repeatS->route( displayList );
-    repeatT->route( displayList );
-    scaleToPowerOfTwo->route( displayList );
-    textureProperties->route( displayList );
-    imageNeedsUpdate->route( displayList );
-    texCoord->route( displayList );
+    repeatS->setValue( true, id );
+    repeatT->setValue( true, id );
+    scaleToPowerOfTwo->setValue( true, id );
+
+	texCoord->setValue(Vec2d(1., 1.), id);
+
+    //repeatS->route( displayList, id );
+    //repeatT->route( displayList, id );
+    //scaleToPowerOfTwo->route( displayList, id );
+    //textureProperties->route( displayList, id );
 }
 
 GLint UTTexture::glInternalFormat( const Ubitrack::Measurement::ImageMeasurement& cvimg ) {
@@ -87,9 +86,8 @@ void UTTexture::render()     {
     GLenum target = getTextureTarget();
 
     // imageNeedsUpdate signal detection does not seem to work ...
-    if( (displayList->hasCausedEvent( imageNeedsUpdate )) ||
-            (texture_target != target ) ||
-            (!ut_textureUpdate.isInitialized()) ) {
+    if( (texture_target != target ) ||
+         (!ut_textureUpdate.isInitialized()) ) {
         texture_target = target;
 
         unsigned int required_frame_bytes = ut_image->width() * ut_image->height() * ut_image->channels();
@@ -115,15 +113,13 @@ void UTTexture::render()     {
     }
 
     glBindTexture(texture_target, texture_id);
-    if (texture_id) {
+    if ((texture_id) && (ut_textureUpdate.isInitialized()))  {
         if (ut_image.time() > ut_last_timestamp ) {
             ut_textureUpdate.updateTexture(ut_image);
         }
+		enableTexturing();
+		renderTextureProperties();
     }
-    enableTexturing();
-    renderTextureProperties();
-
-    imageNeedsUpdate->upToDate();
 }
 
 void UTTexture::renderTextureProperties() {
@@ -203,7 +199,6 @@ std::pair<H3DInt32,H3DInt32> UTTexture::getDefaultSaveDimensions () {
 void UTTexture::updateTexture(const Ubitrack::Measurement::ImageMeasurement& cvimg) {
     // save measurement for rendering
     ut_image = cvimg;
-    imageNeedsUpdate->upToDate();
 }
 
 Ubitrack::Measurement::ImageMeasurement& UTTexture::getImageMeasurement() {

@@ -88,9 +88,6 @@ public:
 
     auto_ptr <SFVec2d> texCoord;
 
-    auto_ptr <SFBool> imageReceived;
-
-
     /// The H3DNodeDatabase for this node.
     static H3DNodeDatabase database;
 
@@ -114,8 +111,6 @@ protected:
     unsigned long long 					    ut_last_timestamp;
     unsigned int							frame_bytes_allocated;
 
-    /// Field to indicate image will change
-    auto_ptr< Field > imageNeedsUpdate;
 
 
 };

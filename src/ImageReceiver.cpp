@@ -33,7 +33,6 @@ ImageReceiver::ImageReceiver(
 {
     type_name = "ImageReceiver";
     database.initFields( this );
-
 }
 void ImageReceiver::updateMeasurement(const Ubitrack::Measurement::ImageMeasurement& img)
 {
